@@ -23,5 +23,5 @@ export const toggleState = atom({
 
 export const userData = atom({
   key: 'userData',
-  default: { user: getUser() }
+  default: { user:getUser()  }
 })

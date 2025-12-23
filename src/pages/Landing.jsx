@@ -66,7 +66,8 @@ const Landing = () => {
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
 
           <button
-            onClick={() => user ? navigate(AppRoute.DASHBOARD) : navigate(AppRoute.SIGNUP)}
+            // onClick={() => user ? navigate(AppRoute.MARKETPLACE) : navigate(AppRoute.SIGNUP)}
+            onClick={() => navigate(AppRoute.MARKETPLACE) }
             className="px-8 py-4 bg-primary rounded-2xl font-bold text-lg text-white shadow-xl shadow-primary/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2"
           >
             Start Now <ArrowRight className="w-5 h-5" />

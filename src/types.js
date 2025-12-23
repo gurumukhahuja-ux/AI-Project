@@ -50,16 +50,18 @@ export const AppRoute = {
   MARKETPLACE: "/dashboard/marketplace",
   MY_AGENTS: "/dashboard/agents",
   SETTINGS: "/dashboard/settings",
-  agentSoon:"/agentsoon",
+  agentSoon: "/agentsoon",
 };
 export const API="https://ai-mall-backend.onrender.com/api"
-// export const API="http://localhost:5000/api"
-export const apis={
- emailVerificationApi:`${API}/email_varification`,
- signUp:`${API}/auth/signup`,
- logIn:`${API}/auth/login/`,
- agents:`${API}/agents`,
- buyAgent:`${API}/agents/buy`,
- getUserAgents:`${API}/agents/get_my_agents`,
- chatAgent:`${API}/chat`,
+// export const API = "http://localhost:5000/api"
+export const apis = {
+  emailVerificationApi: `${API}/email_varification`,
+  signUp: `${API}/auth/signup`,
+  logIn: `${API}/auth/login/`,
+  user: `${API}/user`,
+  agents: `${API}/agents`,
+  buyAgent: `${API}/agents/buy`,
+  getUserAgents: `${API}/agents/get_my_agents`,
+  chatAgent: `${API}/chat`,
+
 }

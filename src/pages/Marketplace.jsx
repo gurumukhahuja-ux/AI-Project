@@ -57,7 +57,7 @@ const Marketplace = () => {
 
 
     // localStorage.setItem("agents", JSON.stringify(agents))
-    axios.post(apis.getUserAgents, { userId: user.id }).then((res) => {
+    axios.post(apis.getUserAgents, { userId: user?.id }).then((res) => {
       setUserAgent(res.data.agents)
       console.log(res.data.agents);
       setLoading(false)

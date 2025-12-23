@@ -16,14 +16,13 @@ const MyAgents = () => {
 
 
     useEffect(() => {
-        console.log(user.id);
 
         loadAgents();
     }, []);
 
     const loadAgents = async () => {
         setLoading(true);
-        axios.post(apis.getUserAgents, { userId: user.id }).then((res) => {
+        axios.post(apis.getUserAgents, { userId: user?.id }).then((res) => {
             console.log(res.data.agents);
             setAgents(res.data.agents);
         }).catch(err => console.log(err))

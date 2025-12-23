@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink, useNavigate ,Link } from 'react-router';
+import React, { useEffect, useState } from 'react';
+import { NavLink, useNavigate, Link } from 'react-router';
 import {
   LayoutGrid,
   MessageSquare,
@@ -10,19 +10,40 @@ import {
   Zap,
   X
 } from 'lucide-react';
-import { AppRoute } from '../../types';
+import { apis, AppRoute } from '../../types';
 import NotificationBar from '../NotificationBar/NotificationBar.jsx';
 import { useRecoilState } from 'recoil';
-import { toggleState } from '../../userStore/userData';
+import { getUserData, toggleState } from '../../userStore/userData';
+import axios from 'axios';
+
+
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [notifiyTgl, setNotifyTgl] = useRecoilState(toggleState)
-
+  const userData = JSON.parse(
+    localStorage.getItem('user') || '{"name":"User","email":"user@example.com","role":"user"}'
+  )
+  const [user, setUser] = useState(userData)
   const handleLogout = () => {
     localStorage.clear();
     navigate(AppRoute.LANDING);
   };
+  const token = getUserData()?.token
+
+  useEffect(() => {
+    axios.get(apis.user, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).then((res) => {
+      console.log(res);
+
+    }).catch((err) => {
+      console.error(err);
+
+    })
+  }, [])
 
   // Dynamic class for active nav items
   const navItemClass = ({ isActive }) =>
@@ -31,9 +52,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       : 'text-subtext hover:bg-surface hover:text-maintext'
     }`;
 
-  const user = JSON.parse(
-    localStorage.getItem('user') || '{"name":"User","email":"user@example.com"}'
-  );
+
 
   return (
     <>
@@ -59,9 +78,9 @@ const Sidebar = ({ isOpen, onClose }) => {
       >
         {/* Brand */}
         <div className="p-6 flex items-center justify-between">
-          <Link  to="/">
-          <h1 className="text-2xl font-bold text-primary">AI-Mall</h1>
-        </Link>
+          <Link to="/">
+            <h1 className="text-2xl font-bold text-primary">AI-Mall</h1>
+          </Link>
 
 
           <button
@@ -74,10 +93,10 @@ const Sidebar = ({ isOpen, onClose }) => {
 
         {/* Navigation */}
         <div className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
-          <NavLink to="/dashboard/overview" className={navItemClass} onClick={onClose}>
+          {/* <NavLink to="/dashboard/overview" className={navItemClass} onClick={onClose}>
             <LayoutGrid className="w-5 h-5" />
             <span>Dashboard</span>
-          </NavLink>
+          </NavLink> */}
 
           <NavLink to="/dashboard/chat" className={navItemClass} onClick={onClose}>
             <MessageSquare className="w-5 h-5" />
@@ -94,15 +113,15 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>Marketplace</span>
           </NavLink>
 
-          <NavLink to="/dashboard/automations" className={navItemClass} onClick={onClose}>
+          {/* <NavLink to="/dashboard/automations" className={navItemClass} onClick={onClose}>
             <Zap className="w-5 h-5" />
             <span>Automations</span>
-          </NavLink>
-
-          <NavLink to="/dashboard/admin" className={navItemClass} onClick={onClose}>
+          </NavLink> */}
+          {user.role == "admin" && <NavLink to="/dashboard/admin" className={navItemClass} onClick={onClose}>
             <Settings className="w-5 h-5" />
             <span>Admin</span>
-          </NavLink>
+          </NavLink>}
+
         </div>
 
         {/* User Profile */}
@@ -117,14 +136,15 @@ const Sidebar = ({ isOpen, onClose }) => {
               <p className="text-xs text-subtext truncate">{user.email}</p>
             </div>
           </div>
+          {user.name !== "User" &&
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-4 py-2 w-full rounded-lg text-subtext hover:text-red-500 hover:bg-red-50 transition-all text-sm"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Log Out</span>
+            </button>}
 
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-2 w-full rounded-lg text-subtext hover:text-red-500 hover:bg-red-50 transition-all text-sm"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Log Out</span>
-          </button>
         </div>
       </div>
     </>
