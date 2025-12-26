@@ -114,10 +114,6 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>Marketplace</span>
           </NavLink>
 
-          <NavLink to={AppRoute.LIVE_DEMOS} className={navItemClass} onClick={onClose}>
-            <Video className="w-5 h-5" />
-            <span>Live Demos</span>
-          </NavLink>
 
           {/* <NavLink to="/dashboard/automations" className={navItemClass} onClick={onClose}>
             <Zap className="w-5 h-5" />
