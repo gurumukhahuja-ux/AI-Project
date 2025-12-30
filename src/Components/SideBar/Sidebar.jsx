@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate, Link } from 'react-router';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   LayoutGrid,
   MessageSquare,
@@ -82,20 +83,21 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     // User data
-    axios.get(apis.user, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then((res) => {
-      console.log(res);
-    }).catch((err) => {
-      console.error(err);
-      if (err.status == 401) {
-        clearUser()
-        navigate(AppRoute.LOGIN)
-      }
-
-    })
+    if (token) {
+      axios.get(apis.user, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).then((res) => {
+        console.log(res);
+      }).catch((err) => {
+        console.error(err);
+        if (err.status == 401) {
+          clearUser()
+          navigate(AppRoute.LOGIN)
+        }
+      })
+    }
 
     // Notifications
     const fetchNotifications = async () => {
@@ -116,7 +118,11 @@ const Sidebar = ({ isOpen, onClose }) => {
       return () => clearInterval(interval);
     }
   }, [token])
-
+  if (notifiyTgl.notify) {
+    setTimeout(() => {
+      setNotifyTgl({ notify: false })
+    }, 2000)
+  }
   // Dynamic class for active nav items
   const navItemClass = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group font-medium border border-transparent ${isActive
@@ -135,9 +141,18 @@ const Sidebar = ({ isOpen, onClose }) => {
           onClick={onClose}
         />
       )}
-      {notifiyTgl.notify && <div className='fixed w-full z-10 flex justify-center items-center mt-5 ml-6'>
-        <NotificationBar msg={"Successfully Owned"} />
-      </div>}
+      <AnimatePresence>
+        {notifiyTgl.notify && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className='fixed w-full z-10 flex justify-center items-center mt-5 ml-6'
+          >
+            <NotificationBar msg={"Successfully Owned"} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Sidebar */}
       <div
@@ -151,7 +166,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Brand */}
         <div className="p-6 flex items-center justify-between">
           <Link to="/">
-            <h1 className="text-2xl font-bold text-primary">AI-Mall</h1>
+            <h1 className="text-2xl font-bold text-primary">AI-Mall <sup className="text-sm">TM</sup></h1>
           </Link>
 
 

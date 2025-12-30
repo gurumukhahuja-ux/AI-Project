@@ -192,31 +192,34 @@ const Chat = () => {
       <div className="flex-1 flex flex-col relative bg-secondary w-full min-w-0">
 
         {/* Header */}
-        <div className="h-16 border-b border-border flex items-center justify-between px-4 sm:px-6 bg-secondary z-10 shrink-0">
-          <div className="flex items-center gap-2">
+        <div className="h-16 border-b border-border flex items-center justify-between px-4 sm:px-6 bg-secondary z-10 shrink-0 gap-2">
+          <div className="flex items-center gap-2 min-w-0">
 
             <button
-              className="md:hidden p-2 -ml-2 text-subtext hover:text-maintext"
+              className="md:hidden p-2 -ml-2 text-subtext hover:text-maintext shrink-0"
               onClick={() => setShowHistory(!showHistory)}
             >
               <History className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-subtext">
-              <span className="text-sm hidden sm:inline">Chatting with:</span>
-              <div className="flex items-center gap-2 text-maintext bg-surface px-3 py-1.5 rounded-lg border border-border cursor-pointer hover:bg-gray-100 transition-colors">
-                <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center">
+            <div className="flex items-center gap-2 text-subtext min-w-0">
+              <span className="text-sm hidden sm:inline shrink-0">Chatting with:</span>
+              <div
+                onClick={() => alert("Agent switching coming soon!")}
+                className="flex items-center gap-2 text-maintext bg-surface px-3 py-1.5 rounded-lg border border-border cursor-pointer hover:bg-gray-100 transition-colors min-w-0"
+              >
+                <div className="w-5 h-5 rounded bg-primary/20 flex items-center justify-center shrink-0">
                   <Bot className="w-3 h-3 text-primary" />
                 </div>
-                <span className="text-sm font-medium truncate max-w-[100px] sm:max-w-none">
+                <span className="text-sm font-medium truncate">
                   AISA <sup>TM</sup>
                 </span>
-                <ChevronDown className="w-3 h-3 text-subtext" />
+                <ChevronDown className="w-3 h-3 text-subtext shrink-0" />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* <button className="flex items-center gap-2 text-subtext hover:text-maintext text-sm">
               <Monitor className="w-4 h-4" />
               <span className="hidden sm:inline">Device</span>
@@ -321,12 +324,12 @@ const Chat = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your message..."
-                className="w-full bg-surface border border-border rounded-full py-3 sm:py-4 pl-4 sm:pl-6 pr-12 sm:pr-14 text-sm sm:text-base text-maintext placeholder-subtext focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                className="w-full bg-surface border border-border rounded-full py-3 sm:py-4 pl-4 sm:pl-6 pr-12 sm:pr-14 text-sm sm:text-base text-maintext placeholder-subtext focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
               />
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isLoading}
-                className="absolute right-2 top-12 transform -translate-y-1/2 p-2 sm:p-2.5 rounded-full bg-primary text-white hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 sm:p-2.5 rounded-full bg-primary text-white hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
               >
                 <Send className="w-4 h-4" />
               </button>

@@ -27,7 +27,7 @@ const Button = ({
     return (
         <button
             className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-            disabled={isLoading || props.disabled}
+            disabled={isLoading}
             {...props}
         >
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

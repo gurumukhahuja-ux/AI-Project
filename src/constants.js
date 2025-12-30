@@ -1,4 +1,4 @@
-export const logo = "/logo/logo.png";
+export const logo = "/logo/Logo.png";
 export const name = "AI-MALL";
 
 export const faqs = [

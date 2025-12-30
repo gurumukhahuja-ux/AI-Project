@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Download, Check, Star, FileText, Play, X } from 'lucide-react';
 import axios from 'axios';
-import { apis } from '../types';
+import { apis, AppRoute } from '../types';
 import { getUserData, toggleState } from '../userStore/userData';
 import SubscriptionForm from '../Components/SubscriptionForm/SubscriptionForm';
 import { useRecoilState } from 'recoil';
@@ -30,12 +30,14 @@ const Marketplace = () => {
 
 
     // localStorage.setItem("agents", JSON.stringify(agents))
-    axios.post(apis.getUserAgents, { userId: user?.id }).then((res) => {
-      setUserAgent(res.data.agents)
-      console.log(res.data.agents);
-      setLoading(false)
+    if (user && user.id) {
+      axios.post(apis.getUserAgents, { userId: user?.id }).then((res) => {
+        setUserAgent(res.data.agents)
+        console.log(res.data.agents);
+        setLoading(false)
 
-    }).catch(err => console.log(err))
+      }).catch(err => console.log(err))
+    }
     axios.get(apis.agents).then((agent) => {
       setAgents(agent.data)
       console.log(agent.data);
@@ -47,6 +49,10 @@ const Marketplace = () => {
 
 
   const toggleBuy = (id) => {
+    if (!user) {
+      navigate(AppRoute.LOGIN)
+      return
+    }
     setSubToggle({ ...subToggle, subscripPgTgl: true })
     setAgentId(id)
   };

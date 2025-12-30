@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router';
+import { useNavigate, Link, useLocation } from 'react-router';
 import { Cpu, Mail, Lock, ArrowLeft, AlertCircle } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import axios from 'axios';
@@ -11,6 +11,7 @@ import { logo } from '../constants';
 const Login = () => {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(null)
@@ -24,7 +25,8 @@ const Login = () => {
     axios.post(apis.logIn, payload).then((res) => {
       setError(false)
       setMessage(res.data.message)
-      navigate(AppRoute.DASHBOARD);
+      const from = location.state?.from?.pathname || AppRoute.DASHBOARD;
+      navigate(from, { replace: true });
       setUserData(res.data)
       localStorage.setItem("userId", res.data.id)
       localStorage.setItem("token", res.data.token)
