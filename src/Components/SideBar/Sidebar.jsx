@@ -33,6 +33,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const [notifiyTgl, setNotifyTgl] = useRecoilState(toggleState)
   const [currentUserData] = useRecoilState(userData);
   const user = currentUserData.user || { name: "User", email: "user@example.com", role: "user" };
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -180,11 +181,6 @@ const Sidebar = ({ isOpen, onClose }) => {
 
         {/* Navigation */}
         <div className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
-          {/* <NavLink to="/dashboard/overview" className={navItemClass} onClick={onClose}>
-            <LayoutGrid className="w-5 h-5" />
-            <span>Dashboard</span>
-          </NavLink> */}
-
           <NavLink to="/dashboard/chat" className={navItemClass} onClick={onClose}>
             <MessageSquare className="w-5 h-5" />
             <span>Chat</span>
@@ -195,10 +191,14 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>My Agents</span>
           </NavLink>
 
-
           <NavLink to={AppRoute.MARKETPLACE} className={navItemClass} onClick={onClose}>
             <ShoppingBag className="w-5 h-5" />
             <span>Marketplace</span>
+          </NavLink>
+
+          <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
+            <LayoutGrid className="w-5 h-5" />
+            <span>Vendor Dashboard</span>
           </NavLink>
 
           <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
@@ -219,8 +219,6 @@ const Sidebar = ({ isOpen, onClose }) => {
             <Settings className="w-5 h-5" />
             <span>Admin Dashboard</span>
           </NavLink>
-
-
         </div>
 
         {/* Notifications Section */}
@@ -264,30 +262,61 @@ const Sidebar = ({ isOpen, onClose }) => {
 
         {/* User Profile */}
         <div className="p-4 border-t border-border mt-auto">
-          <div
-            onClick={() => {
-              navigate(AppRoute.PROFILE);
-              onClose();
-            }}
-            className="flex items-center gap-3 px-2 py-3 mb-2 rounded-xl hover:bg-surface border border-transparent hover:border-border cursor-pointer group"
-          >
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm uppercase group-hover:bg-primary/30 transition-colors">
-              {user.name.charAt(0)}
+          {/* Integrated Profile Card */}
+          <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isProfileOpen ? 'bg-surface border-border shadow-md' : 'border-transparent hover:bg-surface/50'}`}>
+            {/* Header / Toggle */}
+            <div className="flex items-center gap-1 group">
+              <div
+                onClick={() => {
+                  navigate(AppRoute.PROFILE);
+                  onClose();
+                }}
+                className="flex flex-1 items-center gap-3 px-3 py-3 cursor-pointer hover:bg-primary/5 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm uppercase shrink-0">
+                  {user.name.charAt(0)}
+                </div>
+
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-bold text-maintext truncate">{user.name}</p>
+                  <p className="text-[11px] text-subtext truncate">{user.email}</p>
+                </div>
+              </div>
+
+              <div
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className={`p-3 cursor-pointer transition-transform duration-300 ${isProfileOpen ? 'rotate-180 text-primary' : 'text-subtext group-hover:text-maintext'}`}
+              >
+                <ChevronDown className="w-4 h-4" />
+              </div>
             </div>
 
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-maintext truncate group-hover:text-primary transition-colors">{user.name}</p>
-              <p className="text-xs text-subtext truncate">{user.email}</p>
-            </div>
+            {/* Expandable Menu */}
+            <AnimatePresence>
+              {isProfileOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="px-2 pb-2">
+                    <div className="h-[1px] bg-border/40 mx-2 mb-2" />
+
+                    {user.name !== "User" && (
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-subtext hover:text-red-500 hover:bg-red-50 transition-all text-[13px] font-medium"
+                      >
+                        <LogOut className="w-4 h-4 shrink-0" />
+                        <span>Log Out</span>
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          {user.name !== "User" &&
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-2 w-full rounded-lg text-subtext hover:text-red-500 hover:bg-red-50 transition-all text-sm"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Log Out</span>
-            </button>}
 
           {/* FAQ Button */}
           <button
@@ -297,7 +326,6 @@ const Sidebar = ({ isOpen, onClose }) => {
             <HelpCircle className="w-4 h-4" />
             <span>Help & FAQ</span>
           </button>
-
         </div>
       </div>
 
@@ -331,7 +359,9 @@ const Sidebar = ({ isOpen, onClose }) => {
 
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {activeTab === 'faq' ? (
-                faqs.map((faq, index) => (
+                <>
+                  <p className="text-sm text-subtext font-medium">Get quick answers to common questions about our platform</p>
+                  {faqs.map((faq, index) => (
                   <div key={index} className="border border-border rounded-xl bg-white overflow-hidden hover:border-primary/30 transition-all">
                     <button
                       onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
@@ -353,7 +383,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                       </div>
                     </div>
                   </div>
-                ))
+                ))}
+                </>
               ) : (
                 <div className="flex flex-col gap-6">
 
