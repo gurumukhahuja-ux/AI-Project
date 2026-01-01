@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* @tailwind directives removed: inherited from main app */
 
 :root {
   /* Requested Variables */

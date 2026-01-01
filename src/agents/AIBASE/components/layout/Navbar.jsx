@@ -7,16 +7,16 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const isDashboard = location.pathname === '/';
+    const isDashboard = location.pathname === '/agents/aibase' || location.pathname === '/agents/aibase/';
 
     const handleSearch = (e) => {
         const term = e.target.value;
         if (term) {
             // Navigate to Dashboard with search param
-            navigate(`/?search=${encodeURIComponent(term)}`);
+            navigate(`/agents/aibase?search=${encodeURIComponent(term)}`);
         } else {
             // If on Dashboard, remove param, else go to Dashboard
-            navigate('/');
+            navigate('/agents/aibase');
         }
     };
 

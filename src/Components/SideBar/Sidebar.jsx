@@ -89,7 +89,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           'Authorization': `Bearer ${token}`
         }
       }).then((res) => {
-        console.log(res);
+        // console.log(res);
       }).catch((err) => {
         console.error(err);
         if (err.status == 401) {

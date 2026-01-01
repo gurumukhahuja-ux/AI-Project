@@ -197,12 +197,16 @@ const Marketplace = () => {
               <h3 className="text-lg font-bold text-maintext text-2xl font-bold">{agent.agentName} <sup className='text-sm'>TM</sup></h3>
               <button
                 onClick={() => {
-                  setDemoUrl(agent.demoVideoUrl || "https://www.youtube.com/embed/dQw4w9wgXcQ");
-                  setShowDemo(true);
+                  if (agent.url && agent.url.startsWith('/')) {
+                    navigate(agent.url);
+                  } else {
+                    setDemoUrl(agent.demoVideoUrl || "https://www.youtube.com/embed/dQw4w9wgXcQ");
+                    setShowDemo(true);
+                  }
                 }}
                 className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold"
               >
-                <Play className="w-3 h-3 fill-primary" /> Demo
+                <Play className="w-3 h-3 fill-primary" /> {agent.url && agent.url.startsWith('/') ? 'Try Now' : 'Demo'}
               </button>
             </div>
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams, useNavigate } from 'react-router';
 import { FileText, MessageSquare, Activity, Upload, ArrowRight, Zap, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 import Button from '../../components/common/Button';
 import { toast } from 'react-hot-toast';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const searchTerm = searchParams.get('search')?.toLowerCase() || '';
 
@@ -115,7 +116,7 @@ const Dashboard = () => {
                     <div className="grid grid-cols-1 gap-4">
                         <button
                             className="p-6 bg-gradient-to-br from-primary to-blue-600 rounded-2xl text-white text-left group hover:opacity-95 transition-opacity relative overflow-hidden"
-                            onClick={() => window.location.href = '/chat'} // Simple nav for now
+                            onClick={() => navigate('/agents/aibase/chat')}
                         >
                             <div className="relative z-10">
                                 <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-4 text-white">
@@ -199,7 +200,7 @@ const Dashboard = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

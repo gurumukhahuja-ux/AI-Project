@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+@theme {
+    --color-primary: rgb(85 85 255);
+    --color-secondary: white;
+    --color-maintext: black;
+    --color-subtext: #9ca38f;
+    --color-surface: #f8f9fc;
+    --color-border: #eef2f6;
+
+    --font-sans: "Inter", "sans-serif";
+}
+
+@layer base {
+    :root {
+        --primary-color: #5555ff;
+        --secondary-color: white;
+        --text-color: black;
+        --sub-text-color: #9ca38f;
+        --primary-rgb: 85 85 255;
+        --surface-color: #f8f9fc;
+        --border-color: #eef2f6;
+    }
+
+    body {
+        background: var(--secondary-color);
+        color: var(--text-color);
+    }
+}

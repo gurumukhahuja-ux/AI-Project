@@ -31,7 +31,6 @@ const MyAgents = () => {
         setLoading(true);
         const userId = user?.id || user?._id;
         axios.post(apis.getUserAgents, { userId }).then((res) => {
-            console.log(res.data.agents);
             setAgents(res.data.agents);
         }).catch(err => console.log(err))
         setLoading(false);
@@ -137,8 +136,12 @@ const MyAgents = () => {
                                     <button
                                         onClick={() => {
                                             const targetUrl = (!agent?.url || agent.url.trim() === "") ? AppRoute.agentSoon : agent.url;
-                                            setSelectedAgent({ ...agent, url: targetUrl });
-                                            setIsModalOpen(true);
+                                            if (targetUrl.startsWith('/')) {
+                                                navigate(targetUrl);
+                                            } else {
+                                                setSelectedAgent({ ...agent, url: targetUrl });
+                                                setIsModalOpen(true);
+                                            }
                                         }}
                                         className="flex-1 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all bg-green-50 text-green-600 border border-green-100 hover:bg-green-100 hover:shadow-md"
                                     >
