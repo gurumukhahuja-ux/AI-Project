@@ -1,164 +1,195 @@
-import React, { useEffect, useState } from "react";
-import { apiService } from "../services/apiService";
-import { Save, Shield, Users, CreditCard, Lock } from "lucide-react";
+import React, { useState } from "react";
+import {
+  Activity,
+  Users,
+  ShoppingBag,
+  DollarSign,
+  Shield,
+  AlertTriangle,
+  CheckCircle,
+  Settings,
+  UserCheck,
+  ChevronDown,
+  ChevronUp
+} from "lucide-react";
+
+// Sub-Components
+import AdminOverview from "../Components/Admin/AdminOverview";
+import Approvals from "../Components/Admin/Approvals";
+import UserManagement from "../Components/Admin/UserManagement";
+import VendorManagement from "../Components/Admin/VendorManagement";
+import AgentManagement from "../Components/Admin/AgentManagement";
+import Financials from "../Components/Admin/Financials";
+import TransactionHistory from "../Components/Admin/TransactionHistory";
+import Complaints from "../Components/Admin/Complaints";
+import AccessControl from "../Components/Admin/AccessControl";
+import PlatformSettings from "../Components/Admin/PlatformSettings";
+import AdminSupport from "../Components/Admin/Support";
 
 const Admin = () => {
-  const [settings, setSettings] = useState(null);
-  const [activeTab, setActiveTab] = useState("general");
-  const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [activeSubTab, setActiveSubTab] = useState("overview");
+  const [isRevenueExpanded, setIsRevenueExpanded] = useState(true);
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      const data = await apiService.getAdminSettings();
-      setSettings(data);
-    };
-    loadSettings();
-  }, []);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    await apiService.updateAdminSettings(settings);
-    setTimeout(() => setIsSaving(false), 800);
+  const navigation = {
+    management: [
+      { id: "overview", label: "Overview", icon: Activity },
+      { id: "agents", label: "Apps", icon: ShoppingBag },
+      {
+        id: "finance",
+        label: "Revenue & Payouts",
+        icon: DollarSign,
+        hasSub: true,
+        subItems: [
+          { id: "overview", label: "Overview" },
+          { id: "transactions", label: "Transaction History" }
+        ]
+      },
+      { id: "complaints", label: "User Support", icon: AlertTriangle },
+      { id: "users", label: "User Management", icon: Users },
+      { id: "vendors", label: "Vendor Support", icon: UserCheck },
+    ],
+    governance: [
+      { id: "approvals", label: "Approvals", icon: CheckCircle },
+      { id: "roles", label: "Admin Support", icon: Shield },
+      { id: "settings", label: "Settings", icon: Settings },
+    ]
   };
 
-  const handleChange = (key, value) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+  const renderContent = () => {
+    switch (activeTab) {
+      case "overview": return <AdminOverview />;
+      case "approvals": return <Approvals />;
+      case "users": return <UserManagement />;
+      case "vendors": return <VendorManagement />;
+      case "agents": return <AgentManagement />;
+      case "finance":
+        return activeSubTab === "transactions" ? <TransactionHistory /> : <Financials />;
+      case "complaints": return <AdminSupport />;
+      case "roles": return <AccessControl />;
+      case "settings": return <PlatformSettings />;
+      default: return <AdminOverview />;
+    }
   };
 
-  if (!settings) {
-    return <div className="p-8 text-subtext">Loading settings...</div>;
-  }
+  const NavItem = ({ item }) => {
+    const isMainActive = activeTab === item.id;
+
+    return (
+      <div className="space-y-1">
+        <button
+          onClick={() => {
+            setActiveTab(item.id);
+            if (item.hasSub) {
+              setIsRevenueExpanded(!isRevenueExpanded);
+            }
+          }}
+          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-sm font-bold ${isMainActive
+            ? "bg-primary/5 text-primary"
+            : "text-subtext hover:bg-slate-50 hover:text-maintext"
+            }`}
+        >
+          <div className="flex items-center gap-3">
+            <item.icon className="w-4 h-4" />
+            <span>{item.label}</span>
+          </div>
+          {item.hasSub && (isRevenueExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />)}
+        </button>
+
+        {item.hasSub && isRevenueExpanded && (
+          <div className="pl-11 space-y-1">
+            {item.subItems.map(sub => (
+              <button
+                key={sub.id}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setActiveSubTab(sub.id);
+                }}
+                className={`w-full text-left px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${isMainActive && activeSubTab === sub.id
+                  ? "text-primary bg-primary/5"
+                  : "text-subtext hover:text-maintext hover:bg-slate-50"
+                  }`}
+              >
+                {sub.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto bg-secondary">
-      <h1 className="text-2xl md:text-3xl font-bold text-maintext mb-2">
-        Admin Settings
-      </h1>
-      <p className="text-sm md:text-base text-subtext mb-8">
-        Configure global preferences and permissions.
-      </p>
-
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar Tabs */}
-        <div className="w-full lg:w-64 flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
-          {[
-            { id: "general", label: "General", icon: Shield },
-            { id: "users", label: "Users & Roles", icon: Users },
-            { id: "billing", label: "Billing", icon: CreditCard },
-            { id: "security", label: "Security", icon: Lock },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left font-medium whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "bg-primary text-white shadow-lg shadow-primary/20"
-                  : "text-subtext hover:bg-surface hover:text-maintext"
-              }`}
-            >
-              <tab.icon className="w-5 h-5" />
-              {tab.label}
-            </button>
-          ))}
+    <div className="h-screen flex bg-[#F8F9FB] text-[#2C3E50] overflow-hidden">
+      {/* Sidebar */}
+      <aside className="w-64 border-r border-[#E0E4E8] bg-white flex flex-col shrink-0">
+        <div className="p-6 flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20">
+            M
+          </div>
+          <span className="font-bold text-xl tracking-tight">ADMIN</span>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm">
-          {activeTab === "general" && (
-            <div className="space-y-6 max-w-2xl">
-              {/* Organization Name */}
-              <div>
-                <label className="block text-sm font-medium text-maintext mb-2">
-                  Organization Name
-                </label>
-                <input
-                  type="text"
-                  value={settings.organizationName}
-                  onChange={(e) =>
-                    handleChange("organizationName", e.target.value)
-                  }
-                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-maintext focus:outline-none focus:border-primary transition-colors"
-                />
-              </div>
-
-              {/* Default Model */}
-              <div>
-                <label className="block text-sm font-medium text-maintext mb-2">
-                  Default Model
-                </label>
-                <select
-                  value={settings.defaultModel}
-                  onChange={(e) => handleChange("defaultModel", e.target.value)}
-                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-maintext focus:outline-none focus:border-primary transition-colors"
-                >
-                  <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                  <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                  <option value="gemini-ultra">Gemini Ultra</option>
-                </select>
-              </div>
-
-              {/* Public Signup */}
-              <div className="flex items-center justify-between p-4 bg-surface border border-border rounded-xl">
-                <div>
-                  <div className="text-maintext font-medium">Public Signup</div>
-                  <div className="text-xs text-subtext">
-                    Allow users to register without invite
-                  </div>
-                </div>
-
-                <button
-                  onClick={() =>
-                    handleChange(
-                      "allowPublicSignup",
-                      !settings.allowPublicSignup
-                    )
-                  }
-                  className={`w-12 h-6 rounded-full p-1 transition-colors ${
-                    settings.allowPublicSignup
-                      ? "bg-green-500 justify-end flex"
-                      : "bg-gray-300 justify-start flex"
-                  }`}
-                >
-                  <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
-                </button>
-              </div>
-
-              {/* Token Limit */}
-              <div>
-                <label className="block text-sm font-medium text-maintext mb-2">
-                  Token Limit Per User
-                </label>
-                <input
-                  type="number"
-                  value={settings.maxTokensPerUser}
-                  onChange={(e) =>
-                    handleChange("maxTokensPerUser", Number(e.target.value))
-                  }
-                  className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-maintext focus:outline-none focus:border-primary transition-colors"
-                />
-              </div>
-
-              {/* Save Button */}
-              <div className="pt-4 border-t border-border">
-                <button
-                  onClick={handleSave}
-                  className="px-6 py-3 bg-primary hover:opacity-90 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-md w-full sm:w-auto justify-center"
-                >
-                  <Save className="w-4 h-4" />
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
+        <div className="flex-1 overflow-y-auto px-4 space-y-8 py-4">
+          <div>
+            <p className="text-[10px] font-bold text-subtext uppercase tracking-[2px] mb-4 px-4 opacity-50">Management</p>
+            <div className="space-y-1">
+              {navigation.management.map(item => <NavItem key={item.id} item={item} />)}
             </div>
-          )}
+          </div>
 
-          {/* Locked Sections */}
-          {activeTab !== "general" && (
-            <div className="flex flex-col items-center justify-center h-64 text-subtext">
-              <Lock className="w-12 h-12 mb-4 opacity-20" />
-              <p>This section is locked in demo mode.</p>
+          <div>
+            <p className="text-[10px] font-bold text-subtext uppercase tracking-[2px] mb-4 px-4 opacity-50">Governance</p>
+            <div className="space-y-1">
+              {navigation.governance.map(item => <NavItem key={item.id} item={item} />)}
             </div>
-          )}
+          </div>
         </div>
+
+        <div className="p-4 border-t border-[#E0E4E8]">
+          <button className="w-full flex items-center gap-3 px-4 py-2.5 text-subtext hover:text-red-500 transition-colors text-sm font-medium">
+            <Activity className="w-4 h-4 rotate-180" />
+            Sign Out
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Header */}
+        <header className="h-[72px] bg-white border-b border-[#E0E4E8] flex items-center justify-between px-8 shrink-0">
+          <div className="flex-1 max-w-xl">
+            <div className="relative group">
+              <Activity className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-subtext group-focus-within:text-primary transition-colors" />
+              <input
+                type="text"
+                placeholder="Search your apps..."
+                className="w-full bg-[#F3F5F7] border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-6">
+
+
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-bold text-maintext">AI-Mall <sup className="text-[9px] font-normal">TM</sup></p>
+
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold shadow-sm border border-primary/10">
+                A
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Dynamic Content */}
+        <main className="flex-1 overflow-y-auto bg-[#F8F9FB] p-8">
+          <div className="max-w-[1400px] mx-auto">
+            {renderContent()}
+          </div>
+        </main>
       </div>
     </div>
   );

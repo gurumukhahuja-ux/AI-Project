@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Settings, Trash2, Bot, Code, Edit3, Save } from 'lucide-react';
+import { Plus, Settings, Trash2, Bot, Code, Edit3, Save, FileText, Download } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import axios from 'axios';
 import { apis, AppRoute } from '../types';
 import { getUserData } from '../userStore/userData';
-import { Link } from 'react-router';
+import { useNavigate, Link } from 'react-router';
+import AgentModal from '../Components/AgentModal/AgentModal';
 
 const MyAgents = () => {
     const [agents, setAgents] = useState([]);
@@ -12,7 +13,13 @@ const MyAgents = () => {
     const [expandedId, setExpandedId] = useState(null);
     const [editedInstructions, setEditedInstructions] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+
+    // Modal State
+    const [selectedAgent, setSelectedAgent] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const user = getUserData("user")
+    const navigate = useNavigate()
 
 
     useEffect(() => {
@@ -22,7 +29,8 @@ const MyAgents = () => {
 
     const loadAgents = async () => {
         setLoading(true);
-        axios.post(apis.getUserAgents, { userId: user?.id }).then((res) => {
+        const userId = user?.id || user?._id;
+        axios.post(apis.getUserAgents, { userId }).then((res) => {
             console.log(res.data.agents);
             setAgents(res.data.agents);
         }).catch(err => console.log(err))
@@ -125,13 +133,27 @@ const MyAgents = () => {
                                 <p className="text-sm text-subtext mb-6 flex-1">{agent.description}</p>
 
                                 {/* Install Button */}
-                                <Link to={!agent?.url || agent.url.trim() === "" ? AppRoute.agentSoon : agent.url}>
+                                <div className="flex gap-2">
                                     <button
-                                        className="w-full py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all bg-green-50 text-green-600 border border-green-100"
+                                        onClick={() => {
+                                            const targetUrl = (!agent?.url || agent.url.trim() === "") ? AppRoute.agentSoon : agent.url;
+                                            setSelectedAgent({ ...agent, url: targetUrl });
+                                            setIsModalOpen(true);
+                                        }}
+                                        className="flex-1 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all bg-green-50 text-green-600 border border-green-100 hover:bg-green-100 hover:shadow-md"
                                     >
                                         Use
                                     </button>
-                                </Link>
+                                    <button
+                                        onClick={() => {
+                                            navigate(AppRoute.INVOICES);
+                                        }}
+                                        className="p-2.5 rounded-xl bg-surface border border-border text-subtext hover:text-primary transition-all"
+                                        title="View Invoice"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                    </button>
+                                </div>
 
 
                             </div>)}
@@ -149,6 +171,12 @@ const MyAgents = () => {
                     </div>
                 </div>
             )}
+
+            <AgentModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                agent={selectedAgent}
+            />
         </div>
     );
 };

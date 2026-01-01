@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Cpu, Mail, Lock, User, ArrowLeft, AlertCircle } from 'lucide-react';
 import { apiService } from '../services/apiService';
-import { AppRoute,apis } from '../types';
+import { AppRoute, apis } from '../types';
 import axios from 'axios';
 import { setUserData } from '../userStore/userData.js';
-import { logo } from '../constents.js';
+import { logo } from '../constants';
 
 
 const Signup = () => {
- const navigate = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -23,9 +23,9 @@ const Signup = () => {
     setIsLoading(true)
     e.preventDefault();
     axios.post(apis.signUp, payLoad).then((res) => {
-      // console.log(res.data);
       setUserData(res.data)
       navigate(AppRoute.E_Verification);
+
     }).catch((err) => {
       console.log(err);
       setError(err.response.data.error)
@@ -39,7 +39,7 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 bg-surface">
       <div className="relative z-10 w-full max-w-md">
-        
+
         {/* Title */}
         <div className=" text-center">
           <div className="inline-block rounded-full  w-25 ">
@@ -52,7 +52,7 @@ const Signup = () => {
 
         {/* Card */}
         <div className="bg-white border border-border p-8 rounded-3xl shadow-xl">
-          
+
           {error && (
             <div className="mb-6 p-3 rounded-xl bg-red-50 border border-red-100 flex items-center gap-2 text-red-500 text-sm">
               <AlertCircle className="w-4 h-4" />

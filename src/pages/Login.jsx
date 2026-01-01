@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router';
+import { useNavigate, Link, useLocation } from 'react-router';
 import { Cpu, Mail, Lock, ArrowLeft, AlertCircle } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import axios from 'axios';
 import { apis, AppRoute } from '../types';
-import { setUserData } from '../userStore/userData';
-import { logo } from '../constents';
+import { setUserData, userData as userDataAtom } from '../userStore/userData';
+import { logo } from '../constants';
+import { useSetRecoilState } from 'recoil';
 
 
 const Login = () => {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+  const setUserRecoil = useSetRecoilState(userDataAtom);
+
   const payload = { email, password }
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -24,10 +28,12 @@ const Login = () => {
     axios.post(apis.logIn, payload).then((res) => {
       setError(false)
       setMessage(res.data.message)
-      navigate(AppRoute.DASHBOARD);
+      const from = location.state?.from?.pathname || AppRoute.DASHBOARD;
+      navigate(from, { replace: true });
       setUserData(res.data)
+      setUserRecoil({ user: res.data })
       localStorage.setItem("userId", res.data.id)
-      localStorage.setItem("token",res.data.token)
+      localStorage.setItem("token", res.data.token)
 
     }).catch((err) => {
       console.log(err.response.data.error);
@@ -104,6 +110,12 @@ const Login = () => {
               </div>
             </div>
 
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-sm text-primary hover:underline font-medium">
+                Forgot Password?
+              </Link>
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -115,11 +127,16 @@ const Login = () => {
           </form>
 
           {/* Signup Redirect */}
-          <div className="mt-8 text-center text-sm text-subtext">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary hover:underline font-medium">
-              Create Account
-            </Link>
+          <div className="mt-8 text-center text-sm text-subtext space-y-3">
+            <div>
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-primary hover:underline font-medium">
+                Create Account
+              </Link>
+            </div>
+
+            {/* Vendor Registration Link */}
+
           </div>
         </div>
 
