@@ -13,7 +13,7 @@ import {
   Video,
   FileText,
   Bell,
-  Shield,
+
   DollarSign,
   HelpCircle,
   ChevronDown,
@@ -206,10 +206,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>Billing</span>
           </NavLink>
 
-          <NavLink to={AppRoute.SECURITY} className={navItemClass} onClick={onClose}>
-            <Shield className="w-5 h-5" />
-            <span>Security & Guidelines</span>
-          </NavLink>
+
 
           {/* <NavLink to="/dashboard/automations" className={navItemClass} onClick={onClose}>
             <Zap className="w-5 h-5" />
