@@ -60,6 +60,8 @@ export const AppRoute = {
   VENDOR_REVENUE: "/vendor/revenue/overview",
   VENDOR_TRANSACTIONS: "/vendor/revenue/transactions",
   agentSoon: "/agentsoon",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password/:token",
 };
 
 // Use environment variable for API URL (configured in .env file)
@@ -70,12 +72,15 @@ export const apis = {
   emailVerificationApi: `${API}/email_varification`,
   signUp: `${API}/auth/signup`,
   logIn: `${API}/auth/login/`,
+  forgotPassword: `${API}/auth/forgot-password`,
+  resetPassword: `${API}/auth/reset-password/`,
   user: `${API}/user`,
   getPayments: `${API}/user/payments`,
   notifications: `${API}/notifications`,
   agents: `${API}/agents`,
   buyAgent: `${API}/agents/buy`,
   getUserAgents: `${API}/agents/get_my_agents`,
+  getMyAgents: `${API}/agents/me`,
   chatAgent: `${API}/chat`,
   aibiz: `${API}/aibiz`,
   support: `${API}/support`,

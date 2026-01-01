@@ -25,28 +25,40 @@ const Marketplace = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // setLoading(true)
-    console.log(subToggle);
+    const fetchData = async () => {
+      // Only visualize loading on initial fetch to prevent flashing
+      if (agents.length === 0) {
+        setLoading(true);
+      }
+      const userId = user?.id || user?._id;
 
+      try {
+        const [userAgentsRes, agentsRes] = await Promise.allSettled([
+          axios.post(apis.getUserAgents, { userId }),
+          axios.get(apis.agents)
+        ]);
 
-    // localStorage.setItem("agents", JSON.stringify(agents))
-    if (user && user.id) {
-      axios.post(apis.getUserAgents, { userId: user?.id }).then((res) => {
-        setUserAgent(res.data?.agents || [])
-        console.log(res.data?.agents);
-        setLoading(false)
-      }).catch(err => console.log(err))
-    }
-    axios.get(apis.agents).then((agent) => {
-      // Ensure we always set an array, even if data is unexpected
-      setAgents(Array.isArray(agent.data) ? agent.data : [])
-      console.log(agent.data);
-    }).catch((err) => {
-      console.log(err);
-      setAgents([]); // Fallback to empty array on error
-    })
+        if (userAgentsRes.status === 'fulfilled') {
+          setUserAgent(userAgentsRes.value.data?.agents || []);
+        } else {
+          console.error("Failed to fetch user agents:", userAgentsRes.reason);
+        }
 
-  }, [agentId])
+        if (agentsRes.status === 'fulfilled') {
+          setAgents(Array.isArray(agentsRes.value.data) ? agentsRes.value.data : []);
+        } else {
+          console.error("Failed to fetch agents:", agentsRes.reason);
+          setAgents([]);
+        }
+      } catch (error) {
+        console.error("Error fetching marketplace data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [agentId, user?.id, user?._id, subToggle]);
 
 
   const toggleBuy = (id) => {
@@ -61,7 +73,7 @@ const Marketplace = () => {
   const filteredAgents = agents.filter(agent => {
     // Only show apps that are 'Live'. 
     // If status is missing, we assume it's one of the default/demo apps.
-    const isLive = !agent.status || agent.status === 'Live';
+    const isLive = !agent.status || agent.status === 'Live' || agent.status === 'active';
     if (!isLive) return false;
 
     const matchesCategory = filter === 'all' || agent.category === filter;
@@ -173,7 +185,7 @@ const Marketplace = () => {
               <img
                 src={agent.avatar}
                 alt={agent.agentName}
-                className="w-19 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform"
+                className="w-20 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform"
               />
               <div className="bg-surface border border-border px-2 py-1 rounded-lg flex items-center gap-1">
                 <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />

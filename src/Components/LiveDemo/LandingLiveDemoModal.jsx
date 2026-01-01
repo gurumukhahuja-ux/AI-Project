@@ -1,20 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Play, ArrowRight, Video, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { AppRoute } from '../../types';
-import { AGENTS } from '../../data/agents';
+import { AppRoute, apis } from '../../types';
+import axios from 'axios';
 import AIGeneratedVideoSim from './AIGeneratedVideoSim';
 
 const LandingLiveDemoModal = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
     const [selectedAgent, setSelectedAgent] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [agents, setAgents] = useState([]);
 
-    const filteredAgents = AGENTS.filter(agent =>
-        agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        agent.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        agent.category.toLowerCase().includes(searchQuery.toLowerCase())
+    useEffect(() => {
+        const fetchAgents = async () => {
+            try {
+                const res = await axios.get(apis.agents);
+                const data = Array.isArray(res.data) ? res.data : [];
+                // Map backend fields to frontend expectations
+                const mappedAgents = data.map(a => ({
+                    ...a,
+                    id: a._id,
+                    name: a.agentName,
+                    title: a.category || "AI Assistant", // Fallback
+                    thumbnail: a.avatar,
+                    input: a.input || "User Input",
+                    output: a.output || "AI Response",
+                    videoType: a.videoType || (a.url ? "uploaded" : "ai-generated"),
+                    videoUrl: a.url
+                }));
+                setAgents(mappedAgents);
+            } catch (err) {
+                console.error("Failed to fetch demo agents", err);
+            }
+        };
+        fetchAgents();
+    }, []);
+
+    const filteredAgents = agents.filter(agent =>
+        (agent.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (agent.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (agent.category || "").toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleWatch = (agent) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Send, Clock, AlertCircle, MessageSquare, Loader2, Plus, X } from 'lucide-react';
-import apiService from '../../services/apiService';
+import apiService from '../services/apiService';
 
 const VendorSupport = () => {
     const [reports, setReports] = useState([]); // This would filter for *my* reports if backend supports it. Currently getAll returns everything.

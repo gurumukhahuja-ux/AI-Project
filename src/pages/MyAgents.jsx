@@ -29,7 +29,8 @@ const MyAgents = () => {
 
     const loadAgents = async () => {
         setLoading(true);
-        axios.post(apis.getUserAgents, { userId: user?.id }).then((res) => {
+        const userId = user?.id || user?._id;
+        axios.post(apis.getUserAgents, { userId }).then((res) => {
             console.log(res.data.agents);
             setAgents(res.data.agents);
         }).catch(err => console.log(err))

@@ -23,7 +23,7 @@ import { apis, AppRoute } from '../../types';
 import { faqs } from '../../constants'; // Import shared FAQs
 import NotificationBar from '../NotificationBar/NotificationBar.jsx';
 import { useRecoilState } from 'recoil';
-import { clearUser, getUserData, toggleState } from '../../userStore/userData';
+import { clearUser, getUserData, toggleState, userData } from '../../userStore/userData';
 import axios from 'axios';
 
 
@@ -31,10 +31,8 @@ import axios from 'axios';
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [notifiyTgl, setNotifyTgl] = useRecoilState(toggleState)
-  const userData = JSON.parse(
-    localStorage.getItem('user') || '{"name":"User","email":"user@example.com","role":"user"}'
-  )
-  const [user, setUser] = useState(userData)
+  const [currentUserData] = useRecoilState(userData);
+  const user = currentUserData.user || { name: "User", email: "user@example.com", role: "user" };
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
@@ -198,11 +196,25 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>Marketplace</span>
           </NavLink>
 
+          <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
+            <LayoutGrid className="w-5 h-5" />
+            <span>Vendor Dashboard</span>
+          </NavLink>
+
           <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
             <FileText className="w-5 h-5" />
             <span>Billing</span>
           </NavLink>
 
+          <NavLink to={AppRoute.SECURITY} className={navItemClass} onClick={onClose}>
+            <Shield className="w-5 h-5" />
+            <span>Security & Guidelines</span>
+          </NavLink>
+
+          {/* <NavLink to="/dashboard/automations" className={navItemClass} onClick={onClose}>
+            <Zap className="w-5 h-5" />
+            <span>Automations</span>
+          </NavLink> */}
           <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
             <Settings className="w-5 h-5" />
             <span>Admin Dashboard</span>

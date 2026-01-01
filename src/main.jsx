@@ -6,7 +6,6 @@ import { ToastProvider } from './Components/Toast/ToastContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-
     <ToastProvider>
       <App />
     </ToastProvider>
