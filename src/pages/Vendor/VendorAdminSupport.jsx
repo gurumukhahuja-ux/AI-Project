@@ -47,10 +47,10 @@ const VendorAdminSupport = () => {
                     </div>
                     <a
                         href="mailto:admin@aimall.com?subject=Vendor%20Inquiry"
-                        className="flex items-center space-x-2 bg-indigo-600 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-colors"
+                        className="flex items-center space-x-2 bg-blue-500 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-blue-100 hover:bg-blue-600 transition-colors"
                     >
-                        <ShieldAlert size={18} />
-                        <span>Contact Admin</span>
+                        <ShieldAlert size={18} className="text-white" />
+                        <span className="text-white">Contact Admin</span>
                     </a>
                 </div>
             </div>

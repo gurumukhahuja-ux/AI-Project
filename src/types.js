@@ -44,8 +44,6 @@ export const MessageRole = {
 export const AppRoute = {
   LANDING: "/",
   LOGIN: "/login",
-  VENDOR_LOGIN: "/vendor/login",
-  ADMIN_LOGIN: "/admin/login",
   SIGNUP: "/signup",
   E_Verification: "/verification",
   DASHBOARD: "/dashboard",

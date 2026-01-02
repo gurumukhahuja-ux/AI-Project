@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { logo, name } from '../constants';
 import { getUserData } from '../userStore/userData';
 import { AppRoute } from '../types';
-import LandingLiveDemoModal from '../Components/LiveDemo/LandingLiveDemoModal';
+
 import { useRecoilState } from 'recoil';
 import { demoModalState } from '../userStore/demoStore';
 import SecurityModal from '../Components/LiveDemo/SecurityModal';
@@ -248,7 +248,7 @@ const Landing = () => {
                 {[
                   { label: "Marketplace", onClick: () => navigate(AppRoute.DASHBOARD + "/marketplace") },
                   { label: "My Agents", onClick: () => navigate(AppRoute.DASHBOARD + "/agents") },
-                  { label: "Become a Vendor", onClick: () => navigate("/vendor/register") },
+                  { label: "Become a Vendor", onClick: () => navigate("/vendor") },
                   { label: "Live Demos", onClick: () => setDemoState({ ...demoState, isOpen: true }) }
                 ].map((link, i) => (
                   <li key={i}>
@@ -345,10 +345,7 @@ const Landing = () => {
         </div>
       </footer>
 
-      <LandingLiveDemoModal
-        isOpen={demoState.isOpen}
-        onClose={() => setDemoState({ ...demoState, isOpen: false })}
-      />
+
 
       <SecurityModal
         isOpen={isSecurityModalOpen}

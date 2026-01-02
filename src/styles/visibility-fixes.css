@@ -1,0 +1,57 @@
+/* AI-MALL Text Visibility Fixes */
+
+/* Force all text to be clearly visible with black color */
+.text-maintext {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+.text-subtext {
+  color: #1a1a1a !important;
+  opacity: 1 !important;
+}
+
+/* Override Tailwind gray classes for better visibility */
+.text-gray-500,
+.text-gray-600,
+.text-gray-700 {
+  color: #2d3748 !important;
+  opacity: 1 !important;
+}
+
+/* Modal and form text fixes */
+label,
+.modal-label {
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+/* Button text visibility */
+button {
+  font-weight: 500;
+}
+
+/* Placeholder text */
+::placeholder {
+  color: #718096 !important;
+  opacity: 0.7 !important;
+}
+
+/* Ensure headings are always black */
+h1, h2, h3, h4, h5, h6 {
+  color: #000000 !important;
+}
+
+/* Paragraph text */
+p {
+  color: #1a1a1a !important;
+}
+
+/* Links should be distinguishable */
+a {
+  color: #2563eb !important;
+}
+
+a:hover {
+  color: #1d4ed8 !important;
+}

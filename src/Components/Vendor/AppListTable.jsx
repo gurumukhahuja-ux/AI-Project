@@ -18,10 +18,10 @@ const AppListTable = ({ apps, onAppCreated }) => {
     return (
         <>
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-lg font-medium text-gray-900">Your Apps</h3>
-                    <PrimaryButton onClick={() => setIsModalOpen(true)} className="text-xs px-3 py-1">
-                        + New App
+                <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <h3 className="text-lg font-medium text-gray-900">Your Agents</h3>
+                    <PrimaryButton onClick={() => setIsModalOpen(true)} className="text-xs px-3 py-2 w-full sm:w-auto">
+                        + New Agent
                     </PrimaryButton>
                 </div>
                 <div className="overflow-x-auto">
@@ -29,7 +29,7 @@ const AppListTable = ({ apps, onAppCreated }) => {
                         <thead className="bg-gray-50/50">
                             <tr>
                                 <th scope="col" className="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                                    App Name
+                                    Agent Name
                                 </th>
                                 <th scope="col" className="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest">
                                     Pricing
@@ -51,6 +51,9 @@ const AppListTable = ({ apps, onAppCreated }) => {
                                 >
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
+                                            {app.avatar && (
+                                                <img src={app.avatar} alt="icon" className="w-8 h-8 rounded-lg object-cover mr-3 border border-gray-100 shadow-sm" />
+                                            )}
                                             <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{app.agentName || app.name}</div>
                                             <ChevronRight size={14} className="ml-2 text-gray-300 opacity-0 group-hover:opacity-100 transition-all transform translate-x-0 group-hover:translate-x-1" />
                                         </div>
@@ -59,7 +62,7 @@ const AppListTable = ({ apps, onAppCreated }) => {
                                         <div className="text-sm font-medium text-gray-600">Free + Paid</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <StatusBadge status={app.status} />
+                                        <StatusBadge status={(app.reviewStatus === 'Pending Review' || app.reviewStatus === 'Rejected') ? app.reviewStatus : app.status} />
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">

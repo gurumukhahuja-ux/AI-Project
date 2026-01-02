@@ -14,11 +14,14 @@ const VendorAppDetail = () => {
 
     const fetchData = async () => {
         try {
+            console.log('[VendorAppDetail] Starting fetch for', appId);
             setLoading(true);
             const detailData = await vendorService.getAppDetails(appId);
+            console.log('[VendorAppDetail] Data received:', detailData);
             setData(detailData);
             setError(null);
         } catch (err) {
+            console.error('[VendorAppDetail] Fetch failed:', err);
             setError('Failed to load app details. Please try again.');
         } finally {
             setLoading(false);
@@ -48,19 +51,24 @@ const VendorAppDetail = () => {
         }
     };
 
+
+
     const handleSubmitForReview = async () => {
         try {
             await vendorService.submitForReview(appId);
+            alert("Successfully submitted for review"); // Added success popup
             fetchData();
         } catch (err) {
-            alert('Submission failed. Please try again.');
+            console.error('[VendorAppDetail] Submission failed detailed:', err);
+            const msg = err.response?.data?.error || err.message || 'Submission failed';
+            alert(`Submission failed: ${msg}`);
         }
     };
 
     const handleDelete = async () => {
         try {
             await vendorService.deleteApp(appId);
-            navigate('/vendor/overview'); // Redirect to dashboard after delete
+            navigate('/vendor/apps'); // Redirect to app list after delete
         } catch (err) {
             alert('Deletion failed. Please try again.');
         }

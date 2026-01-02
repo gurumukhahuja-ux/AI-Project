@@ -75,7 +75,8 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
         description: '',
         url: '',
         category: 'Business OS',
-        pricingModel: 'free'
+        pricingModel: 'free',
+        avatar: null
     });
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
@@ -98,6 +99,24 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
         { value: 'paid', label: 'Paid Only' }
     ];
 
+    const fileInputRef = useRef(null);
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                alert("File size too large. Max 5MB.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                // Accept any aspect ratio - will be displayed with object-fit in 4:7 container
+                setFormData(prev => ({ ...prev, avatar: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -115,10 +134,29 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
             const storedUserId = localStorage.getItem('userId');
 
             // Robust ID retrieval: check user.id, user._id, or separate userId
-            const userId = user.id || user._id || storedUserId;
+            let userId = user.id || user._id || storedUserId;
+
+            // Fallback: Try to decode token if ID is missing but token exists
+            if (!userId && token) {
+                try {
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    const decoded = JSON.parse(jsonPayload);
+                    if (decoded && decoded.id) {
+                        userId = decoded.id;
+                        // Optional: Repair localStorage
+                        localStorage.setItem('userId', userId);
+                    }
+                } catch (e) {
+                    console.error("Failed to decode token for ID recovery", e);
+                }
+            }
 
             if (!userId) {
-                throw new Error("User ID not found in localStorage. Please log out and log in again.");
+                throw new Error("User ID not found. Please log out and log in again.");
             }
 
             const payload = {
@@ -154,7 +192,8 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
                     description: '',
                     url: '',
                     category: 'Business OS',
-                    pricingModel: 'free'
+                    pricingModel: 'free',
+                    avatar: null
                 });
                 setMessage(null);
             }, 500);
@@ -190,26 +229,26 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
             <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200 scrollbar-hide">
 
                 {/* Header */}
-                <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">
+                <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">
                     <div className="flex items-center space-x-3">
                         <div className="p-2 bg-blue-50 rounded-lg">
-                            <Sparkles className="w-6 h-6 text-blue-600" />
+                            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-gray-900">Create New App</h2>
-                            <p className="text-sm text-gray-500 mt-0.5">Add a new AI agent to your marketplace</p>
+                            <h2 className="text-xl sm:text-2xl font-black text-gray-900">Create New Agent</h2>
+                            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Add a new AI agent to your marketplace</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
                     >
                         <X className="w-5 h-5 text-gray-400" />
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="px-8 py-6">
+                <div className="px-4 sm:px-8 py-4 sm:py-6">
 
                     {/* Success/Error Message */}
                     {message && (
@@ -227,7 +266,7 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
                         {/* App Name */}
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
-                                App Name <span className="text-red-500">*</span>
+                                Agent Name <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -256,19 +295,61 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
                             />
                         </div>
 
-                        {/* App URL */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
-                                App Live URL
-                            </label>
-                            <input
-                                type="url"
-                                name="url"
-                                value={formData.url}
-                                onChange={handleChange}
-                                placeholder="https://yourapp.com"
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
-                            />
+                        {/* App URL & Icon Upload */}
+                        <div className="grid grid-cols-[1fr,auto] gap-6 items-start">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+                                    Agent Live URL
+                                </label>
+                                <input
+                                    type="url"
+                                    name="url"
+                                    value={formData.url}
+                                    onChange={handleChange}
+                                    placeholder="https://yourapp.com"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                                />
+                            </div>
+
+                            {/* App Icon Upload */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 uppercase tracking-wider block text-center">
+                                    Icon
+                                </label>
+                                <div className="relative group">
+                                    <div
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-[72px] h-[126px] bg-gray-50 border border-gray-200 border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all overflow-hidden"
+                                    >
+                                        {formData.avatar ? (
+                                            <img src={formData.avatar} alt="Icon" className="w-full h-full object-cover rounded-lg" />
+                                        ) : (
+                                            <div className="text-center">
+                                                <div className="text-[10px] font-bold text-gray-400 group-hover:text-blue-500">UPLOAD</div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleImageUpload}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+                                    {formData.avatar && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setFormData({ ...formData, avatar: null });
+                                            }}
+                                            className="absolute -top-2 -right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200 shadow-sm"
+                                        >
+                                            <X size={10} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
                         {/* Category & Pricing Model */}
@@ -353,7 +434,7 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
                         />
 
                         {/* Action Buttons */}
-                        <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                        <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t border-gray-100">
                             <button
                                 type="button"
                                 onClick={onClose}
@@ -372,7 +453,7 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
                                         Creating...
                                     </>
                                 ) : (
-                                    'Create App'
+                                    'Create Agent'
                                 )}
                             </button>
                         </div>

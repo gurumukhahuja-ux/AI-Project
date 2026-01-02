@@ -25,10 +25,12 @@ import NotificationBar from '../NotificationBar/NotificationBar.jsx';
 import { useRecoilState } from 'recoil';
 import { clearUser, getUserData, toggleState, userData } from '../../userStore/userData';
 import axios from 'axios';
+import { useLanguage } from '../../context/LanguageContext';
 
 
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [notifiyTgl, setNotifyTgl] = useRecoilState(toggleState)
   const [currentUserData] = useRecoilState(userData);
@@ -119,14 +121,11 @@ const Sidebar = ({ isOpen, onClose }) => {
       return () => clearInterval(interval);
     }
   }, [token])
-  useEffect(() => {
-    if (notifiyTgl.notify) {
-      const timer = setTimeout(() => {
-        setNotifyTgl({ notify: false });
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [notifiyTgl.notify, setNotifyTgl]);
+  if (notifiyTgl.notify) {
+    setTimeout(() => {
+      setNotifyTgl({ notify: false })
+    }, 2000)
+  }
   // Dynamic class for active nav items
   const navItemClass = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group font-medium border border-transparent ${isActive
@@ -161,7 +160,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <div
         className={`
-          fixed inset-y-0 left-0 z-[100] w-64 bg-secondary border-r border-border 
+          fixed inset-y-0 left-0 z-[100] w-64 bg-card border-r border-border 
           flex flex-col transition-transform duration-300 ease-in-out 
           md:relative md:translate-x-0 shadow-2xl md:shadow-none
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -186,28 +185,28 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
           <NavLink to="/dashboard/chat" className={navItemClass} onClick={onClose}>
             <MessageSquare className="w-5 h-5" />
-            <span>Chat</span>
+            <span>{t('chat')}</span>
           </NavLink>
 
           <NavLink to={AppRoute.MY_AGENTS} className={navItemClass} onClick={onClose}>
             <Bot className="w-5 h-5" />
-            <span>My Agents</span>
+            <span>{t('myAgents')}</span>
           </NavLink>
 
           <NavLink to={AppRoute.MARKETPLACE} className={navItemClass} onClick={onClose}>
             <ShoppingBag className="w-5 h-5" />
-            <span>Marketplace</span>
+            <span>{t('marketplace')}</span>
           </NavLink>
 
-          {/* <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
+          <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
             <LayoutGrid className="w-5 h-5" />
-            <span>Vendor Dashboard</span>
-          </NavLink> */}
+            <span>{t('vendorDashboard')}</span>
+          </NavLink>
 
-          {/* <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
+          <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
             <FileText className="w-5 h-5" />
-            <span>Billing</span>
-          </NavLink> */}
+            <span>{t('billing')}</span>
+          </NavLink>
 
 
 
@@ -215,10 +214,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             <Zap className="w-5 h-5" />
             <span>Automations</span>
           </NavLink> */}
-          {/* <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
+          <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
             <Settings className="w-5 h-5" />
-            <span>Admin Dashboard</span>
-          </NavLink> */}
+            <span>{t('adminDashboard')}</span>
+          </NavLink>
         </div>
 
         {/* Notifications Section */}
@@ -229,14 +228,14 @@ const Sidebar = ({ isOpen, onClose }) => {
             onClick={onClose}
           >
             <Bell className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold text-subtext uppercase tracking-wider group-hover:text-primary transition-colors">Updates</span>
-            {Array.isArray(notifications) && notifications.some(n => !n.isRead) && (
+            <span className="text-xs font-bold text-subtext uppercase tracking-wider group-hover:text-primary transition-colors">{t('updates')}</span>
+            {notifications.some(n => !n.isRead) && (
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
             )}
           </NavLink>
 
           <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-none">
-            {Array.isArray(notifications) && notifications.length > 0 && notifications.map((notif) => (
+            {notifications.length > 0 && notifications.map((notif) => (
               <div
                 key={notif._id}
                 className={`p-2 rounded-lg border text-[11px] transition-all ${notif.type === 'ALERT'
@@ -263,7 +262,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* User Profile */}
         <div className="p-4 border-t border-border mt-auto">
           {/* Integrated Profile Card */}
-          <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isProfileOpen ? 'bg-surface border-border shadow-md' : 'border-transparent hover:bg-surface/50'}`}>
+          <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isProfileOpen ? 'bg-background border-border shadow-md' : 'border-transparent hover:bg-surface/50'}`}>
             {/* Header / Toggle */}
             <div className="flex items-center gap-1 group">
               <div
@@ -309,7 +308,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                         className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-subtext hover:text-red-500 hover:bg-red-50 transition-all text-[13px] font-medium"
                       >
                         <LogOut className="w-4 h-4 shrink-0" />
-                        <span>Log Out</span>
+                        <span>{t('logOut')}</span>
                       </button>
                     )}
                   </div>
@@ -324,7 +323,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             className="flex items-center gap-3 px-4 py-2 w-full rounded-lg text-subtext hover:bg-surface hover:text-maintext transition-all text-sm mt-1"
           >
             <HelpCircle className="w-4 h-4" />
-            <span>Help & FAQ</span>
+            <span>{t('helpFaq')}</span>
           </button>
         </div>
       </div>
@@ -332,7 +331,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       {/* FAQ Modal */}
       {isFaqOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="bg-card rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
 
             <div className="p-6 border-b border-border flex justify-between items-center bg-surface">
               <div className="flex gap-4">
@@ -362,7 +361,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <>
                   <p className="text-sm text-subtext font-medium">Get quick answers to common questions about our platform</p>
                   {faqs.map((faq, index) => (
-                    <div key={index} className="border border-border rounded-xl bg-white overflow-hidden hover:border-primary/30 transition-all">
+                    <div key={index} className="border border-border rounded-xl bg-card overflow-hidden hover:border-primary/30 transition-all">
                       <button
                         onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                         className="w-full flex justify-between items-center p-4 text-left hover:bg-surface transition-colors focus:outline-none"

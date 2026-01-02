@@ -78,7 +78,7 @@ const RevenueOverview = () => {
             {/* Performance Table */}
             <div className="bg-white border border-[#E0E4E8] rounded-[40px] shadow-sm overflow-hidden">
                 <div className="p-8 border-b border-[#E0E4E8] flex items-center justify-between bg-[#F8F9FB]/50">
-                    <h3 className="text-xl font-bold text-[#1E293B]">App-wise Performance</h3>
+                    <h3 className="text-xl font-bold text-[#1E293B]">Agent-wise Performance</h3>
                     <div className="px-4 py-1.5 bg-blue-50 text-blue-600 text-[10px] font-black rounded-full border border-blue-100 uppercase tracking-widest">
                         Real-time Data
                     </div>
@@ -87,7 +87,7 @@ const RevenueOverview = () => {
                     <table className="w-full text-left">
                         <thead className="bg-[#F8F9FB] border-b border-[#E0E4E8]">
                             <tr>
-                                <th className="px-10 py-5 text-[10px] font-bold text-subtext uppercase tracking-[2px]">App Name</th>
+                                <th className="px-10 py-5 text-[10px] font-bold text-subtext uppercase tracking-[2px]">Agent Name</th>
                                 <th className="px-10 py-5 text-[10px] font-bold text-subtext uppercase tracking-[2px] text-center">Total Revenue</th>
                                 <th className="px-10 py-5 text-[10px] font-bold text-subtext uppercase tracking-[2px] text-center">Platform Fees (50%)</th>
                                 <th className="px-10 py-5 text-[10px] font-bold text-subtext uppercase tracking-[2px] text-right">Net Earnings</th>

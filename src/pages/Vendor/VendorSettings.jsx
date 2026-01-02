@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Mail, Building2, Save, Camera, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
@@ -7,21 +7,41 @@ const VendorSettings = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        companyName: ''
+        companyName: '',
+        companyType: 'Individual',
+        avatar: ''
     });
     const [isLoading, setIsLoading] = useState(false);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         setFormData({
             name: user.name || '',
             email: user.email || '',
-            companyName: user.companyName || ''
+            companyName: user.companyName || '',
+            companyType: user.companyType || 'Individual',
+            avatar: user.avatar || ''
         });
     }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, avatar: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current.click();
     };
 
     const handleSave = () => {
@@ -30,8 +50,11 @@ const VendorSettings = () => {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const updatedUser = { ...user, ...formData };
             localStorage.setItem('user', JSON.stringify(updatedUser));
+
+            // Dispatch event to update layout
+            window.dispatchEvent(new Event('vendorProfileUpdate'));
+
             setIsLoading(false);
-            // alert('Settings saved. Refresh to see changes in header.'); // Replaced with nicer visual feedback if possible, or keep simple
         }, 800);
     };
 
@@ -50,11 +73,27 @@ const VendorSettings = () => {
                     <div className="relative -mt-12 mb-8 flex items-end">
                         <div className="relative group">
                             <div className="w-24 h-24 bg-white rounded-2xl p-1 shadow-lg">
-                                <div className="w-full h-full bg-indigo-50 rounded-xl flex items-center justify-center text-3xl font-bold text-indigo-600 border border-indigo-100">
-                                    {formData.name ? formData.name.charAt(0).toUpperCase() : <User size={32} />}
+                                <div className="w-full h-full bg-indigo-50 rounded-xl flex items-center justify-center text-3xl font-bold text-indigo-600 border border-indigo-100 overflow-hidden">
+                                    {formData.avatar ? (
+                                        <img src={formData.avatar} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        formData.name ? formData.name.charAt(0).toUpperCase() : <User size={32} />
+                                    )}
                                 </div>
                             </div>
-                            <button className="absolute bottom-2 -right-2 p-2 bg-gray-900 text-white rounded-lg shadow-lg hover:bg-black transition-colors cursor-pointer" title="Change Avatar">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleImageUpload}
+                                accept="image/png, image/jpeg, image/jpg"
+                                className="hidden"
+                            />
+                            <button
+                                type="button"
+                                onClick={triggerFileInput}
+                                className="absolute bottom-2 -right-2 p-2 bg-gray-900 text-white rounded-lg shadow-lg hover:bg-black transition-colors cursor-pointer"
+                                title="Change Avatar"
+                            >
                                 <Camera size={14} />
                             </button>
                         </div>
@@ -126,6 +165,27 @@ const VendorSettings = () => {
                                     </div>
                                     <p className="text-[11px] text-gray-400 font-medium ml-1">Displayed in dashboard header</p>
                                 </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-1">Company Type</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <Building2 className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                                        </div>
+                                        <select
+                                            name="companyType"
+                                            value={formData.companyType}
+                                            onChange={handleChange}
+                                            className="block w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
+                                        >
+                                            <option value="Individual">Individual</option>
+                                            <option value="Startup">Startup</option>
+                                            <option value="Enterprise">Enterprise</option>
+                                            <option value="Agency">Agency</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -136,7 +196,7 @@ const VendorSettings = () => {
                                 type="button"
                                 onClick={handleSave}
                                 disabled={isLoading}
-                                className="bg-gray-900 text-white px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-black transition-all shadow-lg shadow-gray-900/20 active:scale-95 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="bg-blue-600 text-white px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 active:scale-95 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? 'Saving...' : (
                                     <>

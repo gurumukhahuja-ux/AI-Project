@@ -11,11 +11,30 @@ const VendorLayout = () => {
     };
 
     // Dynamic Vendor Data
-    const [vendorName, setVendorName] = useState('Vendor');
+    const [vendorData, setVendorData] = useState({
+        name: 'Vendor',
+        type: 'Premium Partner' // Default
+    });
 
     React.useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        setVendorName(user.companyName || user.name || 'Vendor');
+        const updateVendorData = () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            setVendorData({
+                name: user.companyName || user.name || 'Vendor',
+                type: user.companyType || 'Premium Partner',
+                avatar: user.avatar || null
+            });
+        };
+
+        // Initial load
+        updateVendorData();
+
+        // Listen for updates
+        window.addEventListener('vendorProfileUpdate', updateVendorData);
+
+        return () => {
+            window.removeEventListener('vendorProfileUpdate', updateVendorData);
+        };
     }, []);
 
     const appHealth = "All Good";
@@ -27,7 +46,9 @@ const VendorLayout = () => {
             <div className="flex-1 flex flex-col min-w-0">
                 <Topbar
                     toggleSidebar={toggleSidebar}
-                    vendorName={vendorName}
+                    vendorName={vendorData.name}
+                    vendorType={vendorData.type}
+                    vendorAvatar={vendorData.avatar}
                     appHealth={appHealth}
                 />
 
