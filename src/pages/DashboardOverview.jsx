@@ -37,7 +37,7 @@ const DashboardOverview = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
 
         {/* Total Chats */}
-        <div className="bg-white border border-border p-6 rounded-2xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
+        <div className="bg-card border border-border p-6 rounded-2xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <MessageSquare className="w-16 h-16 text-primary" />
           </div>
@@ -52,7 +52,7 @@ const DashboardOverview = () => {
         </div>
 
         {/* Tokens Used */}
-        <div className="bg-white border border-border p-6 rounded-2xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
+        <div className="bg-card border border-border p-6 rounded-2xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <IndianRupee className="w-16 h-16 text-primary" />
           </div>
@@ -68,7 +68,7 @@ const DashboardOverview = () => {
         </div>
 
         {/* Active Agents */}
-        <div className="bg-white border border-border p-6 rounded-2xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
+        <div className="bg-card border border-border p-6 rounded-2xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Zap className="w-16 h-16 text-primary" />
           </div>
@@ -85,7 +85,7 @@ const DashboardOverview = () => {
         </div>
 
         {/* Time Saved */}
-        <div className="bg-white border border-border p-6 rounded-2xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
+        <div className="bg-card border border-border p-6 rounded-2xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Clock className="w-16 h-16 text-primary" />
           </div>
@@ -102,7 +102,7 @@ const DashboardOverview = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
 
         {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-white border border-border rounded-2xl p-6 shadow-sm">
+        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-bold text-maintext">Recent Activity</h2>
             <button className="text-sm text-primary hover:text-opacity-80">View All</button>
@@ -132,7 +132,7 @@ const DashboardOverview = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
           <h2 className="text-lg font-bold text-maintext mb-6">Quick Actions</h2>
 
           <div className="space-y-3">

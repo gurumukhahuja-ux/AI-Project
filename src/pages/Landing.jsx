@@ -64,7 +64,7 @@ const Landing = () => {
           animate={{ opacity: 1, y: 0 }}
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-sm text-subtext mb-8"
         >
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          <span className="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
           Powered by UWO
         </motion.div>
 
@@ -130,7 +130,7 @@ const Landing = () => {
           transition={{ delay: 0.4 }}
           className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full text-left"
         >
-          <div className="p-6 rounded-3xl bg-white border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
+          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Bot className="w-6 h-6 text-primary" />
             </div>
@@ -140,7 +140,7 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-white border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
+          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Zap className="w-6 h-6 text-primary" />
             </div>
@@ -150,7 +150,7 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-white border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
+          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Shield className="w-6 h-6 text-primary" />
             </div>
@@ -165,7 +165,7 @@ const Landing = () => {
       </main>
 
       {/* Footer Section */}
-      <footer className="w-full bg-white border-t border-border mt-20 relative z-10">
+      <footer className="w-full bg-background border-t border-border mt-20 relative z-10">
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             {/* Brand Column */}

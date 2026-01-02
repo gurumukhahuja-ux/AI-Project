@@ -166,7 +166,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-4xl bg-white rounded-[32px] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+                            className="relative w-full max-w-4xl bg-card rounded-[32px] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
                         >
                             {/* Header */}
                             <div className="p-6 border-b border-border flex items-center justify-between bg-surface/50">
@@ -202,7 +202,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: index * 0.05 }}
-                                            className="bg-white border border-border rounded-2xl p-5 hover:border-primary/30 transition-all flex flex-col"
+                                            className="bg-card border border-border rounded-2xl p-5 hover:border-primary/30 transition-all flex flex-col"
                                         >
                                             <div className="flex items-center gap-3 mb-3 border-b border-border/30 pb-2">
                                                 {section.icon}

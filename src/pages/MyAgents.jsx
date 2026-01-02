@@ -109,7 +109,7 @@ const MyAgents = () => {
                         {agents.map((agent) =>
                             <div
                                 key={agent._id}
-                                className=" group bg-white border border-border hover:border-primary/50 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col w-full shadow-sm"
+                                className=" group bg-card border border-border hover:border-primary/50 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col w-full shadow-sm"
                             >
                                 <div className="flex justify-between items-start mb-4">
                                     <img
@@ -163,7 +163,7 @@ const MyAgents = () => {
                         onClick={handleCreateAgent}
                         className="border border-dashed border-border bg-surface/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:bg-surface transition-colors cursor-pointer group min-h-[160px]"
                     >
-                        <div className="w-12 h-12 rounded-full bg-white border border-border flex items-center justify-center mb-3 group-hover:border-primary/50">
+                        <div className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center mb-3 group-hover:border-primary/50">
                             <Plus className="w-6 h-6 text-subtext group-hover:text-primary" />
                         </div>
                         <h3 className="font-medium text-maintext">Create from Template</h3>

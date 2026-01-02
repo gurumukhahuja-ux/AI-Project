@@ -103,11 +103,11 @@ const Marketplace = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-3xl p-6 w-full max-w-4xl shadow-2xl relative"
+              className="bg-card rounded-3xl p-6 w-full max-w-4xl shadow-2xl relative"
             >
               <button
                 onClick={() => setShowDemo(false)}
-                className="absolute -top-4 -right-4 bg-white p-2 rounded-full shadow-lg hover:bg-surface transition-colors"
+                className="absolute -top-4 -right-4 bg-card p-2 rounded-full shadow-lg hover:bg-surface transition-colors"
                 title="Close"
               >
                 <X className="w-5 h-5" />
@@ -168,7 +168,7 @@ const Marketplace = () => {
             onClick={() => setFilter(cat)}
             className={`px-4 py-2 rounded-full text-sm font-medium capitalize whitespace-nowrap transition-all border ${filter === cat
               ? 'bg-primary text-white border-primary'
-              : 'bg-white text-subtext border-border hover:bg-surface'
+              : 'bg-card text-subtext border-border hover:bg-surface'
               }`}
           >
             {cat}
@@ -181,7 +181,7 @@ const Marketplace = () => {
         {loading ? <h1>Loading.....</h1> : filteredAgents.map(agent => (
           <div
             key={agent._id}
-            className="group bg-white border border-border hover:border-primary/50 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col h-full shadow-sm"
+            className="group bg-card border border-border hover:border-primary/50 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col h-full shadow-sm"
           >
             <div className="flex justify-between items-start mb-4">
 
