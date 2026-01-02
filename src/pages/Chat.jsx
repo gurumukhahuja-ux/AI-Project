@@ -329,7 +329,8 @@ const Chat = () => {
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isLoading}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 sm:p-2.5 rounded-full bg-primary text-white hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                style={{ transform: 'translateY(-50%)' }}
+                className="absolute right-2 top-1/2 p-2 sm:p-2.5 rounded-full bg-primary text-white hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center"
               >
                 <Send className="w-4 h-4" />
               </button>
