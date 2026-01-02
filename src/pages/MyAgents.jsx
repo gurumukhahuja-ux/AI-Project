@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Settings, Trash2, Bot, Code, Edit3, Save, FileText, Download } from 'lucide-react';
 import { apiService } from '../services/apiService';
-import axios from 'axios';
-import { apis, AppRoute } from '../types';
+import { AppRoute } from '../types';
 import { getUserData } from '../userStore/userData';
 import { useNavigate, Link } from 'react-router';
 import AgentModal from '../Components/AgentModal/AgentModal';
@@ -30,9 +29,14 @@ const MyAgents = () => {
     const loadAgents = async () => {
         setLoading(true);
         const userId = user?.id || user?._id;
-        axios.post(apis.getUserAgents, { userId }).then((res) => {
-            setAgents(res.data.agents);
-        }).catch(err => console.log(err))
+        if (userId) {
+            try {
+                const data = await apiService.getUserAgents(userId);
+                setAgents(data.agents || []);
+            } catch (err) {
+                console.error("Error loading user agents:", err);
+            }
+        }
         setLoading(false);
     };
 

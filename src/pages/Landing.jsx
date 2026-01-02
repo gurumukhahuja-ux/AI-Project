@@ -2,35 +2,27 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   ArrowRight, Bot, Zap, Shield, CircleUser,
-  Play, ChevronDown, ChevronUp, Twitter, Github,
+  Github,
   Linkedin, Mail, MapPin, Phone, Facebook, Instagram, Youtube, MessageSquare, MessageCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { logo, faqs, name } from '../constants';
+import { logo, name } from '../constants';
 import { getUserData } from '../userStore/userData';
 import { AppRoute } from '../types';
 import LandingLiveDemoModal from '../Components/LiveDemo/LandingLiveDemoModal';
 import { useRecoilState } from 'recoil';
 import { demoModalState } from '../userStore/demoStore';
 import SecurityModal from '../Components/LiveDemo/SecurityModal';
-
+import { FaXTwitter } from "react-icons/fa6";
+import { Link } from 'react-router';
 const Landing = () => {
   const navigate = useNavigate();
   const user = getUserData("user")
   const [demoState, setDemoState] = useRecoilState(demoModalState);
-  const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
 
-  const toggleFaq = (index) => {
-    setOpenFaqIndex(openFaqIndex === index ? null : index);
-  };
 
-  const openDemo = () => {
-    setDemoState({
-      isOpen: true,
-      selectedAgent: null
-    });
-  };
+
 
   const btnClass = "px-8 py-4 bg-primary rounded-2xl font-bold text-lg text-white shadow-xl shadow-primary/30 flex items-center justify-center gap-2 border border-primary/10 w-full sm:w-auto overflow-hidden";
 
@@ -47,7 +39,7 @@ const Landing = () => {
           <img src={logo} alt="Logo" className="w-14 h-14 object-contain" />
           <span className="text-3xl font-black tracking-tighter text-maintext">{name}</span>
         </div>
-        {user ? <CircleUser className=' h-7 w-7' /> : <div className="flex gap-4">
+        {user ? <Link to={AppRoute.PROFILE}><CircleUser className=' h-7 w-7' /></Link> : <div className="flex gap-4">
           <button
             onClick={() => navigate("/login")}
             className="text-subtext hover:text-primary font-medium transition-colors"
@@ -112,14 +104,7 @@ const Landing = () => {
             Start Now <ArrowRight className="w-5 h-5" />
           </motion.button>
 
-          <motion.button
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={openDemo}
-            className={btnClass}
-          >
-            <Play className="w-5 h-5 fill-white" /> Watch Live Demo
-          </motion.button>
+
 
           {!user && (
             <motion.button
@@ -136,35 +121,7 @@ const Landing = () => {
 
 
 
-        {/* FAQ Section */}
-        <div className="mt-20 w-full max-w-3xl mb-8">
-          <h2 className="text-3xl font-bold text-center mb-10 text-maintext">Frequently Asked Questions</h2>
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <div key={index} className="border border-border rounded-xl bg-white overflow-hidden hover:shadow-md transition-all">
-                <button
-                  onClick={() => toggleFaq(index)}
-                  className="w-full flex justify-between items-center p-5 text-left hover:bg-surface transition-colors focus:outline-none"
-                >
-                  <span className="font-semibold text-maintext text-lg">{faq.question}</span>
-                  {openFaqIndex === index ? (
-                    <ChevronUp className="w-5 h-5 text-primary" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-subtext" />
-                  )}
-                </button>
-                <div
-                  className={`overflow - hidden transition - all duration - 300 ease -in -out ${openFaqIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                    } `}
-                >
-                  <div className="p-5 pt-0 text-subtext leading-relaxed">
-                    {faq.answer}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+
 
         {/* Features Preview */}
         <motion.div
@@ -232,7 +189,7 @@ const Landing = () => {
                     hover: "hover:bg-[#0077B5]"
                   },
                   {
-                    icon: <Twitter className="w-5 h-5" />,
+                    icon: <FaXTwitter className="w-5 h-5" />,
                     href: "https://x.com/aimallglobal",
                     color: "text-[#000000]",
                     bg: "bg-[#000000]/10",

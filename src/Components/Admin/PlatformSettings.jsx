@@ -1,9 +1,29 @@
 import React, { useState } from 'react';
 import { AlertCircle, Server, ShieldAlert, ToggleLeft, ToggleRight, Settings } from 'lucide-react';
 
+import apiService from '../../services/apiService';
+import { useToast } from '../../Components/Toast/ToastContext';
+
 const PlatformSettings = () => {
+    const toast = useToast();
     const [maintenance, setMaintenance] = useState(false);
     const [killSwitch, setKillSwitch] = useState(false);
+
+    const handleMaintenanceToggle = async () => {
+        const newState = !maintenance;
+        try {
+            setMaintenance(newState); // Optimistic UI update
+            await apiService.toggleMaintenance(newState);
+            if (newState) {
+                toast.success("Maintenance mode enabled. Users notified.");
+            } else {
+                toast.success("Maintenance mode disabled.");
+            }
+        } catch (error) {
+            setMaintenance(!newState); // Revert on error
+            toast.error("Failed to update maintenance settings.");
+        }
+    };
 
     return (
         <div className="space-y-8">
@@ -34,7 +54,7 @@ const PlatformSettings = () => {
                             <p className="font-bold text-maintext">Maintenance Mode</p>
                             <p className="text-sm text-subtext">Disable user access for system upgrades.</p>
                         </div>
-                        <button onClick={() => setMaintenance(!maintenance)} className={`text-2xl ${maintenance ? 'text-green-500' : 'text-subtext'}`}>
+                        <button onClick={handleMaintenanceToggle} className={`text-2xl ${maintenance ? 'text-green-500' : 'text-subtext'}`}>
                             {maintenance ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                         </button>
                     </div>

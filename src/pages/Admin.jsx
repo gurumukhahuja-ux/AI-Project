@@ -10,31 +10,36 @@ import {
   Settings,
   UserCheck,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Menu,
+  X
 } from "lucide-react";
 
 // Sub-Components
-import AdminOverview from "../Components/Admin/AdminOverview";
-import Approvals from "../Components/Admin/Approvals";
-import UserManagement from "../Components/Admin/UserManagement";
-import VendorManagement from "../Components/Admin/VendorManagement";
-import AgentManagement from "../Components/Admin/AgentManagement";
-import Financials from "../Components/Admin/Financials";
-import TransactionHistory from "../Components/Admin/TransactionHistory";
-import Complaints from "../Components/Admin/Complaints";
-import AccessControl from "../Components/Admin/AccessControl";
-import PlatformSettings from "../Components/Admin/PlatformSettings";
-import AdminSupport from "../Components/Admin/Support";
+import AdminOverview from "../components/Admin/AdminOverview";
+import Approvals from "../components/Admin/Approvals";
+import UserManagement from "../components/Admin/UserManagement";
+import VendorManagement from "../components/Admin/VendorManagement";
+import AgentManagement from "../components/Admin/AgentManagement";
+import Financials from "../components/Admin/Financials";
+import TransactionHistory from "../components/Admin/TransactionHistory";
+import Complaints from "../components/Admin/Complaints";
+import AccessControl from "../components/Admin/AccessControl";
+import PlatformSettings from "../components/Admin/PlatformSettings";
+import AdminSupport from "../components/Admin/Support";
+import VendorList from "../components/Admin/VendorList";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [activeSubTab, setActiveSubTab] = useState("overview");
   const [isRevenueExpanded, setIsRevenueExpanded] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // ... (navigation remains same)
   const navigation = {
     management: [
       { id: "overview", label: "Overview", icon: Activity },
-      { id: "agents", label: "Apps", icon: ShoppingBag },
+      { id: "agents", label: "My Agents", icon: ShoppingBag },
       {
         id: "finance",
         label: "Revenue & Payouts",
@@ -51,7 +56,7 @@ const Admin = () => {
     ],
     governance: [
       { id: "approvals", label: "Approvals", icon: CheckCircle },
-      { id: "roles", label: "Admin Support", icon: Shield },
+      { id: "roles", label: "Vendors", icon: Shield },
       { id: "settings", label: "Settings", icon: Settings },
     ]
   };
@@ -66,7 +71,7 @@ const Admin = () => {
       case "finance":
         return activeSubTab === "transactions" ? <TransactionHistory /> : <Financials />;
       case "complaints": return <AdminSupport />;
-      case "roles": return <AccessControl />;
+      case "roles": return <VendorList />;
       case "settings": return <PlatformSettings />;
       default: return <AdminOverview />;
     }
@@ -80,6 +85,7 @@ const Admin = () => {
         <button
           onClick={() => {
             setActiveTab(item.id);
+            if (!item.hasSub) setSidebarOpen(false); // Close sidebar on mobile after selection
             if (item.hasSub) {
               setIsRevenueExpanded(!isRevenueExpanded);
             }
@@ -104,6 +110,7 @@ const Admin = () => {
                 onClick={() => {
                   setActiveTab(item.id);
                   setActiveSubTab(sub.id);
+                  setSidebarOpen(false); // Close sidebar on mobile
                 }}
                 className={`w-full text-left px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${isMainActive && activeSubTab === sub.id
                   ? "text-primary bg-primary/5"
@@ -120,14 +127,31 @@ const Admin = () => {
   };
 
   return (
-    <div className="h-screen flex bg-[#F8F9FB] text-[#2C3E50] overflow-hidden">
+    <div className="h-screen flex bg-[#F8F9FB] text-[#2C3E50] overflow-hidden relative">
+      {/* Mobile Sidebar Backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 border-r border-[#E0E4E8] bg-white flex flex-col shrink-0">
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20">
-            M
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-[#E0E4E8] flex flex-col transform transition-transform duration-300 ease-in-out
+        lg:translate-x-0 lg:static lg:inset-auto
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      `}>
+        <div className="p-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20">
+              M
+            </div>
+            <span className="font-bold text-xl tracking-tight">ADMIN</span>
           </div>
-          <span className="font-bold text-xl tracking-tight">ADMIN</span>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-subtext">
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 space-y-8 py-4">
@@ -157,9 +181,15 @@ const Admin = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="h-[72px] bg-white border-b border-[#E0E4E8] flex items-center justify-between px-8 shrink-0">
-          <div className="flex-1 max-w-xl">
-            <div className="relative group">
+        <header className="h-[72px] bg-white border-b border-[#E0E4E8] flex items-center justify-between px-4 lg:px-8 shrink-0">
+          <div className="flex items-center gap-4 flex-1">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 hover:bg-slate-50 rounded-lg transition-colors"
+            >
+              <Menu className="w-6 h-6 text-subtext" />
+            </button>
+            <div className="flex-1 max-w-xl group relative">
               <Activity className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-subtext group-focus-within:text-primary transition-colors" />
               <input
                 type="text"
@@ -169,13 +199,10 @@ const Admin = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-
-
+          <div className="flex items-center gap-6 ml-4">
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-maintext">AI-Mall <sup className="text-[9px] font-normal">TM</sup></p>
-
               </div>
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold shadow-sm border border-primary/10">
                 A
@@ -183,6 +210,7 @@ const Admin = () => {
             </div>
           </div>
         </header>
+
 
         {/* Dynamic Content */}
         <main className="flex-1 overflow-y-auto bg-[#F8F9FB] p-8">

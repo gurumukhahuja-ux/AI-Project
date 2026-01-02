@@ -13,7 +13,7 @@ import {
   Video,
   FileText,
   Bell,
-  Shield,
+
   DollarSign,
   HelpCircle,
   ChevronDown,
@@ -25,6 +25,7 @@ import NotificationBar from '../NotificationBar/NotificationBar.jsx';
 import { useRecoilState } from 'recoil';
 import { clearUser, getUserData, toggleState, userData } from '../../userStore/userData';
 import axios from 'axios';
+import apiService from '../../services/apiService';
 
 
 
@@ -59,12 +60,15 @@ const Sidebar = ({ isOpen, onClose }) => {
     setSendStatus(null);
 
     try {
-      await axios.post(apis.support, {
-        email: user?.email || "guest@ai-mall.in",
-        issueType,
-        message: issueText,
-        userId: user?.id || null
+      // Use apiService.submitReport to ensure it shows up in Admin > User Support
+      // The backend expects: { type, priority, description, targetId }
+      await apiService.submitReport({
+        type: issueType,
+        description: issueText,
+        priority: 'medium', // Default priority
+        // targetId: null 
       });
+
       setSendStatus('success');
       setIssueText(""); // Clear text
       setTimeout(() => setSendStatus(null), 3000); // Reset status after 3s
@@ -206,10 +210,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>Billing</span>
           </NavLink>
 
-          <NavLink to={AppRoute.SECURITY} className={navItemClass} onClick={onClose}>
-            <Shield className="w-5 h-5" />
-            <span>Security & Guidelines</span>
-          </NavLink>
+
 
           {/* <NavLink to="/dashboard/automations" className={navItemClass} onClick={onClose}>
             <Zap className="w-5 h-5" />
@@ -362,28 +363,28 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <>
                   <p className="text-sm text-subtext font-medium">Get quick answers to common questions about our platform</p>
                   {faqs.map((faq, index) => (
-                  <div key={index} className="border border-border rounded-xl bg-white overflow-hidden hover:border-primary/30 transition-all">
-                    <button
-                      onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
-                      className="w-full flex justify-between items-center p-4 text-left hover:bg-surface transition-colors focus:outline-none"
-                    >
-                      <span className="font-semibold text-maintext text-[15px]">{faq.question}</span>
-                      {openFaqIndex === index ? (
-                        <ChevronUp className="w-4 h-4 text-primary" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-subtext" />
-                      )}
-                    </button>
-                    <div
-                      className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? 'max-h-96 opacity-100 bg-surface/30' : 'max-h-0 opacity-0'
-                        }`}
-                    >
-                      <div className="p-4 pt-0 text-subtext text-sm leading-relaxed border-t border-border/50 mt-2 pt-3">
-                        {faq.answer}
+                    <div key={index} className="border border-border rounded-xl bg-white overflow-hidden hover:border-primary/30 transition-all">
+                      <button
+                        onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                        className="w-full flex justify-between items-center p-4 text-left hover:bg-surface transition-colors focus:outline-none"
+                      >
+                        <span className="font-semibold text-maintext text-[15px]">{faq.question}</span>
+                        {openFaqIndex === index ? (
+                          <ChevronUp className="w-4 h-4 text-primary" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-subtext" />
+                        )}
+                      </button>
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? 'max-h-96 opacity-100 bg-surface/30' : 'max-h-0 opacity-0'
+                          }`}
+                      >
+                        <div className="p-4 pt-0 text-subtext text-sm leading-relaxed border-t border-border/50 mt-2 pt-3">
+                          {faq.answer}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
                 </>
               ) : (
                 <div className="flex flex-col gap-6">

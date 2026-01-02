@@ -50,7 +50,7 @@ const AdminOverview = () => {
 
     const snapshot = [
         { label: 'Total Users', value: statsData?.totalUsers?.toLocaleString() || '0', trend: '0%', direction: 'down' },
-        { label: 'Active Users', value: statsData?.activeAgents?.toLocaleString() || '0', trend: '0%', direction: 'down' },
+        { label: 'Active Agents', value: statsData?.activeAgents?.toLocaleString() || '0', trend: '0%', direction: 'down' },
         { label: 'Revenue (MTD)', value: `$${(statsData?.financials?.grossSales || 0).toLocaleString()}`, trend: '0%', direction: 'down' },
     ];
 
@@ -98,7 +98,9 @@ const AdminOverview = () => {
                             <p className="text-[10px] text-subtext font-bold uppercase tracking-wider">Compliance</p>
                             <div className="flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-                                <p className="text-sm font-bold text-[#1E293B]">Pending Apps</p>
+                                <p className="text-sm font-bold text-[#1E293B]">
+                                    {statsData?.pendingApprovals > 0 ? `${statsData.pendingApprovals} Pending Apps` : 'All Apps Approved'}
+                                </p>
                             </div>
                         </div>
                     </div>

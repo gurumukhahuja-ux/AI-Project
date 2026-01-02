@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Download, Check, Star, FileText, Play, X } from 'lucide-react';
-import axios from 'axios';
 import { apis, AppRoute } from '../types';
+import apiService from '../services/apiService';
 import { getUserData, toggleState } from '../userStore/userData';
 import SubscriptionForm from '../Components/SubscriptionForm/SubscriptionForm';
 import { useRecoilState } from 'recoil';
@@ -31,23 +31,23 @@ const Marketplace = () => {
         setLoading(true);
       }
       const userId = user?.id || user?._id;
-
       try {
-        const [userAgentsRes, agentsRes] = await Promise.allSettled([
-          axios.post(apis.getUserAgents, { userId }),
-          axios.get(apis.agents)
+        const [userAgentsData, agentsData] = await Promise.allSettled([
+          userId ? apiService.getUserAgents(userId) : Promise.reject("No User ID"),
+          apiService.getAgents()
         ]);
 
-        if (userAgentsRes.status === 'fulfilled') {
-          setUserAgent(userAgentsRes.value.data?.agents || []);
+        if (userAgentsData.status === 'fulfilled') {
+          setUserAgent(userAgentsData.value.data?.agents || []);
         } else {
-          console.error("Failed to fetch user agents:", userAgentsRes.reason);
+          console.warn("User agents not loaded (might not be logged in)");
+          setUserAgent([]);
         }
 
-        if (agentsRes.status === 'fulfilled') {
-          setAgents(Array.isArray(agentsRes.value.data) ? agentsRes.value.data : []);
+        if (agentsData.status === 'fulfilled') {
+          setAgents(Array.isArray(agentsData.value) ? agentsData.value : []);
         } else {
-          console.error("Failed to fetch agents:", agentsRes.reason);
+          console.error("Failed to fetch agents:", agentsData.reason);
           setAgents([]);
         }
       } catch (error) {

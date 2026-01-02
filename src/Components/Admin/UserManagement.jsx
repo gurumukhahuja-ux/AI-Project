@@ -137,9 +137,14 @@ const UserManagement = () => {
                                                                         <Bot className="w-3 h-3 text-subtext" />
                                                                         <span className="text-sm font-medium text-[#1E293B] line-clamp-1">{agent.agentName || agent.name}</span>
                                                                     </div>
-                                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${agent.pricing === 'Pro' ? 'bg-indigo-50 text-indigo-600' : agent.pricing === 'Basic' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
-                                                                        {agent.pricing || 'Free'}
-                                                                    </span>
+                                                                    {(() => {
+                                                                        const priceType = typeof agent.pricing === 'object' ? agent.pricing?.type : agent.pricing;
+                                                                        return (
+                                                                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${priceType === 'Pro' ? 'bg-indigo-50 text-indigo-600' : priceType === 'Basic' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                                                {priceType || 'Free'}
+                                                                            </span>
+                                                                        );
+                                                                    })()}
                                                                 </div>
                                                             ))
                                                         ) : (

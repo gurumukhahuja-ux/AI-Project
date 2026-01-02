@@ -99,23 +99,27 @@ export const apiService = {
       const response = await apiClient.get('/admin/stats');
       return response.data;
     } catch (error) {
-      console.warn('Backend admin stats failed, falling back to mock:', error.message);
-      const agents = JSON.parse(localStorage.getItem('mock_agents') || '[]');
-      return {
-        totalUsers: 0,
-        activeAgents: agents.length,
-        pendingApprovals: 0,
-        totalRevenue: 0,
-        openComplaints: 0,
-        recentActivity: [],
-        inventory: agents.map(a => ({
-          ...a,
-          id: a._id,
-          name: a.name || a.agentName,
-          pricing: a.pricing || 'Free',
-          status: a.status || 'Active'
-        }))
-      };
+      console.error('Backend admin stats failed:', error.message);
+      // Only fallback if specifically in a demo environment or if backend is unreachable
+      if (error.code === 'ECONNABORTED' || !error.response) {
+        const agents = JSON.parse(localStorage.getItem('mock_agents') || '[]');
+        return {
+          totalUsers: 0,
+          activeAgents: agents.length,
+          pendingApprovals: 0,
+          totalRevenue: 0,
+          openComplaints: 0,
+          recentActivity: [],
+          inventory: agents.map(a => ({
+            ...a,
+            id: a._id || a.id,
+            name: a.agentName || a.name,
+            pricing: a.pricing || 'Free',
+            status: a.status || 'Active'
+          }))
+        };
+      }
+      throw error;
     }
   },
 
@@ -154,16 +158,38 @@ export const apiService = {
     }
   },
 
+  async getUserAgents(userId) {
+    try {
+      const response = await apiClient.post('/agents/get_my_agents', { userId });
+      return response.data;
+    } catch (error) {
+      console.warn("Failed to fetch user agents from server");
+      return { agents: [] };
+    }
+  },
+
   async createAgent(agentData) {
     try {
       const response = await apiClient.post('/agents', agentData);
       return response.data;
     } catch (error) {
-      const stored = JSON.parse(localStorage.getItem('mock_agents') || '[]');
-      const newAgent = { ...agentData, _id: Date.now().toString() };
-      stored.push(newAgent);
-      localStorage.setItem('mock_agents', JSON.stringify(stored));
-      return newAgent;
+      console.error('Failed to create agent on backend:', error.response?.data || error.message);
+
+      // If unauthorized, we MUST throw so the UI can redirect or show error
+      if (error.response?.status === 401) {
+        throw new Error("Unauthorized: Please login again.");
+      }
+
+      // Fallback only if backend is completely down (Demo Mode)
+      if (!error.response) {
+        const stored = JSON.parse(localStorage.getItem('mock_agents') || '[]');
+        const newAgent = { ...agentData, _id: Date.now().toString(), id: Date.now().toString() };
+        stored.push(newAgent);
+        localStorage.setItem('mock_agents', JSON.stringify(stored));
+        return newAgent;
+      }
+
+      throw error;
     }
   },
 
@@ -442,6 +468,16 @@ export const apiService = {
       return response.data;
     } catch (error) {
       console.error("Failed to resolve report:", error);
+      throw error;
+    }
+  },
+
+  async toggleMaintenance(enabled) {
+    try {
+      const response = await apiClient.post('/admin/settings/maintenance', { enabled });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to toggle maintenance mode:", error);
       throw error;
     }
   },
