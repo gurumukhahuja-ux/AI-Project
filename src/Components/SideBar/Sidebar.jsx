@@ -229,34 +229,12 @@ const Sidebar = ({ isOpen, onClose }) => {
           >
             <Bell className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-subtext uppercase tracking-wider group-hover:text-primary transition-colors">{t('updates')}</span>
-            {notifications.some(n => !n.isRead) && (
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            {notifications.filter(n => !n.isRead).length > 0 && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
+                {notifications.filter(n => !n.isRead).length}
+              </span>
             )}
           </NavLink>
-
-          <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-none">
-            {notifications.length > 0 && notifications.map((notif) => (
-              <div
-                key={notif._id}
-                className={`p-2 rounded-lg border text-[11px] transition-all ${notif.type === 'ALERT'
-                  ? 'bg-red-50 border-red-100 text-red-700'
-                  : 'bg-surface border-border text-subtext'
-                  } ${!notif.isRead ? 'ring-1 ring-primary/20' : 'opacity-80'}`}
-              >
-                <p className="font-bold mb-1">{notif.title}</p>
-                <p className="leading-tight">{notif.message}</p>
-              </div>
-            ))}
-          </div>
-          {notifications.length > 0 && (
-            <NavLink
-              to={AppRoute.NOTIFICATIONS}
-              className="mt-2 px-2 text-[10px] font-bold text-primary hover:underline block text-center"
-              onClick={onClose}
-            >
-              View All Notifications
-            </NavLink>
-          )}
         </div>
 
         {/* User Profile */}
