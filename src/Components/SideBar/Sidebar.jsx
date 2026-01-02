@@ -119,11 +119,14 @@ const Sidebar = ({ isOpen, onClose }) => {
       return () => clearInterval(interval);
     }
   }, [token])
-  if (notifiyTgl.notify) {
-    setTimeout(() => {
-      setNotifyTgl({ notify: false })
-    }, 2000)
-  }
+  useEffect(() => {
+    if (notifiyTgl.notify) {
+      const timer = setTimeout(() => {
+        setNotifyTgl({ notify: false });
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [notifiyTgl.notify, setNotifyTgl]);
   // Dynamic class for active nav items
   const navItemClass = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group font-medium border border-transparent ${isActive
@@ -196,15 +199,15 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>Marketplace</span>
           </NavLink>
 
-          <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
+          {/* <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
             <LayoutGrid className="w-5 h-5" />
             <span>Vendor Dashboard</span>
-          </NavLink>
+          </NavLink> */}
 
-          <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
+          {/* <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
             <FileText className="w-5 h-5" />
             <span>Billing</span>
-          </NavLink>
+          </NavLink> */}
 
 
 
@@ -212,10 +215,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             <Zap className="w-5 h-5" />
             <span>Automations</span>
           </NavLink> */}
-          <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
+          {/* <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
             <Settings className="w-5 h-5" />
             <span>Admin Dashboard</span>
-          </NavLink>
+          </NavLink> */}
         </div>
 
         {/* Notifications Section */}
@@ -227,13 +230,13 @@ const Sidebar = ({ isOpen, onClose }) => {
           >
             <Bell className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-subtext uppercase tracking-wider group-hover:text-primary transition-colors">Updates</span>
-            {notifications.some(n => !n.isRead) && (
+            {Array.isArray(notifications) && notifications.some(n => !n.isRead) && (
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
             )}
           </NavLink>
 
           <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-none">
-            {notifications.length > 0 && notifications.map((notif) => (
+            {Array.isArray(notifications) && notifications.length > 0 && notifications.map((notif) => (
               <div
                 key={notif._id}
                 className={`p-2 rounded-lg border text-[11px] transition-all ${notif.type === 'ALERT'
@@ -359,28 +362,28 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <>
                   <p className="text-sm text-subtext font-medium">Get quick answers to common questions about our platform</p>
                   {faqs.map((faq, index) => (
-                  <div key={index} className="border border-border rounded-xl bg-white overflow-hidden hover:border-primary/30 transition-all">
-                    <button
-                      onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
-                      className="w-full flex justify-between items-center p-4 text-left hover:bg-surface transition-colors focus:outline-none"
-                    >
-                      <span className="font-semibold text-maintext text-[15px]">{faq.question}</span>
-                      {openFaqIndex === index ? (
-                        <ChevronUp className="w-4 h-4 text-primary" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-subtext" />
-                      )}
-                    </button>
-                    <div
-                      className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? 'max-h-96 opacity-100 bg-surface/30' : 'max-h-0 opacity-0'
-                        }`}
-                    >
-                      <div className="p-4 pt-0 text-subtext text-sm leading-relaxed border-t border-border/50 mt-2 pt-3">
-                        {faq.answer}
+                    <div key={index} className="border border-border rounded-xl bg-white overflow-hidden hover:border-primary/30 transition-all">
+                      <button
+                        onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                        className="w-full flex justify-between items-center p-4 text-left hover:bg-surface transition-colors focus:outline-none"
+                      >
+                        <span className="font-semibold text-maintext text-[15px]">{faq.question}</span>
+                        {openFaqIndex === index ? (
+                          <ChevronUp className="w-4 h-4 text-primary" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-subtext" />
+                        )}
+                      </button>
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? 'max-h-96 opacity-100 bg-surface/30' : 'max-h-0 opacity-0'
+                          }`}
+                      >
+                        <div className="p-4 pt-0 text-subtext text-sm leading-relaxed border-t border-border/50 mt-2 pt-3">
+                          {faq.answer}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
                 </>
               ) : (
                 <div className="flex flex-col gap-6">

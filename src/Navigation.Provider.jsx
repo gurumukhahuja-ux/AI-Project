@@ -3,6 +3,8 @@ import { Routes, Route, Outlet, Navigate, BrowserRouter } from 'react-router';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import VendorLogin from './pages/VendorLogin';
+import AdminLogin from './pages/AdminLogin';
 import Signup from './pages/Signup';
 import VerificationForm from './pages/VerificationForm';
 import Chat from './pages/Chat';
@@ -116,6 +118,8 @@ const NavigateProvider = () => {
         {/* Public Routes */}
         <Route path={AppRoute.LANDING} element={<Landing />} />
         <Route path={AppRoute.LOGIN} element={<Login />} />
+        <Route path={AppRoute.VENDOR_LOGIN} element={<VendorLogin />} />
+        <Route path={AppRoute.ADMIN_LOGIN} element={<AdminLogin />} />
         <Route path={AppRoute.SIGNUP} element={<Signup />} />
         <Route path="/vendor/register" element={<VendorRegister />} />
         <Route path={AppRoute.E_Verification} element={<VerificationForm />} />

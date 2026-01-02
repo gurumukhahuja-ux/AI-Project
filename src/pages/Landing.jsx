@@ -248,7 +248,7 @@ const Landing = () => {
                 {[
                   { label: "Marketplace", onClick: () => navigate(AppRoute.DASHBOARD + "/marketplace") },
                   { label: "My Agents", onClick: () => navigate(AppRoute.DASHBOARD + "/agents") },
-                  { label: "Become a Vendor", onClick: () => navigate("/vendor") },
+                  { label: "Become a Vendor", onClick: () => navigate("/vendor/register") },
                   { label: "Live Demos", onClick: () => setDemoState({ ...demoState, isOpen: true }) }
                 ].map((link, i) => (
                   <li key={i}>

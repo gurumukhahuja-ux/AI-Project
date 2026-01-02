@@ -71,14 +71,14 @@ const Notifications = () => {
                 </div>
 
                 {/* 2. Real Notifications from Backend */}
-                {notifications.map((notif) => (
+                {Array.isArray(notifications) && notifications.map((notif) => (
                     <div
                         key={notif._id}
                         className={`bg-white p-5 rounded-2xl border transition-all flex items-start gap-4 shadow-sm hover:shadow-md ${!notif.isRead ? 'border-primary/30 ring-1 ring-primary/5' : 'border-border'
                             }`}
                     >
                         <div className={`p-3 rounded-xl ${notif.type === 'ALERT' ? 'bg-red-50' :
-                                notif.type === 'SUCCESS' ? 'bg-green-50' : 'bg-blue-50'
+                            notif.type === 'SUCCESS' ? 'bg-green-50' : 'bg-blue-50'
                             }`}>
                             {getIcon(notif.type)}
                         </div>
