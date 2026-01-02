@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Download, Check, Star, FileText, Play, X } from 'lucide-react';
+import { Search, Download, Check, Star, FileText, Play, X, Info, Send } from 'lucide-react';
 import axios from 'axios';
 import { apis, AppRoute } from '../types';
 import { getUserData, toggleState } from '../userStore/userData';
@@ -22,6 +22,9 @@ const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDemo, setShowDemo] = useState(false)
   const [demoUrl, setDemoUrl] = useState("")
+  const [showAgentInfo, setShowAgentInfo] = useState(false)
+  const [selectedAgent, setSelectedAgent] = useState(null)
+  const [helpForm, setHelpForm] = useState({ subject: '', message: '' })
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -71,6 +74,34 @@ const Marketplace = () => {
     }
     setSubToggle({ ...subToggle, subscripPgTgl: true })
     setAgentId(id)
+  };
+
+  const openAgentInfo = (agent) => {
+    setSelectedAgent(agent);
+    setShowAgentInfo(true);
+    setHelpForm({ subject: '', message: '' });
+  };
+
+  const sendHelpQuery = () => {
+    if (!selectedAgent) return;
+
+    const vendorEmail = selectedAgent.vendorEmail || 'support@ai-mall.in';
+    const subject = encodeURIComponent(`Query about ${selectedAgent.agentName} - ${helpForm.subject}`);
+    const body = encodeURIComponent(`
+Agent: ${selectedAgent.agentName}
+Category: ${selectedAgent.category}
+
+Subject: ${helpForm.subject}
+
+Message:
+${helpForm.message}
+
+---
+Sent from AI-Mall™ Marketplace
+User: ${user?.name || user?.email || 'Guest'}
+    `);
+
+    window.location.href = `mailto:${vendorEmail}?subject=${subject}&body=${body}`;
   };
 
   const filteredAgents = agents.filter(agent => {
@@ -131,6 +162,124 @@ const Marketplace = () => {
                 >
                   Got it!
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {showAgentInfo && selectedAgent && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto"
+            >
+              <button
+                onClick={() => setShowAgentInfo(false)}
+                className="absolute top-4 right-4 bg-surface p-2 rounded-full hover:bg-border transition-colors"
+                title="Close"
+              >
+                <X className="w-5 h-5 text-maintext" />
+              </button>
+
+              {/* Agent Header */}
+              <div className="flex items-start gap-4 mb-6 pr-10">
+                <img
+                  src={selectedAgent.avatar}
+                  alt={selectedAgent.agentName}
+                  className="w-24 h-24 rounded-2xl object-cover shadow-lg"
+                />
+                <div className="flex-1">
+                  <h2 className="text-3xl font-bold text-maintext mb-2">
+                    {selectedAgent.agentName} <sup className="text-lg">TM</sup>
+                  </h2>
+                  <span className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-lg text-sm font-semibold uppercase tracking-wider mb-2">
+                    {selectedAgent.category}
+                  </span>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-1 bg-surface px-2 py-1 rounded-lg">
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                      <span className="text-sm font-bold text-maintext">4.9</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-border mb-6"></div>
+
+              {/* Agent Description */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-maintext mb-3 flex items-center gap-2">
+                  <Info className="w-5 h-5 text-primary" />
+                  About This Agent
+                </h3>
+                <p className="text-subtext leading-relaxed mb-4">
+                  {selectedAgent.description}
+                </p>
+                {selectedAgent.features && (
+                  <div className="bg-surface/50 rounded-xl p-4 border border-border">
+                    <h4 className="font-semibold text-maintext mb-2">Key Features:</h4>
+                    <ul className="list-disc list-inside text-subtext space-y-1">
+                      {selectedAgent.features.map((feature, idx) => (
+                        <li key={idx}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Help Form */}
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-6 border border-primary/20">
+                <h3 className="text-xl font-bold text-maintext mb-3 flex items-center gap-2">
+                  <Send className="w-5 h-5 text-primary" />
+                  Contact Vendor
+                </h3>
+                <p className="text-subtext mb-4 text-sm">
+                  Have questions about this agent? Send a query directly to the vendor.
+                </p>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-maintext mb-2">
+                      Subject
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Pricing inquiry, Technical support..."
+                      value={helpForm.subject}
+                      onChange={(e) => setHelpForm({ ...helpForm, subject: e.target.value })}
+                      className="w-full bg-white border border-border rounded-xl px-4 py-2.5 text-maintext focus:outline-none focus:border-primary transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-maintext mb-2">
+                      Message
+                    </label>
+                    <textarea
+                      placeholder="Describe your query or request..."
+                      value={helpForm.message}
+                      onChange={(e) => setHelpForm({ ...helpForm, message: e.target.value })}
+                      rows="4"
+                      className="w-full bg-white border border-border rounded-xl px-4 py-2.5 text-maintext focus:outline-none focus:border-primary transition-colors resize-none"
+                    ></textarea>
+                  </div>
+
+                  <button
+                    onClick={sendHelpQuery}
+                    disabled={!helpForm.subject || !helpForm.message}
+                    className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    Send Query to Vendor
+                  </button>
+
+                  <p className="text-xs text-subtext text-center">
+                    Vendor Email: <a href={`mailto:${selectedAgent.vendorEmail || 'support@ai-mall.in'}`} className="text-primary hover:underline font-medium">{selectedAgent.vendorEmail || 'support@ai-mall.in'}</a>
+                  </p>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -196,8 +345,11 @@ const Marketplace = () => {
               </div>
             </div>
 
-            <div className="flex justify-between items-center mb-1">
-              <h3 className="text-lg font-bold text-maintext text-2xl font-bold">{agent.agentName} <sup className='text-sm'>TM</sup></h3>
+            <div className="flex justify-between items-start mb-1">
+              <h3 className="text-lg font-bold text-maintext text-2xl font-bold flex-1">{agent.agentName} <sup className='text-sm'>TM</sup></h3>
+            </div>
+
+            <div className="flex items-center gap-2 mb-3">
               <button
                 onClick={() => {
                   setDemoUrl(agent.demoVideoUrl || "https://www.youtube.com/embed/dQw4w9wgXcQ");
@@ -206,6 +358,14 @@ const Marketplace = () => {
                 className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold"
               >
                 <Play className="w-3 h-3 fill-primary" /> Demo
+              </button>
+              <span className="text-subtext">|</span>
+              <button
+                onClick={() => openAgentInfo(agent)}
+                className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold"
+                title="View details and contact vendor"
+              >
+                <Info className="w-3 h-3" /> Info
               </button>
             </div>
 
