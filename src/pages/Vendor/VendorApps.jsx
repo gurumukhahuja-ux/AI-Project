@@ -16,7 +16,9 @@ const VendorApps = () => {
             return;
         }
         try {
+            console.log('[VendorApps] Fetching apps for vendorId:', vendorId);
             const data = await vendorService.getVendorApps(vendorId);
+            console.log('[VendorApps] Fetched apps:', data);
             setApps(data);
         } catch (err) {
             console.error('Failed to fetch apps:', err);
@@ -37,7 +39,7 @@ const VendorApps = () => {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">My Apps</h1>
+                <h1 className="text-2xl font-bold text-gray-900">My Agents</h1>
             </div>
             {loading ? (
                 <div className="flex justify-center py-12">

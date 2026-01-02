@@ -29,6 +29,17 @@ const Approvals = () => {
         fetchPending();
     }, []);
 
+    useEffect(() => {
+        if (showRejectModal) {
+            setTimeout(() => {
+                const element = document.getElementById('rejection-reason-input');
+                if (element) {
+                    element.focus();
+                }
+            }, 100);
+        }
+    }, [showRejectModal]);
+
     const handleApprove = async () => {
         try {
             const id = selectedAgent._id || selectedAgent.id;
@@ -55,7 +66,9 @@ const Approvals = () => {
             setRejectionReason('');
             setSelectedAgent(null);
         } catch (err) {
-            alert("Rejection failed");
+            console.error("Rejection error:", err);
+            const msg = err.response?.data?.error || err.message || "Rejection failed";
+            alert(`Rejection failed: ${msg}`);
         } finally {
             setProcessingId(null);
         }
@@ -195,10 +208,11 @@ const Approvals = () => {
                             <p className="text-subtext mb-8">Please provide a professional reason for rejection. This will be visible to the vendor.</p>
 
                             <textarea
+                                id="rejection-reason-input"
                                 value={rejectionReason}
                                 onChange={(e) => setRejectionReason(e.target.value)}
-                                className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl p-5 text-sm outline-none focus:ring-2 focus:ring-red-500/10 focus:border-red-500 transition-all resize-none h-32"
-                                placeholder="Example: Icon resolution is too low, please upload a high-quality 512x512 image."
+                                className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl p-5 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-red-500/10 focus:border-red-500 transition-all resize-none h-32 relative z-[60]"
+                                placeholder=""
                             />
 
                             <div className="flex items-center gap-4 mt-8">

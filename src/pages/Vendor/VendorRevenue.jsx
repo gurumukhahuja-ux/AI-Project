@@ -65,13 +65,13 @@ const VendorRevenue = () => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-2xl font-bold text-gray-900">Revenue & Payouts</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Revenue & Payouts</h1>
 
                 {/* Tabs */}
-                <div className="flex p-1 bg-gray-100 rounded-xl">
+                <div className="flex p-1 bg-gray-100 rounded-xl w-full sm:w-auto">
                     <button
                         onClick={() => setActiveTab('overview')}
-                        className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${activeTab === 'overview'
+                        className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all ${activeTab === 'overview'
                             ? 'bg-white text-gray-900 shadow-sm'
                             : 'text-gray-500 hover:text-gray-700'
                             }`}
@@ -80,7 +80,7 @@ const VendorRevenue = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab('history')}
-                        className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${activeTab === 'history'
+                        className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all ${activeTab === 'history'
                             ? 'bg-white text-gray-900 shadow-sm'
                             : 'text-gray-500 hover:text-gray-700'
                             }`}
@@ -94,39 +94,39 @@ const VendorRevenue = () => {
                 /* OVERVIEW TAB */
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     {/* Financial Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                         {/* Gross Revenue */}
-                        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <TrendingUp size={64} className="text-blue-600" />
                             </div>
-                            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Gross Revenue</h3>
+                            <h3 className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Gross Revenue</h3>
                             <div className="flex items-baseline space-x-1">
-                                <span className="text-3xl font-black text-gray-900">${overall.grossRevenue}</span>
+                                <span className="text-2xl sm:text-3xl font-black text-gray-900">${overall.grossRevenue}</span>
                             </div>
                             <p className="text-xs text-gray-400 mt-2">Before platform fees</p>
                         </div>
 
                         {/* Total Payouts */}
-                        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <CreditCard size={64} className="text-green-600" />
                             </div>
-                            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Payouts Received</h3>
+                            <h3 className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Payouts Received</h3>
                             <div className="flex items-baseline space-x-1">
-                                <span className="text-3xl font-black text-green-600">${overall.payouts}</span>
+                                <span className="text-2xl sm:text-3xl font-black text-green-600">${overall.payouts}</span>
                             </div>
                             <p className="text-xs text-gray-400 mt-2">Deposited to bank account</p>
                         </div>
 
                         {/* Net Earnings */}
-                        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <DollarSign size={64} className="text-blue-600" />
                             </div>
-                            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Net Earnings</h3>
+                            <h3 className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Net Earnings</h3>
                             <div className="flex items-baseline space-x-1">
-                                <span className="text-3xl font-black text-blue-600">${overall.netEarnings}</span>
+                                <span className="text-2xl sm:text-3xl font-black text-blue-600">${overall.netEarnings}</span>
                             </div>
                             <p className="text-xs text-gray-400 mt-2">Gross Revenue - Platform Fees</p>
                         </div>
@@ -135,7 +135,7 @@ const VendorRevenue = () => {
                     {/* App-wise Breakdown */}
                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                         <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-                            <h3 className="text-lg font-bold text-gray-900">App-wise Net Earnings</h3>
+                            <h3 className="text-lg font-bold text-gray-900">Agent-wise Net Earnings</h3>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
@@ -176,7 +176,7 @@ const VendorRevenue = () => {
                                     <th className="px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">
                                         <div className="flex items-center gap-2">
                                             <BarChart3 size={14} />
-                                            Description
+                                            Agents Name
                                         </div>
                                     </th>
                                     <th className="px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wider text-right">
@@ -210,7 +210,7 @@ const VendorRevenue = () => {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <span className={`text-xs font-bold px-2 py-1 rounded ${item.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                                                    item.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                                                item.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
                                                 }`}>{item.status}</span>
                                         </td>
                                         <td className="px-6 py-4 text-right">

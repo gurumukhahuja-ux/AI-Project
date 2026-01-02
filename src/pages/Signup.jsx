@@ -38,6 +38,11 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 bg-surface">
+      {/* Background Blur Effects */}
+      <div className="absolute top-[-15%] right-[-10%] w-[500px] h-[500px] bg-blue-500/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-15%] left-[-10%] w-[600px] h-[600px] bg-cyan-400/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[40%] right-[50%] w-[300px] h-[300px] bg-primary/10 rounded-full blur-[80px] pointer-events-none" />
+
       <div className="relative z-10 w-full max-w-md">
 
         {/* Title */}

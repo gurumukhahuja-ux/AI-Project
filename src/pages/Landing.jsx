@@ -1,29 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowRight, Bot, Cpu, Zap, Shield, CircleUser, Play, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowRight, Bot, Zap, Shield, CircleUser, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { logo, faqs } from '../constants';
 import { getUserData } from '../userStore/userData';
 import { AppRoute } from '../types';
-import LandingLiveDemoModal from '../Components/LiveDemo/LandingLiveDemoModal';
-import { useRecoilState } from 'recoil';
-import { demoModalState } from '../userStore/demoStore';
 
 const Landing = () => {
   const navigate = useNavigate();
   const user = getUserData("user")
-  const [demoState, setDemoState] = useRecoilState(demoModalState);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
   const toggleFaq = (index) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
-  };
-
-  const openDemo = () => {
-    setDemoState({
-      isOpen: true,
-      selectedAgent: null
-    });
   };
 
   const btnClass = "px-8 py-4 bg-primary rounded-2xl font-bold text-lg text-white shadow-xl shadow-primary/30 flex items-center justify-center gap-2 border border-primary/10 w-full sm:w-auto overflow-hidden";
@@ -31,9 +20,11 @@ const Landing = () => {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-secondary">
 
-      {/* Background Shapes */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-100 rounded-full blur-[100px] pointer-events-none" />
+      {/* Background Blur Effects */}
+      <div className="absolute top-[-15%] left-[-10%] w-[600px] h-[600px] bg-blue-500/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[-15%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[20%] w-[700px] h-[700px] bg-blue-400/15 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-cyan-400/20 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Header */}
       <header className="relative z-10 px-6 py-6 flex justify-between items-center max-w-7xl mx-auto w-full">
@@ -105,15 +96,6 @@ const Landing = () => {
             className="px-8 py-4 bg-primary rounded-2xl font-bold text-lg text-white shadow-xl shadow-primary/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2"
           >
             Start Now <ArrowRight className="w-5 h-5" />
-          </motion.button>
-
-          <motion.button
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={openDemo}
-            className={btnClass}
-          >
-            <Play className="w-5 h-5 fill-white" /> Watch Live Demo
           </motion.button>
 
           {!user && (
@@ -204,11 +186,6 @@ const Landing = () => {
       <footer className="p-8 text-center text-subtext text-xs relative z-10 border-t border-border mt-auto bg-surface/30">
         © 2024 AI-Mall. All systems integrated with UWO-LINK.
       </footer>
-
-      <LandingLiveDemoModal
-        isOpen={demoState.isOpen}
-        onClose={() => setDemoState({ ...demoState, isOpen: false })}
-      />
     </div >
   );
 };
