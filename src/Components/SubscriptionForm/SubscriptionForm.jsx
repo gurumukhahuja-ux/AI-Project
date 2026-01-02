@@ -1,35 +1,40 @@
 import React from 'react';
 import styled from 'styled-components';
 import { X } from 'lucide-react';
-import { useRecoilState, } from 'recoil';
-import { toggleState } from '../../userStore/userData';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { toggleState, userData } from '../../userStore/userData';
 import { motion } from 'motion/react';
 import { apis } from '../../types';
-import { getUserData } from '../../userStore/userData';
 import axios from 'axios';
 
 const SubscriptionForm = ({ id }) => {
   const [subscripTgl, setSubscripTgl] = useRecoilState(toggleState)
-  const user = getUserData("user")
-console.log(id);
+  const currentUserData = useRecoilValue(userData);
+  const user = currentUserData.user;
+  const userId = user?.id || user?._id;
+  console.log("SubscriptionForm: Using userId:", userId);
 
 
   function buyAgent(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  axios.post(`${apis.buyAgent}/${id}`, { userId: user.id })
-    .then((res) => {
-      setSubscripTgl({ ...subscripTgl, subscripPgTgl: false, notify: true });
-      console.log(res);
-    })
-    .catch((err)=>{
-      console.log(err);
-    });
-}
+    if (!userId) {
+      console.error("User ID missing or not logged in");
+      return;
+    }
+    axios.post(`${apis.buyAgent}/${id}`, { userId })
+      .then((res) => {
+        setSubscripTgl({ ...subscripTgl, subscripPgTgl: false, notify: true });
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
 
   return (
-    <div className='fixed z-99 bg-black bg-opacity-10 bottom-0 right-0 left-0 top-0  flex justify-center items-center'>
+    <div className='fixed z-50 bg-black bg-opacity-10 bottom-0 right-0 left-0 top-0  flex justify-center items-center'>
       <StyledWrapper  >
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}>
           <form className="plan-chooser ">

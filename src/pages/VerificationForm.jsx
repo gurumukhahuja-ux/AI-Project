@@ -4,7 +4,7 @@ import { Mail, CheckCircle, ArrowLeft, AlertCircle, Pencil } from 'lucide-react'
 import { AppRoute, apis } from '../types';
 import { apiService } from '../services/apiService';
 import axios from 'axios';
-import { getUserData } from '../userStore/userData';
+import { getUserData, setUserData } from '../userStore/userData';
 
 
 export default function VerificationForm() {
@@ -19,6 +19,7 @@ export default function VerificationForm() {
         e.preventDefault();
         axios.post(apis.emailVerificationApi, { code: verificationCode, email }).then((res) => {
             console.log(res);
+            setUserData(res.data)
             navigator(AppRoute.DASHBOARD)
 
         }).catch((err) => {
@@ -42,7 +43,7 @@ export default function VerificationForm() {
                     <h2 className="text-3xl font-bold text-maintext mb-2">Verify Email</h2>
                     <p className="text-subtext ">
                         We've sent a code to <span className="font-medium text-maintext  ">{email}
-                            <div className="inline-block p-1 rounded-full bg-primary/10 mb-2 cursor-pointer " onClick={()=>{navigator(AppRoute.SIGNUP)}}>
+                            <div className="inline-block p-1 rounded-full bg-primary/10 mb-2 cursor-pointer " onClick={() => { navigator(AppRoute.SIGNUP) }}>
                                 <Pencil className="w-5 h-5 text-primary inline-block" />
                             </div></span>
                     </p>

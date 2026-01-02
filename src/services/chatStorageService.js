@@ -1,19 +1,19 @@
 import axios from "axios";
-import { API } from "../types"; // remove if unused
-import { getUserData, userData } from "../userStore/userData";
-const token = getUserData()?.token
-// const token = localStorage.getItem("token")
-console.log(token);
-
-
+import { API } from "../types";
+import { getUserData } from "../userStore/userData";
 
 const API_BASE_URL = API;
 
 export const chatStorageService = {
-  
+
   async getSessions() {
     try {
-      const response = await fetch(`${API_BASE_URL}/chat`);
+      const token = getUserData()?.token;
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error("Backend failed");
       return await response.json();
     } catch (error) {
@@ -42,7 +42,12 @@ export const chatStorageService = {
     if (sessionId === "new") return [];
 
     try {
-      const response = await fetch(`${API_BASE_URL}/chat/${sessionId}`);
+      const token = getUserData()?.token;
+      const response = await fetch(`${API_BASE_URL}/chat/${sessionId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.status === 404) return [];
 
       if (!response.ok) throw new Error("Backend response not ok");
@@ -58,13 +63,16 @@ export const chatStorageService = {
 
   async saveMessage(sessionId, message, title) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/chat/${sessionId}/message`, { message, title },{
-        headers:{
+      const token = getUserData()?.token;
+      if (!token) throw new Error("No token available");
+
+      const response = await axios.post(`${API_BASE_URL}/chat/${sessionId}/message`, { message, title }, {
+        headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (!response.ok) throw new Error("Backend save failed");
+      if (response.status !== 200) throw new Error("Backend save failed");
     } catch (error) {
       console.error("Error saving message:", error);
 
@@ -89,6 +97,22 @@ export const chatStorageService = {
 
         localStorage.setItem(metaKey, JSON.stringify(meta));
       }
+    }
+  },
+
+  async deleteSession(sessionId) {
+    try {
+      const token = getUserData()?.token;
+      const response = await axios.delete(`${API_BASE_URL}/chat/${sessionId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting session:", error);
+      localStorage.removeItem(`chat_history_${sessionId}`);
+      localStorage.removeItem(`chat_meta_${sessionId}`);
     }
   },
 

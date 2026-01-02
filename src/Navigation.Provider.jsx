@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HashRouter as Router, Routes, Route, Outlet, Navigate, BrowserRouter } from 'react-router';
+import { Routes, Route, Outlet, Navigate, BrowserRouter } from 'react-router';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -12,21 +12,45 @@ import MyAgents from './pages/MyAgents';
 import DashboardOverview from './pages/DashboardOverview';
 import Automations from './pages/Automations';
 import Admin from './pages/Admin';
-import { lazy, Suspense } from 'react';
-
-const LiveDemoPage = lazy(() => import('./pages/LiveDemoPage'));
-const Loader = lazy(() => import('./Components/Loader/Loader')); // Assuming there's a loader
+import VendorRegister from './pages/VendorRegister';
+import Invoices from './pages/Invoices';
+import Notifications from './pages/Notifications';
 
 import { AppRoute } from './types';
 import { Menu } from 'lucide-react';
 import AiBiz from './agents/AIBIZ/AiBiz.jsx';
-import ComingSoon from './Components/CommingSoon/CommingSoon.jsx';
+import AiBase from './agents/AIBASE/AiBase.jsx';
+import ComingSoon from './Components/ComingSoon/ComingSoon.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
 
+import { lazy, Suspense } from 'react';
+import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx';
+import UserProfile from './pages/UserProfile.jsx';
 
-const AuthenticatRoute = ({ childern }) => {
+const LiveDemoPage = lazy(() => import('./pages/LiveDemoPage'));
+const SecurityAndGuidelines = lazy(() => import('./pages/SecurityAndGuidelines'));
+const VendorDashboard = lazy(() => import('./pages/VendorDashboard'));
+const VendorAppsLazy = lazy(() => import('./pages/VendorApps'));
+const RevenueOverview = lazy(() => import('./Components/Vendor/RevenueOverview'));
+const TransactionHistory = lazy(() => import('./Components/Admin/TransactionHistory'));
+const VendorSupport = lazy(() => import('./pages/VendorSupport'));
 
+// Vendor Imports
+import VendorLayout from './Components/Vendor/VendorLayout';
+import VendorOverview from './pages/Vendor/VendorOverview';
+import VendorApps from './pages/Vendor/VendorApps';
+import VendorRevenue from './pages/Vendor/VendorRevenue';
+import VendorSettings from './pages/Vendor/VendorSettings';
+import VendorUserSupport from './pages/Vendor/VendorUserSupport';
+import VendorAdminSupport from './pages/Vendor/VendorAdminSupport';
+import VendorAppDetail from './pages/Vendor/VendorAppDetail';
+import VendorTransactions from './pages/Vendor/VendorTransactions';
 
+const AuthenticatRoute = ({ children }) => {
+  return children;
 }
+
 // ------------------------------
 // Dashboard Layout (Auth pages)
 // ------------------------------
@@ -88,37 +112,83 @@ const PlaceholderPage = ({ title }) => (
 const NavigateProvider = () => {
   return (
     <BrowserRouter>
-
       <Routes>
         {/* Public Routes */}
         <Route path={AppRoute.LANDING} element={<Landing />} />
         <Route path={AppRoute.LOGIN} element={<Login />} />
         <Route path={AppRoute.SIGNUP} element={<Signup />} />
+        <Route path="/vendor/register" element={<VendorRegister />} />
         <Route path={AppRoute.E_Verification} element={<VerificationForm />} />
+        <Route path={AppRoute.FORGOT_PASSWORD} element={<ForgotPassword />} />
+        <Route path={AppRoute.RESET_PASSWORD} element={<ResetPassword />} />
         <Route path="/agentsoon" element={<ComingSoon />}></Route>
         {/* agents */}
         <Route path='/agents/aibiz' element={<AiBiz />}></Route>
+        <Route path='/agents/aibase/*' element={<AiBase />}></Route>
         {/* Dashboard (Protected) */}
-        <Route path={AppRoute.DASHBOARD} element={<DashboardLayout />}>
-          <Route index element={<Navigate to="chat" replace />} />
-          <Route path="chat" element={<Chat />} />
-          <Route path="chat/:sessionId" element={<Chat />} />
-
-          <Route path="overview" element={<DashboardOverview />} />
+        <Route
+          path={AppRoute.DASHBOARD}
+          element={<DashboardLayout />}
+        >
+          <Route index element={<Navigate to="marketplace" replace />} />
+          <Route path="chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+          <Route path="chat/:sessionId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+          <Route path="overview" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
+          <Route path="profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="marketplace" element={<Marketplace />} />
-          <Route path="live-demos" element={
+          {/* <Route path="live-demos" element={
             <Suspense fallback={<div className="flex items-center justify-center h-full"><p className="text-subtext">Loading...</p></div>}>
               <LiveDemoPage />
             </Suspense>
-          } />
+          } /> */}
           <Route path="agents" element={<MyAgents />} />
           <Route path="automations" element={<Automations />} />
           <Route path="admin" element={<Admin />} />
           <Route path="settings" element={<Admin />} />
+          <Route path="invoices" element={<Invoices />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="security" element={
+            <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
+              <SecurityAndGuidelines />
+            </Suspense>
+          } />
+        </Route>
+
+        {/* Vendor Dashboard */}
+        {/* Vendor Dashboard - Commented out to resolve route conflict
+        <Route
+          path="/vendor"
+          element={
+            <Suspense fallback={<div className="h-screen bg-white" />}>
+              <VendorDashboard />
+            </Suspense>
+          }
+        >
+          <Route index element={<Navigate to="revenue/overview" replace />} />
+          <Route path="overview" element={<PlaceholderPage title="Vendor Overview" />} />
+          <Route path="apps" element={<VendorApps />} />
+          <Route path="revenue/overview" element={<RevenueOverview />} />
+          <Route path="revenue/transactions" element={<TransactionHistory />} />
+          <Route path="support/user" element={<VendorSupport />} />
+          <Route path="support/admin" element={<PlaceholderPage title="Admin Support" />} />
+          <Route path="settings" element={<PlaceholderPage title="Vendor Settings" />} />
+        </Route>
+        */}
+
+        {/* Vendor Dashboard Routes (Public for MVP/Testing) */}
+        <Route path="/vendor" element={<VendorLayout />}>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<VendorOverview />} />
+          <Route path="apps" element={<VendorApps />} />
+          <Route path="apps/:appId" element={<VendorAppDetail />} />
+          <Route path="revenue" element={<VendorRevenue />} />
+          <Route path="settings" element={<VendorSettings />} />
+          <Route path="user-support" element={<VendorUserSupport />} />
+          <Route path="admin-support" element={<VendorAdminSupport />} />
         </Route>
 
         {/* Catch All */}
-        <Route path="/" element={<Navigate to={AppRoute.LANDING} replace />} />
+        <Route path="*" element={<Navigate to={AppRoute.LANDING} replace />} />
       </Routes>
     </BrowserRouter>
   );

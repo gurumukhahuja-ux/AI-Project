@@ -51,18 +51,37 @@ export const AppRoute = {
   MY_AGENTS: "/dashboard/agents",
   LIVE_DEMOS: "/dashboard/live-demos",
   SETTINGS: "/dashboard/settings",
+  INVOICES: "/dashboard/invoices",
+  NOTIFICATIONS: "/dashboard/notifications",
+  SECURITY: "/dashboard/security",
+  ADMIN: "/dashboard/admin",
+  PROFILE: "/dashboard/profile",
+  VENDOR: "/vendor",
+  VENDOR_REVENUE: "/vendor/revenue/overview",
+  VENDOR_TRANSACTIONS: "/vendor/revenue/transactions",
   agentSoon: "/agentsoon",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password/:token",
 };
-export const API = "https://ai-mall-backend.onrender.com/api"
-// export const API = "http://localhost:5000/api"
+
+// Use environment variable for API URL (configured in .env file)
+export const API = "https://ai-mall-backend.onrender.com/api";
+// export const API = "http://localhost:5000/api";
+
 export const apis = {
   emailVerificationApi: `${API}/email_varification`,
   signUp: `${API}/auth/signup`,
   logIn: `${API}/auth/login/`,
+  forgotPassword: `${API}/auth/forgot-password`,
+  resetPassword: `${API}/auth/reset-password/`,
   user: `${API}/user`,
+  getPayments: `${API}/user/payments`,
+  notifications: `${API}/notifications`,
   agents: `${API}/agents`,
   buyAgent: `${API}/agents/buy`,
   getUserAgents: `${API}/agents/get_my_agents`,
+  getMyAgents: `${API}/agents/me`,
   chatAgent: `${API}/chat`,
-
-}
+  aibiz: `${API}/aibiz`,
+  support: `${API}/support`,
+};

@@ -7,12 +7,14 @@ export const getUserData = () => {
   const data = JSON.parse(localStorage.getItem('user'))
   return data
 }
-
+export const clearUser = () => {
+  localStorage.clear()
+}
 const getUser = () => {
-  const user =  JSON.parse(localStorage.getItem('user'))
+  const user = JSON.parse(localStorage.getItem('user'))
   if (user) {
     return user
-  }else{
+  } else {
     return null
   }
 }
@@ -23,5 +25,5 @@ export const toggleState = atom({
 
 export const userData = atom({
   key: 'userData',
-  default: { user:getUser()  }
+  default: { user: getUser() }
 })
