@@ -31,6 +31,9 @@ const Marketplace = () => {
         setLoading(true);
       }
       const userId = user?.id || user?._id;
+      axios.get(apis.agents).then((res) => {
+        console.log(res.data);
+      })
 
       try {
         const [userAgentsRes, agentsRes] = await Promise.allSettled([

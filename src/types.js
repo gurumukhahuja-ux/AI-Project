@@ -53,17 +53,20 @@ export const AppRoute = {
   SETTINGS: "/dashboard/settings",
   INVOICES: "/dashboard/invoices",
   NOTIFICATIONS: "/dashboard/notifications",
-  agentSoon: "/agentsoon",
-  ADMIN: "/dashboard/admin",
   SECURITY: "/dashboard/security",
+  ADMIN: "/dashboard/admin",
   PROFILE: "/dashboard/profile",
+  VENDOR: "/vendor",
+  VENDOR_REVENUE: "/vendor/revenue/overview",
+  VENDOR_TRANSACTIONS: "/vendor/revenue/transactions",
+  agentSoon: "/agentsoon",
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password/:token",
 };
 
 // Use environment variable for API URL (configured in .env file)
-// export const API = "https://ai-mall-backend.onrender.com/api";
-export const API = "http://localhost:5000/api";
+export const API = "https://ai-mall-backend.onrender.com/api";
+// export const API = "http://localhost:5000/api";
 
 export const apis = {
   emailVerificationApi: `${API}/email_varification`,
