@@ -272,8 +272,12 @@ const Sidebar = ({ isOpen, onClose }) => {
                 }}
                 className="flex flex-1 items-center gap-3 px-3 py-3 cursor-pointer hover:bg-primary/5 transition-colors"
               >
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm uppercase shrink-0">
-                  {user.name.charAt(0)}
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm uppercase shrink-0 overflow-hidden border border-primary/10">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    user.name.charAt(0)
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0 text-left">

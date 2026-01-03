@@ -109,9 +109,12 @@ const PlaceholderPage = ({ title }) => (
 // App Router
 // ------------------------------
 
+import { Toaster } from 'react-hot-toast';
+
 const NavigateProvider = () => {
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <Routes>
         {/* Public Routes */}
         <Route path={AppRoute.LANDING} element={<Landing />} />

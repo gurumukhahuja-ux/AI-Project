@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Send, Bot, User, Sparkles, Plus, Monitor, ChevronDown, History } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Plus, Monitor, ChevronDown, History, Paperclip, X, FileText, Image as ImageIcon } from 'lucide-react';
 import { generateChatResponse } from '../services/geminiService';
 import { chatStorageService } from '../services/chatStorageService';
 import Loader from '../Components/Loader/Loader';
+import toast from 'react-hot-toast';
 
 const Chat = () => {
   const { sessionId } = useParams();
@@ -16,6 +17,63 @@ const Chat = () => {
   const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef(null);
   const [currentSessionId, setCurrentSessionId] = useState(sessionId || 'new');
+
+  // File Upload State
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const processFile = (file) => {
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+      toast.error('Only Images and PDFs are supported');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    setSelectedFile(file);
+
+    // Generate Preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFilePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileSelect = (e) => {
+    processFile(e.target.files[0]);
+  };
+
+  const handlePaste = (e) => {
+    if (e.clipboardData && e.clipboardData.items) {
+      const items = e.clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1 || items[i].type === 'application/pdf') {
+          const file = items[i].getAsFile();
+          processFile(file);
+          e.preventDefault(); // Prevent default paste behavior if file is found
+          return;
+        }
+      }
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -59,7 +117,7 @@ const Chat = () => {
 
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+    if ((!inputValue.trim() && !selectedFile) || isLoading) return;
 
     let activeSessionId = currentSessionId;
     let isFirstMessage = false;
@@ -74,13 +132,19 @@ const Chat = () => {
       role: 'user',
       content: inputValue,
       timestamp: Date.now(),
+      attachment: selectedFile ? {
+        type: selectedFile.type.startsWith('image/') ? 'image' : 'pdf',
+        url: filePreview,
+        name: selectedFile.name
+      } : null
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInputValue('');
+    handleRemoveFile(); // Clear file after sending
     setIsLoading(true);
 
-    const title = isFirstMessage ? userMsg.content.slice(0, 30) + '...' : undefined;
+    const title = isFirstMessage ? (userMsg.content ? userMsg.content.slice(0, 30) : 'File Attachment') + '...' : undefined;
     await chatStorageService.saveMessage(activeSessionId, userMsg, title);
 
     if (isFirstMessage) {
@@ -88,7 +152,10 @@ const Chat = () => {
       setCurrentSessionId(activeSessionId);
     }
 
-    const aiResponseText = await generateChatResponse(messages, userMsg.content);
+    // Simulate AI analyzing file if present
+    const prompt = inputValue; // Send raw input, let backend handle context with image
+
+    const aiResponseText = await generateChatResponse(messages, prompt, undefined, userMsg.attachment);
 
     const modelMsg = {
       id: (Date.now() + 1).toString(),
@@ -273,6 +340,27 @@ const Chat = () => {
                         : 'bg-surface border border-border text-maintext rounded-tl-none'
                         }`}
                     >
+                      {/* Attachment Display */}
+                      {msg.attachment && (
+                        <div className="mb-3">
+                          {msg.attachment.type === 'image' ? (
+                            <img
+                              src={msg.attachment.url}
+                              alt="Attachment"
+                              className="w-full max-w-[200px] rounded-lg border border-white/20"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/20">
+                              <FileText className="w-8 h-8 shrink-0" />
+                              <div className="min-w-0">
+                                <p className="font-medium truncate text-xs">{msg.attachment.name}</p>
+                                <p className="text-[10px] opacity-70">PDF Document</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {msg.content}
                     </div>
                     <span className="text-[10px] text-subtext mt-1 px-1">
@@ -317,23 +405,79 @@ const Chat = () => {
         {/* Input */}
         <div className="p-4 sm:p-6 shrink-0 bg-secondary border-t border-border sm:border-t-0">
           <div className="max-w-4xl mx-auto relative">
-            <form onSubmit={handleSendMessage} className="relative">
+
+            {/* File Preview Area */}
+            {selectedFile && (
+              <div className="absolute bottom-full left-0 mb-4 w-full animate-in slide-in-from-bottom-2 fade-in z-20">
+                <div className="bg-surface/80 backdrop-blur-md border border-border/50 rounded-xl p-3 shadow-xl flex items-center gap-4 max-w-sm mx-auto sm:mx-0 sm:max-w-md ring-1 ring-black/5">
+                  <div className="relative group shrink-0">
+                    {selectedFile.type.startsWith('image/') ? (
+                      <div className="relative overflow-hidden rounded-lg border border-white/10 shadow-sm w-16 h-16 sm:w-20 sm:h-20 bg-black/5">
+                        <img src={filePreview} alt="Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20 shadow-sm">
+                        <FileText className="w-8 h-8 text-primary" />
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleRemoveFile}
+                      className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg hover:scale-110 active:scale-95"
+                      title="Remove file"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  <div className="min-w-0 flex-1 py-1">
+                    <p className="text-sm font-semibold text-maintext truncate">{selectedFile.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-subtext bg-surface border border-border px-1.5 py-0.5 rounded uppercase tracking-wider font-medium">{selectedFile.type.split('/')[1] || 'FILE'}</span>
+                      <span className="text-xs text-subtext">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSendMessage} className="relative flex items-center gap-2">
               <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
-                className="w-full bg-surface border border-border rounded-full py-3 sm:py-4 pl-4 sm:pl-6 pr-12 sm:pr-14 text-sm sm:text-base text-maintext placeholder-subtext focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                className="hidden"
+                accept="image/*,application/pdf"
               />
+
               <button
-                type="submit"
-                disabled={!inputValue.trim() || isLoading}
-                style={{ transform: 'translateY(-50%)' }}
-                className="absolute right-2 top-1/2 p-2 sm:p-2.5 rounded-full bg-primary text-white hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-3 sm:p-4 rounded-full bg-surface border border-border text-subtext hover:text-primary hover:bg-primary/5 transition-colors shadow-sm shrink-0"
+                title="Attach file"
               >
-                <Send className="w-4 h-4" />
+                <Paperclip className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
+
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onPaste={handlePaste}
+                  placeholder="Type a message or paste an image..."
+                  className="w-full bg-surface border border-border rounded-full py-3 sm:py-4 pl-4 sm:pl-6 pr-12 sm:pr-14 text-sm sm:text-base text-maintext placeholder-subtext focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm transition-all"
+                />
+                <button
+                  type="submit"
+                  disabled={(!inputValue.trim() && !selectedFile) || isLoading}
+                  style={{ transform: 'translateY(-50%)' }}
+                  className="absolute right-2 top-1/2 p-2 sm:p-2.5 rounded-full bg-primary text-white hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
             </form>
           </div>
         </div>
