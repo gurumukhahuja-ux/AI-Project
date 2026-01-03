@@ -127,7 +127,7 @@ const Admin = () => {
   };
 
   return (
-    <div className="h-screen flex bg-[#F8F9FB] text-[#2C3E50] overflow-hidden relative">
+    <div className="h-screen flex bg-white text-[#2C3E50] overflow-hidden relative">
       {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
         <div
@@ -213,7 +213,7 @@ const Admin = () => {
 
 
         {/* Dynamic Content */}
-        <main className="flex-1 overflow-y-auto bg-[#F8F9FB] p-8">
+        <main className="flex-1 overflow-y-auto bg-white p-8">
           <div className="max-w-[1400px] mx-auto">
             {renderContent()}
           </div>

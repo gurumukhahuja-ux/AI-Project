@@ -87,10 +87,8 @@ const MyAgents = () => {
     };
 
     return (
-        <div className="p-4 md:p-8 h-full bg-secondary overflow-y-auto relative">
-            {/* Background Blur Effects */}
-            <div className="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-            <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="p-4 md:p-8 h-full bg-white overflow-y-auto relative">
+            {/* Background Blur Effects Removed */}
 
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">

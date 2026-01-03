@@ -25,11 +25,8 @@ import NotificationBar from '../NotificationBar/NotificationBar.jsx';
 import { useRecoilState } from 'recoil';
 import { clearUser, getUserData, toggleState, userData } from '../../userStore/userData';
 import axios from 'axios';
-<<<<<<< HEAD
 import apiService from '../../services/apiService';
-=======
 import { useLanguage } from '../../context/LanguageContext';
->>>>>>> c4e8332a924ce21e7fa865826975739b1cccdeb1
 
 
 
@@ -137,7 +134,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const navItemClass = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group font-medium border border-transparent ${isActive
       ? 'bg-primary/10 text-primary border-primary/10'
-      : 'text-subtext hover:bg-surface hover:text-maintext'
+      : '!text-gray-400 hover:bg-surface hover:text-maintext'
     }`;
 
 
@@ -176,7 +173,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Brand */}
         <div className="p-6 flex items-center justify-between">
           <Link to="/">
-            <h1 className="text-2xl font-bold text-primary">AI-Mall <sup className="text-sm">TM</sup></h1>
+            <h1 className="text-2xl font-bold !text-[#2563EB]">AI-Mall <sup className="text-sm">TM</sup></h1>
           </Link>
 
 
@@ -202,6 +199,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           <NavLink to={AppRoute.MARKETPLACE} className={navItemClass} onClick={onClose}>
             <ShoppingBag className="w-5 h-5" />
+
             <span>{t('marketplace')}</span>
           </NavLink>
 
@@ -346,11 +344,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <>
                   <p className="text-sm text-subtext font-medium">Get quick answers to common questions about our platform</p>
                   {faqs.map((faq, index) => (
-<<<<<<< HEAD
-                    <div key={index} className="border border-border rounded-xl bg-white overflow-hidden hover:border-primary/30 transition-all">
-=======
                     <div key={index} className="border border-border rounded-xl bg-card overflow-hidden hover:border-primary/30 transition-all">
->>>>>>> c4e8332a924ce21e7fa865826975739b1cccdeb1
                       <button
                         onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                         className="w-full flex justify-between items-center p-4 text-left hover:bg-surface transition-colors focus:outline-none"

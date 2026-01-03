@@ -92,11 +92,8 @@ const Marketplace = () => {
     "Medical & Health AI",];
 
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto bg-secondary relative">
-      {/* Background Blur Effects */}
-      <div className="absolute top-[-10%] left-[-5%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-[50%] right-[10%] w-[300px] h-[300px] bg-primary/10 rounded-full blur-[80px] pointer-events-none" />
+    <div className="p-4 md:p-8 h-full overflow-y-auto bg-white relative">
+      {/* Background Blur Effects Removed */}
 
       <AnimatePresence>
         {subToggle.subscripPgTgl && <SubscriptionForm id={agentId} />}

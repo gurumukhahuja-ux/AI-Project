@@ -63,13 +63,13 @@ const DashboardLayout = () => {
   );
 
   return (
-    <div className="fixed inset-0 flex bg-secondary text-maintext overflow-hidden font-sans">
+    <div className="h-screen flex bg-white text-[#2C3E50] overflow-hidden relative">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col min-w-0 bg-secondary h-full relative">
+      <div className="flex-1 flex flex-col min-w-0 bg-white h-full relative">
 
         {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-secondary shrink-0 z-50 shadow-sm">
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-white shrink-0 z-50 shadow-sm">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -86,7 +86,7 @@ const DashboardLayout = () => {
         </div>
 
         {/* Outlet for pages */}
-        <main className="flex-1 overflow-hidden relative w-full">
+        <main className="flex-1 overflow-y-auto bg-white p-8">
           <Outlet />
         </main>
       </div>
