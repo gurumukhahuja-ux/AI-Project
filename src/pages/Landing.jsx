@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { logo, name } from '../constants';
 import { getUserData } from '../userStore/userData';
 import { AppRoute } from '../types';
-import LandingLiveDemoModal from '../Components/LiveDemo/LandingLiveDemoModal';
+
 import { useRecoilState } from 'recoil';
 import { demoModalState } from '../userStore/demoStore';
 import SecurityModal from '../Components/LiveDemo/SecurityModal';
@@ -345,10 +345,7 @@ const Landing = () => {
         </div>
       </footer>
 
-      <LandingLiveDemoModal
-        isOpen={demoState.isOpen}
-        onClose={() => setDemoState({ ...demoState, isOpen: false })}
-      />
+
 
       <SecurityModal
         isOpen={isSecurityModalOpen}

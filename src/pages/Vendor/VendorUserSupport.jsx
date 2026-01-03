@@ -38,20 +38,20 @@ const VendorUserSupport = () => {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
 
             {/* Header / Info Banner */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
                 <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">User Support (Email)</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">User Support (Email)</h1>
                         <p className="text-gray-500 text-sm max-w-2xl">
                             Manage user inquiries here. Replies are sent via email.
                         </p>
                     </div>
                     <a
                         href="mailto:?subject=Support%20Reply"
-                        className="flex items-center space-x-2 bg-blue-600 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-colors"
+                        className="w-full md:w-auto flex items-center justify-center space-x-2 bg-blue-500 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-blue-100 hover:bg-blue-600 transition-colors"
                     >
-                        <Mail size={18} />
-                        <span>Compose Email</span>
+                        <Mail size={18} className="text-white" />
+                        <span className="text-white">Compose Email</span>
                     </a>
                 </div>
 
@@ -80,7 +80,7 @@ const VendorUserSupport = () => {
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
                                 <th className="px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">User Email</th>
-                                <th className="px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">App</th>
+                                <th className="px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Agent</th>
                                 <th className="px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Subject</th>
                                 <th className="px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Date</th>
                                 <th className="px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wider text-right">Status</th>

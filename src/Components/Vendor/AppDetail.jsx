@@ -23,13 +23,17 @@ const AppDetail = ({ app, usage, onDeactivate, onReactivate, onSubmitForReview, 
             {/* Header Section */}
             <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/50">
                 <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                        <ShieldCheck size={32} />
+                    <div className="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 overflow-hidden">
+                        {app.avatar ? (
+                            <img src={app.avatar} alt={app.agentName} className="w-full h-full object-cover" />
+                        ) : (
+                            <ShieldCheck size={32} />
+                        )}
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900">{app.agentName}</h2>
                         <div className="flex items-center space-x-2 mt-1">
-                            <StatusBadge status={app.status} />
+                            <StatusBadge status={app.reviewStatus === 'Pending Review' ? 'Pending Review' : app.status} />
                             <StatusBadge status={app.health} />
                         </div>
                     </div>
@@ -97,7 +101,7 @@ const AppDetail = ({ app, usage, onDeactivate, onReactivate, onSubmitForReview, 
                             )}
                         </h3>
                         <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase">App Live URL</label>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Agent Live URL</label>
                             {isEditingUrl ? (
                                 <input
                                     type="url"
@@ -107,7 +111,8 @@ const AppDetail = ({ app, usage, onDeactivate, onReactivate, onSubmitForReview, 
                                     placeholder="https://yourapp.com"
                                 />
                             ) : (
-                                <div className="mt-1 text-gray-900 font-medium truncate">
+                                <div className="mt-1 text-gray-900 font-medium truncate flex items-center gap-2">
+                                    {app.avatar && <img src={app.avatar} alt="icon" className="w-5 h-5 rounded-md object-cover" />}
                                     {app.url ? <a href={app.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{app.url}</a> : <span className="text-gray-400 italic">No URL configured</span>}
                                 </div>
                             )}

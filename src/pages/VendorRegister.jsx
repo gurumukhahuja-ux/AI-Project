@@ -12,7 +12,8 @@ const VendorRegister = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        companyName: ''
+        companyName: '',
+        companyType: 'Individual'
     });
     const [message, setMessage] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -48,7 +49,8 @@ const VendorRegister = () => {
                 email: formData.email,
                 password: formData.password,
                 role: 'vendor',
-                companyName: formData.companyName
+                companyName: formData.companyName,
+                companyType: formData.companyType
             };
 
             const res = await axios.post(apis.signUp, payload);
@@ -59,11 +61,13 @@ const VendorRegister = () => {
             // Store user data
             localStorage.setItem('user', JSON.stringify({
                 _id: res.data.id,
+                id: res.data.id,
                 name: res.data.name,
                 email: res.data.email,
                 role: 'vendor'
             }));
             localStorage.setItem('token', res.data.token);
+            localStorage.setItem('userId', res.data.id);
 
             // Redirect to vendor dashboard
             setTimeout(() => {
@@ -147,6 +151,26 @@ const VendorRegister = () => {
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                                     required
                                 />
+                            </div>
+                        </div>
+
+                        {/* Company Type */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700 ml-1">Company Type</label>
+                            <div className="relative">
+                                <Building className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+                                <select
+                                    name="companyType"
+                                    value={formData.companyType}
+                                    onChange={handleChange}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none"
+                                >
+                                    <option value="Individual">Individual</option>
+                                    <option value="Startup">Startup</option>
+                                    <option value="Enterprise">Enterprise</option>
+                                    <option value="Agency">Agency</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
                         </div>
 
