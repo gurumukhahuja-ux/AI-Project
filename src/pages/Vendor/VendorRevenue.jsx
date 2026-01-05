@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DollarSign, TrendingUp, CreditCard, Calendar, Clock, BarChart3 } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 const VendorRevenue = () => {
     const navigate = useNavigate();

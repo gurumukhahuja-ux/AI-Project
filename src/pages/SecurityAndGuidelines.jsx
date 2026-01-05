@@ -187,7 +187,7 @@ const SecurityAndGuidelines = () => {
     return (
         <div className="h-full flex flex-col bg-bg overflow-hidden relative">
             {/* Header */}
-            <header className="px-6 py-5 border-b border-border bg-secondary/30 backdrop-blur-md sticky top-0 z-10">
+            <header className="px-6 py-5 border-b border-border bg-white/80 backdrop-blur-md sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-primary/10 rounded-lg">
                         <Shield className="w-6 h-6 text-primary" />
@@ -207,7 +207,7 @@ const SecurityAndGuidelines = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-secondary border border-border rounded-xl p-6 shadow-sm"
+                        className="border border-border rounded-xl p-6 shadow-sm"
                     >
                         <p className="text-subtext leading-relaxed">
                             This Security & Guidelines section governs the acceptable use, data protection practices, and security standards applicable to <span className="text-maintext font-semibold">AI-Mall™</span>, operated by <span className="text-maintext font-semibold">UWO™</span>. By accessing or using the platform, you agree to comply with the terms set forth herein.
@@ -222,7 +222,7 @@ const SecurityAndGuidelines = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.05 }}
-                                className="bg-secondary hover:bg-surface/50 border border-border rounded-xl p-5 hover:shadow-md transition-all duration-300"
+                                className="hover:bg-surface/50 border border-border rounded-xl p-5 hover:shadow-md transition-all duration-300"
                             >
                                 <div className="flex items-center gap-3 mb-3 border-b border-border/50 pb-2">
                                     {section.icon}

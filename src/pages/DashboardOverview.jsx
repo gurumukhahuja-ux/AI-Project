@@ -25,7 +25,7 @@ const DashboardOverview = () => {
   );
 
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto bg-secondary">
+    <div className="p-4 md:p-8 h-full overflow-y-auto">
       <header className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-maintext mb-2">Overview</h1>
         <p className="text-sm md:text-base text-subtext">

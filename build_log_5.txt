@@ -1,0 +1,23 @@
+
+> bot2@0.0.0 build
+> vite build
+
+[36mvite v7.2.7 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 2253 modules transformed.
+rendering chunks...
+[33m[plugin vite:reporter] 
+(!) C:/Users/Intel/Desktop/work space/AI-MALL/src/Components/Admin/TransactionHistory.jsx is dynamically imported by C:/Users/Intel/Desktop/work space/AI-MALL/src/Navigation.Provider.jsx but also statically imported by C:/Users/Intel/Desktop/work space/AI-MALL/src/pages/Admin.jsx, dynamic import will not move module into another chunk.
+[39m
+computing gzip size...
+[2mdist/[22m[32mindex.html                                [39m[1m[2m  1.99 kB[22m[1m[22m[2m │ gzip:   0.89 kB[22m
+[2mdist/[22m[35massets/index-DB4U9y8f.css                 [39m[1m[2m113.06 kB[22m[1m[22m[2m │ gzip:  16.47 kB[22m
+[2mdist/[22m[36massets/LiveDemoPage-5ZX-r2v4.js           [39m[1m[2m  6.17 kB[22m[1m[22m[2m │ gzip:   2.54 kB[22m
+[2mdist/[22m[36massets/SecurityAndGuidelines-Xck2UvFl.js  [39m[1m[2m 11.22 kB[22m[1m[22m[2m │ gzip:   3.35 kB[22m
+[2mdist/[22m[36massets/index-rSNdf_8G.js                  [39m[1m[33m799.49 kB[39m[22m[2m │ gzip: 229.18 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 4.78s[39m

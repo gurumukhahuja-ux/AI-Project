@@ -9,7 +9,7 @@ import axios from 'axios';
 import { apis, AppRoute } from '../types';
 import { getUserData, userData, setUserData } from '../userStore/userData';
 import { chatStorageService } from '../services/chatStorageService';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 
 const UserProfile = () => {
@@ -133,7 +133,7 @@ const UserProfile = () => {
 
     if (loading) {
         return (
-            <div className="flex h-full w-full items-center justify-center bg-secondary">
+            <div className="flex h-full w-full items-center justify-center">
                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
         );
@@ -142,7 +142,7 @@ const UserProfile = () => {
     if (!user) return null;
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-secondary font-sans scrollbar-thin scrollbar-thumb-border">
+        <div className="h-full w-full overflow-y-auto font-sans scrollbar-thin scrollbar-thumb-border">
 
             {/* Banner Area */}
             <div className="relative h-60 w-full overflow-hidden">

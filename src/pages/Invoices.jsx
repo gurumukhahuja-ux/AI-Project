@@ -42,7 +42,7 @@ const Invoices = () => {
     };
 
     return (
-        <div className="p-4 md:p-8 h-full bg-secondary overflow-y-auto">
+        <div className="p-4 md:p-8 h-full overflow-y-auto">
             <div className="mb-8">
                 <h1 className="text-2xl md:text-3xl font-bold text-maintext mb-2">Billing & Invoices</h1>
                 <p className="text-sm md:text-base text-subtext">View and download your subscription invoices.</p>

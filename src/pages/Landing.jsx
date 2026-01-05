@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Bot, Zap, Shield, CircleUser,
   Github,
@@ -9,12 +9,12 @@ import { motion } from 'framer-motion';
 import { logo, name } from '../constants';
 import { getUserData } from '../userStore/userData';
 import { AppRoute } from '../types';
-
+import LandingLiveDemoModal from '../Components/LiveDemo/LandingLiveDemoModal';
 import { useRecoilState } from 'recoil';
 import { demoModalState } from '../userStore/demoStore';
 import SecurityModal from '../Components/LiveDemo/SecurityModal';
 import { FaXTwitter } from "react-icons/fa6";
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 const Landing = () => {
   const navigate = useNavigate();
   const user = getUserData("user")
@@ -27,7 +27,7 @@ const Landing = () => {
   const btnClass = "px-8 py-4 bg-primary rounded-2xl font-bold text-lg text-white shadow-xl shadow-primary/30 flex items-center justify-center gap-2 border border-primary/10 w-full sm:w-auto overflow-hidden";
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-secondary">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
 
       {/* Background Shapes */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
@@ -64,7 +64,7 @@ const Landing = () => {
           animate={{ opacity: 1, y: 0 }}
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-sm text-subtext mb-8"
         >
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          <span className="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
           Powered by UWO
         </motion.div>
 
@@ -130,7 +130,7 @@ const Landing = () => {
           transition={{ delay: 0.4 }}
           className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full text-left"
         >
-          <div className="p-6 rounded-3xl bg-white border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
+          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Bot className="w-6 h-6 text-primary" />
             </div>
@@ -140,7 +140,7 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-white border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
+          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Zap className="w-6 h-6 text-primary" />
             </div>
@@ -150,7 +150,7 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-white border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
+          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Shield className="w-6 h-6 text-primary" />
             </div>
@@ -165,7 +165,7 @@ const Landing = () => {
       </main>
 
       {/* Footer Section */}
-      <footer className="w-full bg-white border-t border-border mt-20 relative z-10">
+      <footer className="w-full bg-background border-t border-border mt-20 relative z-10">
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             {/* Brand Column */}
@@ -345,7 +345,10 @@ const Landing = () => {
         </div>
       </footer>
 
-
+      <LandingLiveDemoModal
+        isOpen={demoState.isOpen}
+        onClose={() => setDemoState({ ...demoState, isOpen: false })}
+      />
 
       <SecurityModal
         isOpen={isSecurityModalOpen}

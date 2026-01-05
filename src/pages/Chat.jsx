@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Send, Bot, User, Sparkles, Plus, Monitor, ChevronDown, History } from 'lucide-react';
 import { generateChatResponse } from '../services/geminiService';
 import { chatStorageService } from '../services/chatStorageService';
@@ -123,7 +123,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-full w-full bg-secondary relative overflow-hidden">
+    <div className="flex h-full w-full relative overflow-hidden">
 
       {/* Mobile History Backdrop */}
       {showHistory && (
@@ -189,10 +189,10 @@ const Chat = () => {
       </div>
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col relative bg-secondary w-full min-w-0">
+      <div className="flex-1 flex flex-col relative bg-white w-full min-w-0">
 
         {/* Header */}
-        <div className="h-16 border-b border-border flex items-center justify-between px-4 sm:px-6 bg-secondary z-10 shrink-0 gap-2">
+        <div className="h-16 border-b border-border flex items-center justify-between px-4 sm:px-6 bg-white z-10 shrink-0 gap-2">
           <div className="flex items-center gap-2 min-w-0">
 
             <button
@@ -315,7 +315,7 @@ const Chat = () => {
         </div>
 
         {/* Input */}
-        <div className="p-4 sm:p-6 shrink-0 bg-secondary border-t border-border sm:border-t-0">
+        <div className="p-4 sm:p-6 shrink-0 bg-white border-t border-border sm:border-t-0">
           <div className="max-w-4xl mx-auto relative">
             <form onSubmit={handleSendMessage} className="relative">
               <input

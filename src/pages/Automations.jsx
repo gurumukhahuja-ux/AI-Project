@@ -36,7 +36,7 @@ const Automations = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto bg-secondary">
+    <div className='p-8 h-full overflow-y-auto'>
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-maintext mb-2">
@@ -58,11 +58,10 @@ const Automations = () => {
         {automations.map((auto) => (
           <div
             key={auto.id}
-            className={`relative p-6 rounded-2xl border transition-all duration-300 shadow-sm ${
-              auto.active
+            className={`relative p-6 rounded-2xl border transition-all duration-300 shadow-sm ${auto.active
                 ? 'bg-white border-primary shadow-lg shadow-primary/5'
                 : 'bg-surface border-border opacity-70'
-            }`}
+              }`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-3 rounded-xl bg-surface border border-border">
@@ -72,9 +71,8 @@ const Automations = () => {
               {/* Toggle Switch */}
               <button
                 onClick={() => handleToggle(auto.id)}
-                className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 flex items-center ${
-                  auto.active ? 'bg-green-500 justify-end' : 'bg-gray-300 justify-start'
-                }`}
+                className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 flex items-center ${auto.active ? 'bg-green-500 justify-end' : 'bg-gray-300 justify-start'
+                  }`}
               >
                 <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
               </button>
@@ -85,9 +83,8 @@ const Automations = () => {
 
             <div className="flex items-center justify-between text-xs font-medium">
               <span
-                className={`px-2 py-1 rounded-md ${
-                  auto.active ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'
-                }`}
+                className={`px-2 py-1 rounded-md ${auto.active ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'
+                  }`}
               >
                 {auto.active ? 'Active' : 'Paused'}
               </span>

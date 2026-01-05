@@ -1,6 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, Box, DollarSign, Settings, LogOut, Users, ShieldAlert } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
     const location = useLocation();

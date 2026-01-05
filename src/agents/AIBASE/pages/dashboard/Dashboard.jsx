@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { FileText, MessageSquare, Activity, Upload, ArrowRight, Zap, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 import Button from '../../components/common/Button';

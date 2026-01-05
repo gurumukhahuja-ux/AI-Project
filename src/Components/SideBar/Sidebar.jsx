@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink, useNavigate, Link } from 'react-router';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   LayoutGrid,
@@ -198,10 +198,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>{t('marketplace')}</span>
           </NavLink>
 
-          <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
+          {/* <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
             <LayoutGrid className="w-5 h-5" />
             <span>{t('vendorDashboard')}</span>
-          </NavLink>
+          </NavLink> */}
 
           <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
             <FileText className="w-5 h-5" />
@@ -214,10 +214,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             <Zap className="w-5 h-5" />
             <span>Automations</span>
           </NavLink> */}
-          <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
+          {/* <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
             <Settings className="w-5 h-5" />
             <span>{t('adminDashboard')}</span>
-          </NavLink>
+          </NavLink> */}
         </div>
 
         {/* Notifications Section */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, Outlet, Navigate, BrowserRouter } from 'react-router';
+import { Routes, Route, Outlet, Navigate, BrowserRouter } from 'react-router-dom';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -63,13 +63,13 @@ const DashboardLayout = () => {
   );
 
   return (
-    <div className="fixed inset-0 flex bg-secondary text-maintext overflow-hidden font-sans">
+    <div className="fixed inset-0 flex bg-white text-maintext overflow-hidden font-sans">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col min-w-0 bg-secondary h-full relative">
+      <div className="flex-1 flex flex-col min-w-0 bg-white h-full relative">
 
         {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-secondary shrink-0 z-50 shadow-sm">
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-white shrink-0 z-50 shadow-sm">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}

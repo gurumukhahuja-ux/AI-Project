@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSearchParams, useNavigate, useLocation } from 'react-router';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Search, Menu, CheckCircle, Info, LayoutDashboard } from 'lucide-react';
 
 const Navbar = () => {

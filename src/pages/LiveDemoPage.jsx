@@ -145,7 +145,7 @@ const LiveDemoPage = () => {
     });
 
     return (
-        <div className="p-4 md:p-8 h-full overflow-y-auto bg-secondary">
+        <div className="p-4 md:p-8 h-full overflow-y-auto">
             <AnimatePresence>
                 {subToggle.subscripPgTgl && <SubscriptionForm id={agentId} />}
             </AnimatePresence>
