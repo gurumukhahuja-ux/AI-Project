@@ -202,7 +202,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
             <span>{t('marketplace')}</span>
           </NavLink>
-{/* 
+          {/* 
           <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
             <LayoutGrid className="w-5 h-5" />
             <span>{t('vendorDashboard')}</span>
@@ -219,10 +219,12 @@ const Sidebar = ({ isOpen, onClose }) => {
             <Zap className="w-5 h-5" />
             <span>Automations</span>
           </NavLink> */}
-          <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
-            <Settings className="w-5 h-5" />
-            <span>{t('adminDashboard')}</span>
-          </NavLink>
+          {user?.role === 'admin' && (
+            <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
+              <Settings className="w-5 h-5" />
+              <span>{t('adminDashboard')}</span>
+            </NavLink>
+          )}
         </div>
 
         {/* Notifications Section */}
