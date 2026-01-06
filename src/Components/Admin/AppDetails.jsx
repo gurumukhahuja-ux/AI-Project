@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Check, Info, ArrowLeft, Trash2, Globe, Loader2, X, Edit2, User } from 'lucide-react';
+import { Shield, Check, Info, ArrowLeft, Trash2, Globe, Loader2, X, Edit2, User, EyeOff } from 'lucide-react';
 import apiService from '../../services/apiService';
 
 import { getUserData } from '../../userStore/userData';
@@ -55,11 +55,26 @@ const AppDetails = ({ app, onBack, onDelete, onUpdate, isAdmin: propsIsAdmin }) 
     const handleGoLive = async () => {
         try {
             setIsUpdating(true);
-            await apiService.updateAgent(app._id || app.id, { status: 'active' });
+            await apiService.updateAgent(app._id || app.id, { status: 'active', reviewStatus: 'Approved' });
             setStatus('active');
+            setReviewStatus('Approved');
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error("Failed to go live:", error);
+            alert("Failed to update status.");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleDeactivate = async () => {
+        try {
+            setIsUpdating(true);
+            await apiService.updateAgent(app._id || app.id, { status: 'Inactive' });
+            setStatus('Inactive');
+            if (onUpdate) onUpdate();
+        } catch (error) {
+            console.error("Failed to deactivate:", error);
             alert("Failed to update status.");
         } finally {
             setIsUpdating(false);
@@ -185,7 +200,6 @@ const AppDetails = ({ app, onBack, onDelete, onUpdate, isAdmin: propsIsAdmin }) 
                             </button>
                         ) : null}
 
-                        {/* Admin Action: Force Live / Go Live */}
                         {isAdmin && status !== 'Live' && status !== 'active' && status !== 'Active' ? (
                             <button
                                 onClick={handleGoLive}
@@ -194,6 +208,15 @@ const AppDetails = ({ app, onBack, onDelete, onUpdate, isAdmin: propsIsAdmin }) 
                             >
                                 {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                                 Go Live
+                            </button>
+                        ) : isAdmin ? (
+                            <button
+                                onClick={handleDeactivate}
+                                disabled={isUpdating}
+                                className="bg-amber-500 text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-600 transition-all flex items-center gap-2 shadow-sm font-sans active:scale-95"
+                            >
+                                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <EyeOff className="w-4 h-4" />}
+                                Take Offline
                             </button>
                         ) : null}
 

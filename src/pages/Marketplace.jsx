@@ -45,6 +45,7 @@ const Marketplace = () => {
         }
 
         if (agentsData.status === 'fulfilled') {
+          console.log("API Agents Response:", agentsData.value);
           setAgents(Array.isArray(agentsData.value) ? agentsData.value : []);
         } else {
           console.error("Failed to fetch agents:", agentsData.reason);

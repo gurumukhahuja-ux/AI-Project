@@ -157,20 +157,8 @@ export const apiService = {
       const response = await apiClient.get('/agents');
       return response.data;
     } catch (error) {
-      const stored = localStorage.getItem('mock_agents');
-      if (stored) return JSON.parse(stored);
-
-      const defaults = [
-        { _id: '683d38ce-1', name: 'AIFLOW', description: 'Streamline your AI workflows.', pricing: 'Free', status: 'Inactive' },
-        { _id: '683d38ce-2', name: 'AIMARKET', description: 'AI-driven marketplace insights.', pricing: 'Free', status: 'Inactive' },
-        { _id: '683d38ce-3', name: 'AICONNECT', description: 'Connect all your AI tools.', pricing: 'Free', status: 'Inactive' },
-        { _id: '693d38ce-4', name: 'AIMUSIC', description: 'AI-powered music generation.', pricing: 'Free', status: 'Inactive' },
-        { _id: '693d38ce-5', name: 'AITRANS', description: 'Advanced AI translation services.', pricing: 'Free', status: 'Inactive' },
-        { _id: '683d38ce-6', name: 'AISCRIPT', description: 'AI script writing and automation.', pricing: 'Free', status: 'Inactive' }
-      ];
-
-      localStorage.setItem('mock_agents', JSON.stringify(defaults));
-      return defaults;
+      console.error("Failed to fetch agents:", error);
+      return [];
     }
   },
 
@@ -427,12 +415,8 @@ export const apiService = {
       const response = await apiClient.get('/user/all');
       return response.data;
     } catch (error) {
-      console.warn('Backend get users failed, falling back to mock:', error.message);
-      // Mock fallback
-      return [
-        { id: '1', name: 'Mock User 1', email: 'user1@example.com', role: 'user', status: 'Active', agents: [], spent: 120 },
-        { id: '2', name: 'Mock User 2', email: 'user2@example.com', role: 'user', status: 'Active', agents: [], spent: 250 }
-      ];
+      console.error('Backend get users failed:', error);
+      return [];
     }
   },
 

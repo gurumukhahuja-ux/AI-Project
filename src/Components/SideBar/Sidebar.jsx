@@ -203,10 +203,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>{t('marketplace')}</span>
           </NavLink>
 
-          <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
-            <LayoutGrid className="w-5 h-5" />
-            <span>{t('vendorDashboard')}</span>
-          </NavLink>
+
 
           <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
             <FileText className="w-5 h-5" />
