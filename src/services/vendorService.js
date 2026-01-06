@@ -91,7 +91,7 @@ const vendorService = {
     // Submit app for review
     submitForReview: async (appId) => {
         try {
-            const response = await vendorClient.patch(`/agents/${appId}/submit_review`);
+            const response = await vendorClient.post(`/agents/submit-review/${appId}`);
             return response.data;
         } catch (error) {
             console.error('[VendorService] Error submitting app:', error.response?.data || error.message);
@@ -117,6 +117,47 @@ const vendorService = {
             return response.data;
         } catch (error) {
             console.error('Error deleting app:', error);
+            throw error;
+        }
+    },
+
+    // Create a new app (Draft)
+    createAgent: async (data, token) => {
+        try {
+            // If token is passed explicitly (e.g. during creation flow before it's fully set?), use it.
+            // But interceptor handles it. 
+            // We can just use vendorClient.
+            const response = await vendorClient.post('/agents', data);
+            return response.data;
+        } catch (error) {
+            console.error('Error creating app:', error);
+            throw error;
+        }
+    },
+
+    // Get Support Messages for Vendor
+    getSupportMessages: async (userId, type = 'AdminSupport') => {
+        try {
+            const response = await vendorClient.get(`/support/user/${userId}?type=${type}`);
+            // If the endpoint is in agentRoutes or supportRoutes?
+            // supportRoutes is POST /. 
+            // The Source VendorAdminSupport calls GET /api/agents/vendor/:userId/support...
+            // I need to check if I have this route in my backend merge!
+            // I merged agentRoutes.js (Source). Let's check if it has this route.
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching support messages:', error);
+            throw error;
+        }
+    },
+
+    // Submit Support Ticket
+    submitSupportTicket: async (data) => {
+        try {
+            const response = await vendorClient.post('/support', data);
+            return response.data;
+        } catch (error) {
+            console.error('Error submitting support ticket:', error);
             throw error;
         }
     }

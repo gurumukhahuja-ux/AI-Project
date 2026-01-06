@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Download, Check, Star, FileText, Play, X } from 'lucide-react';
-import axios from 'axios';
 import { apis, AppRoute } from '../types';
+import apiService from '../services/apiService';
 import { getUserData, toggleState } from '../userStore/userData';
 import SubscriptionForm from '../Components/SubscriptionForm/SubscriptionForm';
 import { useRecoilState } from 'recoil';
@@ -31,26 +31,23 @@ const Marketplace = () => {
         setLoading(true);
       }
       const userId = user?.id || user?._id;
-      axios.get(apis.agents).then((res) => {
-        console.log(res.data);
-      })
-
       try {
-        const [userAgentsRes, agentsRes] = await Promise.allSettled([
-          axios.post(apis.getUserAgents, { userId }),
-          axios.get(apis.agents)
+        const [userAgentsData, agentsData] = await Promise.allSettled([
+          userId ? apiService.getUserAgents(userId) : Promise.reject("No User ID"),
+          apiService.getAgents()
         ]);
 
-        if (userAgentsRes.status === 'fulfilled') {
-          setUserAgent(userAgentsRes.value.data?.agents || []);
+        if (userAgentsData.status === 'fulfilled') {
+          setUserAgent(userAgentsData.value.data?.agents || []);
         } else {
-          console.error("Failed to fetch user agents:", userAgentsRes.reason);
+          console.warn("User agents not loaded (might not be logged in)");
+          setUserAgent([]);
         }
 
-        if (agentsRes.status === 'fulfilled') {
-          setAgents(Array.isArray(agentsRes.value.data) ? agentsRes.value.data : []);
+        if (agentsData.status === 'fulfilled') {
+          setAgents(Array.isArray(agentsData.value) ? agentsData.value : []);
         } else {
-          console.error("Failed to fetch agents:", agentsRes.reason);
+          console.error("Failed to fetch agents:", agentsData.reason);
           setAgents([]);
         }
       } catch (error) {
@@ -74,13 +71,6 @@ const Marketplace = () => {
   };
 
   const filteredAgents = agents.filter(agent => {
-    // Only show apps that are 'Live' AND 'Approved'
-    // This ensures only admin-approved apps appear in marketplace
-    const isLive = !agent.status || agent.status === 'Live' || agent.status === 'active';
-    const isApproved = agent.reviewStatus === 'Approved';
-
-    if (!isLive || !isApproved) return false;
-
     const matchesCategory = filter === 'all' || agent.category === filter;
     const matchesSearch = (agent.agentName || agent.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (agent.description || "").toLowerCase().includes(searchQuery.toLowerCase());
@@ -95,11 +85,8 @@ const Marketplace = () => {
     "Medical & Health AI",];
 
   return (
-    <div className="p-4 md:p-8 h-full overflow-y-auto relative">
-      {/* Background Blur Effects */}
-      <div className="absolute top-[-10%] left-[-5%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-[50%] right-[10%] w-[300px] h-[300px] bg-primary/10 rounded-full blur-[80px] pointer-events-none" />
+    <div className="p-4 md:p-8 h-full overflow-y-auto bg-white relative">
+      {/* Background Blur Effects Removed */}
 
       <AnimatePresence>
         {subToggle.subscripPgTgl && <SubscriptionForm id={agentId} />}
@@ -206,12 +193,16 @@ const Marketplace = () => {
               <h3 className="text-lg font-bold text-maintext text-2xl font-bold">{agent.agentName} <sup className='text-sm'>TM</sup></h3>
               <button
                 onClick={() => {
-                  setDemoUrl(agent.demoVideoUrl || "https://www.youtube.com/embed/dQw4w9wgXcQ");
-                  setShowDemo(true);
+                  if (agent.url && agent.url.startsWith('/')) {
+                    navigate(agent.url);
+                  } else {
+                    setDemoUrl(agent.demoVideoUrl || "https://www.youtube.com/embed/dQw4w9wgXcQ");
+                    setShowDemo(true);
+                  }
                 }}
                 className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold"
               >
-                <Play className="w-3 h-3 fill-primary" /> Demo
+                <Play className="w-3 h-3 fill-primary" /> {agent.url && agent.url.startsWith('/') ? 'Try Now' : 'Demo'}
               </button>
             </div>
 

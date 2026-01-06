@@ -21,10 +21,11 @@ const Sidebar = () => {
                     <NavLink
                         key={item.path}
                         to={item.path}
+                        end={item.path === '/agents/aibase'}
                         className={({ isActive }) =>
                             `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
-                                ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                                : 'text-subtext hover:bg-surface hover:text-maintext'
+                                ? 'bg-primary !text-white shadow-lg shadow-primary/25 font-bold'
+                                : 'text-subtext hover:bg-surface hover:text-maintext font-medium'
                             }`
                         }
                     >

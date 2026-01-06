@@ -51,7 +51,7 @@ const UserProfile = () => {
 
         try {
             await axios.post(apis.support, {
-                email: user?.email || "guest@ai-mall.in",
+                email: user?.email || "guest@a-series.ai",
                 issueType,
                 message: issueText,
                 userId: user?.id || null
@@ -324,7 +324,7 @@ const UserProfile = () => {
                                         {agent.avatar ? <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" /> : <Bot className="w-6 h-6 text-subtext" />}
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <h4 className="font-bold text-maintext truncate group-hover:text-primary transition-colors">{agent.name}</h4>
+                                        <h4 className="font-bold text-maintext truncate group-hover:text-primary transition-colors">{agent.name}<sup className="text-xs">TM</sup></h4>
                                         <p className="text-xs text-subtext line-clamp-2 mt-1">{agent.description || "No description available."}</p>
                                         <div className="mt-3 flex items-center gap-2">
                                             <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${agent.category === 'productivity' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-600'
@@ -495,7 +495,7 @@ const UserProfile = () => {
                                         )}
 
                                         <p className="text-xs text-center text-subtext">
-                                            Or email us directly at <a href="mailto:support@ai-mall.in" className="text-primary font-medium hover:underline">support@ai-mall.in</a>
+                                            Or email us directly at <a href="mailto:support@a-series.ai" className="text-primary font-medium hover:underline">support@a-series.ai</a>
                                         </p>
                                     </div>
                                 )}

@@ -88,7 +88,9 @@ const Chat = () => {
       setCurrentSessionId(activeSessionId);
     }
 
-    const aiResponseText = await generateChatResponse(messages, userMsg.content);
+    const aisaInstruction = `You are AISA™, the internal intelligent assistant developed and trained under Unified Web Options & Services (UWO) for the A-Series™ ecosystem. Development and implementation are led by Sanskar Sahu. Do NOT introduce yourself unless explicitly asked. Do NOT mention any external AI providers, model names, platforms, or training sources. Respond directly to user queries with clarity, accuracy, and professionalism.`;
+
+    const aiResponseText = await generateChatResponse(messages, userMsg.content, aisaInstruction);
 
     const modelMsg = {
       id: (Date.now() + 1).toString(),
@@ -123,7 +125,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-full w-full relative overflow-hidden">
+    <div className="flex h-full w-full bg-white relative overflow-hidden">
 
       {/* Mobile History Backdrop */}
       {showHistory && (

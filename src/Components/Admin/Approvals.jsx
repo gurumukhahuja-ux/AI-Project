@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Clock, FileText, Loader2, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, FileText, Loader2, AlertCircle, Trash2 } from 'lucide-react';
 import apiService from '../../services/apiService';
 
 const Approvals = () => {
@@ -15,8 +15,11 @@ const Approvals = () => {
     const fetchPending = async () => {
         try {
             setLoading(true);
-            const agents = await apiService.getAgents();
-            const pending = agents.filter(a => a.reviewStatus === 'Pending Review');
+            const agents = await apiService.getAgents({ view: 'admin' });
+            console.log("Fetched agents for approval:", agents);
+            // Filter for both Pending Review AND Pending Deletion
+            const pending = agents.filter(a => a.reviewStatus === 'Pending Review' || a.deletionStatus === 'Pending');
+            console.log("Filtered pending agents:", pending);
             setPendingAgents(pending);
         } catch (err) {
             console.error("Failed to fetch pending approvals:", err);
@@ -44,7 +47,11 @@ const Approvals = () => {
         try {
             const id = selectedAgent._id || selectedAgent.id;
             setProcessingId(id);
-            await apiService.approveAgent(id, approvalMessage);
+            if (selectedAgent.deletionStatus === 'Pending') {
+                await apiService.approveAgentDeletion(id);
+            } else {
+                await apiService.approveAgent(id, approvalMessage);
+            }
             setPendingAgents(prev => prev.filter(a => (a._id || a.id) !== id));
             setShowApproveModal(false);
             setApprovalMessage('');
@@ -60,7 +67,11 @@ const Approvals = () => {
         if (!rejectionReason.trim()) return;
         try {
             setProcessingId(selectedAgent._id || selectedAgent.id);
-            await apiService.rejectAgent(selectedAgent._id || selectedAgent.id, rejectionReason);
+            if (selectedAgent.deletionStatus === 'Pending') {
+                await apiService.rejectAgentDeletion(selectedAgent._id || selectedAgent.id, rejectionReason);
+            } else {
+                await apiService.rejectAgent(selectedAgent._id || selectedAgent.id, rejectionReason);
+            }
             setPendingAgents(prev => prev.filter(a => (a._id || a.id) !== (selectedAgent._id || selectedAgent.id)));
             setShowRejectModal(false);
             setRejectionReason('');
@@ -105,11 +116,17 @@ const Approvals = () => {
                                         <img src={agent.avatar || 'https://cdn-icons-png.flaticon.com/512/2102/2102633.png'} alt="" className="w-10 h-10 object-contain" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-primary transition-colors">{agent.agentName}</h3>
+                                        <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-primary transition-colors">{agent.agentName}<sup className="text-xs">TM</sup></h3>
                                         <div className="flex items-center gap-3 mt-1">
                                             <span className="text-xs font-bold text-subtext uppercase tracking-wider">{agent.category}</span>
                                             <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                            <span className="text-xs text-subtext">Submitted by Vendor</span>
+                                            {agent.deletionStatus === 'Pending' ? (
+                                                <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider border border-red-200 bg-red-50 px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                                                    <Trash2 className="w-3 h-3" /> Deletion Request
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs text-subtext">Submitted by Vendor</span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -121,10 +138,14 @@ const Approvals = () => {
                                             setShowApproveModal(true);
                                         }}
                                         disabled={processingId === (agent._id || agent.id)}
-                                        className="bg-[#22C55E] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#16A34A] transition-all flex items-center gap-2 disabled:opacity-50"
+                                        className={`${agent.deletionStatus === 'Pending' ? 'bg-red-500 hover:bg-red-600 shadow-red-200' : 'bg-[#22C55E] hover:bg-[#16A34A] shadow-green-200'} text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-opacity-20`}
                                     >
-                                        {processingId === (agent._id || agent.id) ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                        Approve
+                                        {processingId === (agent._id || agent.id) ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            agent.deletionStatus === 'Pending' ? <Trash2 className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />
+                                        )}
+                                        {agent.deletionStatus === 'Pending' ? 'Delete' : 'Approve'}
                                     </button>
                                     <button
                                         onClick={() => {
@@ -132,10 +153,10 @@ const Approvals = () => {
                                             setShowRejectModal(true);
                                         }}
                                         disabled={processingId === (agent._id || agent.id)}
-                                        className="bg-white border border-red-100 text-[#EF4444] px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-red-50 transition-all flex items-center gap-2 disabled:opacity-50"
+                                        className="bg-white border border-[#E0E4E8] text-subtext px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all flex items-center gap-2 disabled:opacity-50 hover:text-[#1E293B]"
                                     >
                                         <XCircle className="w-4 h-4" />
-                                        Reject
+                                        {agent.deletionStatus === 'Pending' ? 'Reject' : 'Reject'}
                                     </button>
                                 </div>
                             </div>
@@ -163,18 +184,26 @@ const Approvals = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white w-full max-w-lg rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in duration-200">
                         <div className="p-8">
-                            <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
-                                <CheckCircle className="w-8 h-8 text-[#22C55E]" />
+                            <div className={`w-14 h-14 ${selectedAgent?.deletionStatus === 'Pending' ? 'bg-red-50' : 'bg-green-50'} rounded-2xl flex items-center justify-center mb-6`}>
+                                {selectedAgent?.deletionStatus === 'Pending' ? <XCircle className="w-8 h-8 text-red-500" /> : <CheckCircle className="w-8 h-8 text-[#22C55E]" />}
                             </div>
-                            <h2 className="text-2xl font-bold text-[#1E293B] mb-2">Approve Agent</h2>
-                            <p className="text-subtext mb-8">You can send a congratulatory message or additional notes to the vendor.</p>
+                            <h2 className="text-2xl font-bold text-[#1E293B] mb-2">
+                                {selectedAgent?.deletionStatus === 'Pending' ? 'Confirm Deletion' : 'Approve Agent'}
+                            </h2>
+                            <p className="text-subtext mb-8">
+                                {selectedAgent?.deletionStatus === 'Pending'
+                                    ? "Are you sure you want to permanently delete this agent? This action cannot be undone."
+                                    : "You can send a congratulatory message or additional notes to the vendor."}
+                            </p>
 
-                            <textarea
-                                value={approvalMessage}
-                                onChange={(e) => setApprovalMessage(e.target.value)}
-                                className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl p-5 text-sm outline-none focus:ring-2 focus:ring-green-500/10 focus:border-green-500 transition-all resize-none h-32"
-                                placeholder="Message to Vendor (Optional)"
-                            />
+                            {selectedAgent?.deletionStatus !== 'Pending' && (
+                                <textarea
+                                    value={approvalMessage}
+                                    onChange={(e) => setApprovalMessage(e.target.value)}
+                                    className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl p-5 text-sm outline-none focus:ring-2 focus:ring-green-500/10 focus:border-green-500 transition-all resize-none h-32"
+                                    placeholder="Message to Vendor (Optional)"
+                                />
+                            )}
 
                             <div className="flex items-center gap-4 mt-8">
                                 <button
@@ -186,9 +215,9 @@ const Approvals = () => {
                                 <button
                                     onClick={handleApprove}
                                     disabled={processingId}
-                                    className="flex-1 bg-[#22C55E] text-white px-6 py-4 rounded-2xl text-sm font-bold hover:bg-[#16A34A] transition-all disabled:opacity-50"
+                                    className={`flex-1 ${selectedAgent?.deletionStatus === 'Pending' ? 'bg-[#EF4444] hover:bg-[#DC2626]' : 'bg-[#22C55E] hover:bg-[#16A34A]'} text-white px-6 py-4 rounded-2xl text-sm font-bold transition-all disabled:opacity-50`}
                                 >
-                                    Confirm Approval
+                                    {selectedAgent?.deletionStatus === 'Pending' ? 'Delete Permanently' : 'Confirm Approval'}
                                 </button>
                             </div>
                         </div>

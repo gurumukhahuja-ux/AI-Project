@@ -6,12 +6,14 @@ import Navbar from './components/layout/Navbar';
 import Dashboard from './pages/dashboard/Dashboard';
 import Chat from './pages/chat/Chat';
 import UserManagement from './pages/admin/UserManagement';
+import './styles/index.css';
 
 function AiBase() {
     const location = useLocation();
     const isChat = location.pathname.includes('/chat');
 
     return (
+
         <div className="flex h-screen overflow-hidden bg-surface font-sans text-maintext">
             {/* Sidebar */}
             <Sidebar />
@@ -24,13 +26,14 @@ function AiBase() {
                 {/* We use flex-1 to automatically fill remaining height (no calc needed) */}
                 <main className={`flex-1 relative ${isChat ? 'p-0 overflow-hidden' : 'p-8 overflow-y-auto'}`}>
                     <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/chat" element={<Chat />} />
-                        <Route path="/admin" element={<UserManagement />} />
-                        <Route path="*" element={<Navigate to="" replace />} />
+                        <Route index element={<Dashboard />} />
+                        <Route path="chat" element={<Chat />} />
+                        <Route path="admin" element={<UserManagement />} />
+                        <Route path="*" element={<Navigate to="/agents/aibase" replace />} />
                     </Routes>
                 </main>
             </div>
+            {/* Toaster is likely handled by main app, but keeping here just in case. */}
             <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#333', color: '#fff' } }} />
         </div>
     );

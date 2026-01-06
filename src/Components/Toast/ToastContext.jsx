@@ -12,24 +12,25 @@ export const useToast = () => {
     return context;
 };
 
-const Toast = ({ id, message, type, onClose }) => {
+const Toast = React.forwardRef(({ id, message, type, onClose }, ref) => {
     const isSuccess = type === 'success';
     const isError = type === 'error';
 
     return (
         <motion.div
+            ref={ref}
             layout
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             className={`pointer-events-auto w-full max-w-sm p-4 rounded-2xl border shadow-xl backdrop-blur-sm flex items-start gap-4 ${isSuccess ? 'bg-white border-green-100' :
-                    isError ? 'bg-white border-red-100' :
-                        'bg-white border-blue-100'
+                isError ? 'bg-white border-red-100' :
+                    'bg-white border-blue-100'
                 }`}
         >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isSuccess ? 'bg-green-50 text-green-600' :
-                    isError ? 'bg-red-50 text-red-600' :
-                        'bg-blue-50 text-blue-600'
+                isError ? 'bg-red-50 text-red-600' :
+                    'bg-blue-50 text-blue-600'
                 }`}>
                 {isSuccess ? <CheckCircle className="w-5 h-5" /> :
                     isError ? <AlertCircle className="w-5 h-5" /> :
@@ -38,8 +39,8 @@ const Toast = ({ id, message, type, onClose }) => {
 
             <div className="flex-1 pt-0.5">
                 <h4 className={`text-sm font-bold ${isSuccess ? 'text-green-900' :
-                        isError ? 'text-red-900' :
-                            'text-blue-900'
+                    isError ? 'text-red-900' :
+                        'text-blue-900'
                     }`}>
                     {isSuccess ? 'Success' : isError ? 'Error' : 'Info'}
                 </h4>
@@ -56,7 +57,7 @@ const Toast = ({ id, message, type, onClose }) => {
             </button>
         </motion.div>
     );
-};
+});
 
 export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);

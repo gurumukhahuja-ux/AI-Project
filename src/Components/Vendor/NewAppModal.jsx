@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Sparkles, AlertCircle, CheckCircle, Loader2, ChevronDown, Check } from 'lucide-react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import vendorService from '../../services/vendorService';
 import PricingConfigModal from './PricingConfigModal';
 
 // Custom Dropdown Component
@@ -93,12 +93,6 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
         { value: 'Medical & Health AI', label: 'Medical & Health AI' }
     ];
 
-    const pricingModels = [
-        { value: 'free', label: 'Free' },
-        { value: 'freemium', label: 'Freemium' },
-        { value: 'paid', label: 'Paid Only' }
-    ];
-
     const fileInputRef = useRef(null);
 
     const handleImageUpload = (e) => {
@@ -110,7 +104,6 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
             }
             const reader = new FileReader();
             reader.onloadend = () => {
-                // Accept any aspect ratio - will be displayed with object-fit in 4:7 container
                 setFormData(prev => ({ ...prev, avatar: reader.result }));
             };
             reader.readAsDataURL(file);
@@ -123,20 +116,18 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Submit button clicked! formData:", formData);
         setMessage('');
         setError(false);
         setLoading(true);
 
         try {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const token = localStorage.getItem('token');
             const storedUserId = localStorage.getItem('userId');
+            const token = localStorage.getItem('token'); // Get token for fallback check
 
-            // Robust ID retrieval: check user.id, user._id, or separate userId
             let userId = user.id || user._id || storedUserId;
 
-            // Fallback: Try to decode token if ID is missing but token exists
+            // Fallback: Try to decode token if ID is missing (copied form Source logic for robustness)
             if (!userId && token) {
                 try {
                     const base64Url = token.split('.')[1];
@@ -147,7 +138,6 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
                     const decoded = JSON.parse(jsonPayload);
                     if (decoded && decoded.id) {
                         userId = decoded.id;
-                        // Optional: Repair localStorage
                         localStorage.setItem('userId', userId);
                     }
                 } catch (e) {
@@ -167,26 +157,18 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
                 pricingConfig: pricingConfig
             };
 
-            const response = await axios.post('http://localhost:5000/api/agents', payload, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const data = await vendorService.createAgent(payload);
 
             setError(false);
             setMessage('App created successfully!');
 
-            // Call parent callback to refresh app list
             if (onAppCreated) {
-                onAppCreated(response.data);
+                onAppCreated(data);
             }
 
-            // Redirect to App Detail page immediately
             setTimeout(() => {
                 onClose();
-                navigate(`/vendor/apps/${response.data._id}`);
-                // Reset form
+                navigate(`/vendor/apps/${data._id}`);
                 setFormData({
                     agentName: '',
                     description: '',
@@ -201,21 +183,7 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
         } catch (err) {
             console.error('App Creation Error:', err);
             setError(true);
-
-            let errorMessage = 'Failed to create app. Please try again.';
-            if (err.response) {
-                // Server responded with a status code outside 2xx
-                const detailedError = err.response.data?.details || '';
-                const mainError = err.response.data?.error || errorMessage;
-                errorMessage = detailedError ? `${mainError} (${detailedError})` : mainError;
-            } else if (err.request) {
-                // Request was made but no response received
-                errorMessage = "Network Error: No response from server. Check if backend is running.";
-            } else {
-                // Error setting up the request
-                errorMessage = err.message;
-            }
-
+            const errorMessage = err.response?.data?.error || err.message || 'Failed to create app.';
             setMessage(errorMessage);
         } finally {
             setLoading(false);
@@ -297,58 +265,59 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
 
                         {/* App URL & Icon Upload */}
                         <div className="grid grid-cols-[1fr,auto] gap-6 items-start">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
-                                    Agent Live URL
-                                </label>
-                                <input
-                                    type="url"
-                                    name="url"
-                                    value={formData.url}
-                                    onChange={handleChange}
-                                    placeholder="https://yourapp.com"
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
-                                />
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+                                        Agent Live URL
+                                    </label>
+                                    <input
+                                        type="url"
+                                        name="url"
+                                        value={formData.url}
+                                        onChange={handleChange}
+                                        placeholder="https://yourapp.com"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                                    />
+                                </div>
                             </div>
 
-                            {/* App Icon Upload */}
+                            {/* Agent Logo Upload (4:7 Ratio) */}
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 uppercase tracking-wider block text-center">
-                                    Icon
+                                <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+                                    Agent Logo
                                 </label>
-                                <div className="relative group">
-                                    <div
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="w-[72px] h-[126px] bg-gray-50 border border-gray-200 border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all overflow-hidden"
-                                    >
-                                        {formData.avatar ? (
-                                            <img src={formData.avatar} alt="Icon" className="w-full h-full object-cover rounded-lg" />
-                                        ) : (
-                                            <div className="text-center">
-                                                <div className="text-[10px] font-bold text-gray-400 group-hover:text-blue-500">UPLOAD</div>
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-[80px] h-[140px] bg-white border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 relative overflow-hidden group"
+                                    title="Upload Agent Logo (4:7)"
+                                >
+                                    {formData.avatar ? (
+                                        <>
+                                            <img
+                                                src={formData.avatar}
+                                                alt="Agent Logo"
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            />
+                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
+                                                <span className="text-white text-[10px] font-bold uppercase tracking-wider border border-white/50 px-2 py-1 rounded-lg">Change</span>
                                             </div>
-                                        )}
-                                    </div>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleImageUpload}
-                                        accept="image/*"
-                                        className="hidden"
-                                    />
-                                    {formData.avatar && (
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setFormData({ ...formData, avatar: null });
-                                            }}
-                                            className="absolute -top-2 -right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200 shadow-sm"
-                                        >
-                                            <X size={10} />
-                                        </button>
+                                        </>
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-2 group-hover:transform group-hover:-translate-y-1 transition-transform duration-300">
+                                            <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-300">
+                                                <Sparkles className="w-4 h-4 text-blue-600 group-hover:text-white transition-colors duration-300" />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-blue-600 transition-colors duration-300">Upload</span>
+                                        </div>
                                     )}
                                 </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                />
                             </div>
                         </div>
 
@@ -428,7 +397,7 @@ const NewAppModal = ({ isOpen, onClose, onAppCreated }) => {
                             onClose={() => setIsPricingModalOpen(false)}
                             onSave={(data) => {
                                 setPricingConfig(data);
-                                setFormData({ ...formData, pricingModel: 'subscription' }); // Update formData to match backend expectations roughly
+                                setFormData({ ...formData, pricingModel: 'subscription' });
                             }}
                             initialData={pricingConfig}
                         />

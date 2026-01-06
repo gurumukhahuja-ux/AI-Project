@@ -63,7 +63,7 @@ const DashboardLayout = () => {
   );
 
   return (
-    <div className="fixed inset-0 flex bg-white text-maintext overflow-hidden font-sans">
+    <div className="h-screen flex bg-white text-[#2C3E50] overflow-hidden relative">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0 bg-white h-full relative">
@@ -77,7 +77,7 @@ const DashboardLayout = () => {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <span className="font-bold text-lg text-primary">AI-Mall</span>
+            <span className="font-bold text-lg text-primary">A-Series<sup className="text-xs">TM</sup></span>
           </div>
 
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm uppercase">
@@ -86,7 +86,7 @@ const DashboardLayout = () => {
         </div>
 
         {/* Outlet for pages */}
-        <main className="flex-1 overflow-hidden relative w-full">
+        <main className="flex-1 overflow-y-auto bg-white p-8">
           <Outlet />
         </main>
       </div>

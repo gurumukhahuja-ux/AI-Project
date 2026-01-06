@@ -13,11 +13,11 @@ const SecurityModal = ({ isOpen, onClose }) => {
             icon: <Lock className="w-5 h-5 text-primary" />,
             content: (
                 <div className="space-y-4">
-                    <p className="text-subtext">AI-Mall™ is committed to safeguarding user data in accordance with applicable data protection laws, including but not limited to GDPR and CCPA.</p>
+                    <p className="text-subtext">A-Series™ is committed to safeguarding user data in accordance with applicable data protection laws, including but not limited to GDPR and CCPA.</p>
                     <div className="pl-4 border-l-2 border-primary/20 space-y-3">
                         <div>
                             <h4 className="font-semibold text-maintext">1.1 Data Collection</h4>
-                            <p className="text-sm text-subtext">AI-Mall™ may collect personal and technical information including account details, usage metadata, device identifiers, and file access permissions.</p>
+                            <p className="text-sm text-subtext">A-Series™ may collect personal and technical information including account details, usage metadata, device identifiers, and file access permissions.</p>
                         </div>
                         <div>
                             <h4 className="font-semibold text-maintext">1.2 Data Usage</h4>
@@ -25,7 +25,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
                         </div>
                         <div>
                             <h4 className="font-semibold text-maintext">1.3 Data Sharing</h4>
-                            <p className="text-sm text-subtext">AI-Mall™ does not sell personal data. Data may be shared with trusted third-party service providers strictly for operational requirements.</p>
+                            <p className="text-sm text-subtext">A-Series™ does not sell personal data. Data may be shared with trusted third-party service providers strictly for operational requirements.</p>
                         </div>
                         <div>
                             <h4 className="font-semibold text-maintext">1.4 User Rights</h4>
@@ -42,7 +42,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
             content: (
                 <div className="space-y-3 text-subtext">
                     <p><strong>2.1</strong> Users are responsible for maintaining the confidentiality of their credentials.</p>
-                    <p><strong>2.2</strong> AI-Mall™ employs encryption and secure session handling. Users must report unauthorized access immediately.</p>
+                    <p><strong>2.2</strong> A-Series™ employs encryption and secure session handling. Users must report unauthorized access immediately.</p>
                 </div>
             )
         },
@@ -78,7 +78,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
                         <p className="text-xs text-subtext"><strong>4.1 Accuracy:</strong> AI outputs are provided on an “as-is” basis and may contain inaccuracies.</p>
                     </div>
                     <div className="bg-surface/50 p-3 rounded-lg border border-border">
-                        <p className="text-xs text-subtext"><strong>4.2 Reliability:</strong> AI-Mall™ is not responsible for outcomes arising from reliance on AI-generated content.</p>
+                        <p className="text-xs text-subtext"><strong>4.2 Reliability:</strong> A-Series™ is not responsible for outcomes arising from reliance on AI-generated content.</p>
                     </div>
                 </div>
             )
@@ -97,7 +97,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
             id: 6,
             title: "6. Cookies & Tracking",
             icon: <Eye className="w-5 h-5 text-primary" />,
-            content: <p className="text-subtext text-sm">AI-Mall™ uses cookies for functionality and security. Users may manage cookies via browser settings.</p>
+            content: <p className="text-subtext text-sm">A-Series™ uses cookies for functionality and security. Users may manage cookies via browser settings.</p>
         },
         {
             id: 7,
@@ -109,7 +109,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
             id: 8,
             title: "8. Intellectual Property",
             icon: <div className="w-5 h-5 flex items-center justify-center font-bold text-primary text-xs border border-primary/20 rounded-md">©</div>,
-            content: <p className="text-subtext text-sm">All rights, licenses, and ownership remain with AI-Mall™ and UWO™. No transfer of ownership is implied.</p>
+            content: <p className="text-subtext text-sm">All rights, licenses, and ownership remain with A-Series™ and UWO™. No transfer of ownership is implied.</p>
         },
         {
             id: 9,
@@ -191,7 +191,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
                             <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar space-y-8">
                                 <div className="bg-secondary/50 border border-border rounded-xl p-6 shadow-sm">
                                     <p className="text-sm text-subtext leading-relaxed">
-                                        This section governs the acceptable use, data protection practices, and security standards applicable to <span className="text-maintext font-semibold">AI-Mall™</span>, operated by <span className="text-maintext font-semibold">UWO™</span>.
+                                        This section governs the acceptable use, data protection practices, and security standards applicable to <span className="text-maintext font-semibold">A-Series™</span>, operated by <span className="text-maintext font-semibold">UWO™</span>.
                                     </p>
                                 </div>
 
@@ -220,7 +220,7 @@ const SecurityModal = ({ isOpen, onClose }) => {
                                         🧠 Legal Summary
                                     </h3>
                                     <p className="text-subtext text-xs italic">
-                                        "These Guidelines establish the framework for lawful use, data protection, AI governance, and operational security within the AI-Mall platform."
+                                        "These Guidelines establish the framework for lawful use, data protection, AI governance, and operational security within the A-Series platform."
                                     </p>
                                 </div>
                             </div>

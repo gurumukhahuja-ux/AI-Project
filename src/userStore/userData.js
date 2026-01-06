@@ -27,3 +27,8 @@ export const userData = atom({
   key: 'userData',
   default: { user: getUser() }
 })
+
+export const notificationsState = atom({
+  key: 'notificationsState',
+  default: []
+});

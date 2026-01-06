@@ -53,7 +53,7 @@ export default function ComingSoon() {
 
                     {/* Description */}
                     <p className="text-xl text-subtext text-center mb-12 max-w-2xl mx-auto leading-relaxed">
-                        We're crafting exceptional AI agents to revolutionize your AI Mall experience.
+                        We're crafting exceptional AI agents to revolutionize your A-Series<sup className="text-xs">TM</sup> experience.
                         Get ready for something extraordinary!
                     </p>
 
@@ -92,7 +92,7 @@ export default function ComingSoon() {
 
                     {/* Call to action */}
                     <div className="text-center">
-                        <p className="text-subtext mb-6 text-base">Stay tuned for the launch and be the first to know!</p>
+                        <p className="text-subtext max-w-[250px] mb-6">Thank you for helping us make A-Series<sup className="text-xs">TM</sup> better. We've received your report.</p>
                         <button className="bg-primary hover:bg-primary/90 text-secondary font-semibold px-8 py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl inline-flex items-center space-x-2">
                             <Bell className="w-5 h-5" strokeWidth={2.5} />
                             <span>Notify Me</span>

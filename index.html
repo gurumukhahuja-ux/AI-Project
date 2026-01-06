@@ -5,39 +5,15 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/logo/Logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI-MALL</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>A-Series</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            primary: 'rgb(var(--primary-rgb) / <alpha-value>)',
-            secondary: 'var(--secondary-color)',
-            maintext: 'var(--text-color)',
-            subtext: 'var(--sub-text-color)',
-            surface: 'var(--surface-color)',
-            border: 'var(--border-color)'
-          }
-        }
-      }
-    }
-  </script>
   <style>
     :root {
-      /* Requested Variables */
       --primary-color: #5555ff;
       --secondary-color: white;
       --text-color: black;
       --sub-text-color: #9ca38f;
-
-      /* Derived/Additional Variables for UI Completeness & Tailwind Support */
       --primary-rgb: 85 85 255;
-      /* Enables opacity utils like bg-primary/10 */
       --surface-color: #f8f9fc;
       --border-color: #eef2f6;
     }
@@ -45,6 +21,7 @@
     body {
       background: var(--secondary-color);
       color: var(--text-color);
+      font-family: 'Inter', sans-serif;
     }
 
     /* Custom Scrollbar */

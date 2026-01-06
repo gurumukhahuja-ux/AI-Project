@@ -94,3 +94,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@utility force-white-text {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(0,0,0,0.5);
+  opacity: 1 !important;
+}

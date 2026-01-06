@@ -23,8 +23,9 @@ import { apis, AppRoute } from '../../types';
 import { faqs } from '../../constants'; // Import shared FAQs
 import NotificationBar from '../NotificationBar/NotificationBar.jsx';
 import { useRecoilState } from 'recoil';
-import { clearUser, getUserData, toggleState, userData } from '../../userStore/userData';
+import { clearUser, getUserData, toggleState, userData, notificationsState } from '../../userStore/userData';
 import axios from 'axios';
+import apiService from '../../services/apiService';
 import { useLanguage } from '../../context/LanguageContext';
 
 
@@ -36,7 +37,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const [currentUserData] = useRecoilState(userData);
   const user = currentUserData.user || { name: "User", email: "user@example.com", role: "user" };
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useRecoilState(notificationsState);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [isSending, setIsSending] = useState(false);
@@ -61,12 +62,15 @@ const Sidebar = ({ isOpen, onClose }) => {
     setSendStatus(null);
 
     try {
-      await axios.post(apis.support, {
-        email: user?.email || "guest@ai-mall.in",
-        issueType,
-        message: issueText,
-        userId: user?.id || null
+      // Use apiService.submitReport to ensure it shows up in Admin > User Support
+      // The backend expects: { type, priority, description, targetId }
+      await apiService.submitReport({
+        type: issueType,
+        description: issueText,
+        priority: 'medium', // Default priority
+        // targetId: null 
       });
+
       setSendStatus('success');
       setIssueText(""); // Clear text
       setTimeout(() => setSendStatus(null), 3000); // Reset status after 3s
@@ -92,7 +96,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           'Authorization': `Bearer ${token}`
         }
       }).then((res) => {
-        console.log(res);
+        // console.log(res);
       }).catch((err) => {
         console.error(err);
         if (err.status == 401) {
@@ -130,7 +134,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const navItemClass = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group font-medium border border-transparent ${isActive
       ? 'bg-primary/10 text-primary border-primary/10'
-      : 'text-subtext hover:bg-surface hover:text-maintext'
+      : '!text-gray-400 hover:bg-surface hover:text-maintext'
     }`;
 
 
@@ -169,7 +173,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Brand */}
         <div className="p-6 flex items-center justify-between">
           <Link to="/">
-            <h1 className="text-2xl font-bold text-primary">AI-Mall <sup className="text-sm">TM</sup></h1>
+            <h1 className="text-2xl font-bold !text-[#2563EB]">A-Series <sup className="text-sm">TM</sup></h1>
           </Link>
 
 
@@ -195,10 +199,11 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           <NavLink to={AppRoute.MARKETPLACE} className={navItemClass} onClick={onClose}>
             <ShoppingBag className="w-5 h-5" />
+
             <span>{t('marketplace')}</span>
           </NavLink>
-
-          {/* <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
+{/* 
+          <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
             <LayoutGrid className="w-5 h-5" />
             <span>{t('vendorDashboard')}</span>
           </NavLink> */}
@@ -214,10 +219,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             <Zap className="w-5 h-5" />
             <span>Automations</span>
           </NavLink> */}
-          {/* <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
+          <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
             <Settings className="w-5 h-5" />
             <span>{t('adminDashboard')}</span>
-          </NavLink> */}
+          </NavLink>
         </div>
 
         {/* Notifications Section */}
@@ -421,7 +426,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                   )}
 
                   <p className="text-xs text-center text-subtext">
-                    Or email us directly at <a href="mailto:support@ai-mall.in" className="text-primary font-medium hover:underline">support@ai-mall.in</a>
+                    Or email us directly at <a href="mailto:support@a-series.ai" className="text-primary font-medium hover:underline">support@a-series.ai</a>
                   </p>
                 </div>
               )}

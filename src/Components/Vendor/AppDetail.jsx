@@ -3,7 +3,7 @@ import StatusBadge from './StatusBadge';
 import PrimaryButton from './PrimaryButton';
 import { ShieldCheck, Info, Users, Archive, AlertCircle, X, Send } from 'lucide-react';
 
-const AppDetail = ({ app, usage, onDeactivate, onReactivate, onSubmitForReview, onDelete, onUpdateUrl, onBack }) => {
+const AppDetail = ({ app, usage, onDeactivate, onReactivate, onSubmitForReview, onDelete, onUpdateUrl, onUpdateAvatar, onBack }) => {
     const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
     const [isReactivateModalOpen, setIsReactivateModalOpen] = useState(false);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
@@ -23,12 +23,34 @@ const AppDetail = ({ app, usage, onDeactivate, onReactivate, onSubmitForReview, 
             {/* Header Section */}
             <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/50">
                 <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 overflow-hidden">
+                    <div className="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 overflow-hidden relative group">
                         {app.avatar ? (
                             <img src={app.avatar} alt={app.agentName} className="w-full h-full object-cover" />
                         ) : (
                             <ShieldCheck size={32} />
                         )}
+                        <button
+                            onClick={() => document.getElementById('avatar-upload').click()}
+                            className="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <span className="text-[10px] uppercase font-bold tracking-wider">Edit</span>
+                        </button>
+                        <input
+                            id="avatar-upload"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        onUpdateAvatar && onUpdateAvatar(reader.result);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            }}
+                        />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900">{app.agentName}</h2>
@@ -52,21 +74,21 @@ const AppDetail = ({ app, usage, onDeactivate, onReactivate, onSubmitForReview, 
                             </PrimaryButton>
                         )}
 
-                        {/* Submit: For Draft, Rejected, OR Inactive (User Request: "Sare app me submit option rkho") */}
+                        {/* Submit: For Draft, Rejected, OR Inactive */}
                         {(app.status === 'Draft' || app.status === 'Rejected' || app.status === 'Inactive') && (
                             <PrimaryButton onClick={() => setIsSubmitModalOpen(true)} className="inline-flex items-center bg-blue-600 hover:bg-blue-700 shadow-blue-200">
                                 <Send size={16} className="mr-2" /> {app.status === 'Rejected' ? 'Resubmit' : 'Submit for Review'}
                             </PrimaryButton>
                         )}
 
-                        {/* Deactivate: For Live or Under Review (Cancel Request) */}
-                        {(app.status === 'Live' || app.status === 'Under Review') && (
+                        {/* Deactivate: For Live, Active or Under Review */}
+                        {(app.status === 'Live' || app.status === 'active' || app.status === 'Under Review') && (
                             <PrimaryButton variant="danger" onClick={() => setIsDeactivateModalOpen(true)} className="inline-flex items-center bg-yellow-500 hover:bg-yellow-600 border-yellow-500 text-white">
                                 <Archive size={16} className="mr-2" /> {app.status === 'Under Review' ? 'Cancel Review' : 'Deactivate App'}
                             </PrimaryButton>
                         )}
 
-                        {/* Delete: ALWAYS Valid (User Request: "Sare app me option rhe") */}
+                        {/* Delete: ALWAYS Valid */}
                         <PrimaryButton variant="danger" onClick={() => setIsDeleteModalOpen(true)} className="inline-flex items-center">
                             <X size={16} className="mr-2" /> Delete
                         </PrimaryButton>
@@ -184,7 +206,7 @@ const AppDetail = ({ app, usage, onDeactivate, onReactivate, onSubmitForReview, 
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">Deactivate App?</h3>
                         <p className="text-gray-500 mb-6">
-                            Are you sure you want to deactivate <strong>{app.agentName}</strong>? This will immediately remove it from the AI-Mall Marketplace.
+                            Are you sure you want to deactivate <strong>{app.agentName}</strong>? This will immediately remove it from the A-Series<sup className="text-xs">TM</sup> Marketplace.
                         </p>
                         <div className="flex space-x-3">
                             <PrimaryButton variant="secondary" onClick={() => setIsDeactivateModalOpen(false)} className="flex-1">

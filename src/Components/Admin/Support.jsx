@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BadgeCheck, AlertCircle, Clock, CheckCircle2, Search, Filter, MessageSquare, User, Loader2 } from 'lucide-react';
+import { BadgeCheck, AlertCircle, Clock, CheckCircle2, Search, Filter, MessageSquare, User, Loader2, Trash2 } from 'lucide-react';
 import apiService from '../../services/apiService';
 
 const AdminSupport = () => {
@@ -24,6 +24,19 @@ const AdminSupport = () => {
     useEffect(() => {
         fetchReports();
     }, []);
+
+    const handleDelete = async (id) => {
+        try {
+            await apiService.deleteReport(id);
+            setReports(reports.filter(r => r._id !== id));
+            if (selectedReport?._id === id) {
+                setSelectedReport(null);
+            }
+        } catch (err) {
+            console.error("Failed to delete report", err);
+            alert("Failed to delete report");
+        }
+    };
 
     const handleResolve = async (status) => {
         if (!selectedReport) return;
@@ -92,9 +105,21 @@ const AdminSupport = () => {
                             <div
                                 key={report._id}
                                 onClick={() => setSelectedReport(report)}
-                                className={`p-4 rounded-xl cursor-pointer transition-all border ${selectedReport?._id === report._id ? 'bg-primary/5 border-primary/20 shadow-sm' : 'bg-white border-transparent hover:bg-[#F8F9FB]'}`}
+                                className={`p-4 rounded-xl cursor-pointer transition-all border relative group ${selectedReport?._id === report._id ? 'bg-primary/5 border-primary/20 shadow-sm' : 'bg-white border-transparent hover:bg-[#F8F9FB]'}`}
                             >
-                                <div className="flex justify-between items-start mb-2">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm('Are you sure you want to delete this report?')) {
+                                            handleDelete(report._id);
+                                        }
+                                    }}
+                                    className="absolute top-2 right-2 p-1.5 text-subtext hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
+                                    title="Delete Report"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                                <div className="flex justify-between items-start mb-2 pr-6">
                                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${report.type === 'bug' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>{report.type}</span>
                                     <span className="text-[10px] text-subtext">{new Date(report.timestamp).toLocaleDateString()}</span>
                                 </div>

@@ -40,7 +40,7 @@ const Auth = () => {
           </h2>
 
           <p className="text-gray-400">
-            {isSignup ? 'Join AI Mall to unlock full access' : 'Sign in to continue to AI Mall'}
+            {isSignup ? 'Join A-Series' : 'Sign in to continue to A-Series'}<sup className="text-xs">TM</sup>
           </p>
         </div>
 

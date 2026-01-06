@@ -20,6 +20,6 @@ export const generateChatResponse = async (history, currentMessage, systemInstru
 
     } catch (error) {
         console.error("Gemini API Error:", error);
-        return "Sorry, I am having trouble connecting to the AI Mall network right now.";
+        return "Sorry, I am having trouble connecting to the A-Series network right now.";
     }
 };

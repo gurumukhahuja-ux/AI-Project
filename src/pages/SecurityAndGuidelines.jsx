@@ -12,12 +12,12 @@ const SecurityAndGuidelines = () => {
             icon: <Lock className="w-5 h-5 text-primary" />,
             content: (
                 <div className="space-y-4">
-                    <p className="text-subtext">AI-Mall™ is committed to safeguarding user data in accordance with applicable data protection laws, including but not limited to GDPR and CCPA.</p>
+                    <p className="text-subtext">A-Series™ is committed to safeguarding user data in accordance with applicable data protection laws, including but not limited to GDPR and CCPA.</p>
 
                     <div className="pl-4 border-l-2 border-primary/20 space-y-3">
                         <div>
                             <h4 className="font-semibold text-maintext">1.1 Data Collection</h4>
-                            <p className="text-sm text-subtext">AI-Mall™ may collect personal and technical information including account details, usage metadata, device identifiers, and file access permissions, solely for legitimate business and operational purposes.</p>
+                            <p className="text-sm text-subtext">A-Series™ may collect personal and technical information including account details, usage metadata, device identifiers, and file access permissions, solely for legitimate business and operational purposes.</p>
                         </div>
 
                         <div>
@@ -32,7 +32,7 @@ const SecurityAndGuidelines = () => {
 
                         <div>
                             <h4 className="font-semibold text-maintext">1.3 Data Sharing</h4>
-                            <p className="text-sm text-subtext">AI-Mall™ does not sell personal data. Data may be shared with trusted third-party service providers strictly for operational requirements and in compliance with industry security standards.</p>
+                            <p className="text-sm text-subtext">A-Series™ does not sell personal data. Data may be shared with trusted third-party service providers strictly for operational requirements and in compliance with industry security standards.</p>
                         </div>
 
                         <div>
@@ -55,7 +55,7 @@ const SecurityAndGuidelines = () => {
                     </div>
                     <div className="flex gap-3 items-start">
                         <span className="text-primary font-bold">2.2</span>
-                        <p className="text-subtext">AI-Mall™ employs industry-standard security measures, including encryption and secure session handling, to protect accounts; however, users must immediately report unauthorized access or suspected breaches.</p>
+                        <p className="text-subtext">A-Series™ employs industry-standard security measures, including encryption and secure session handling, to protect accounts; however, users must immediately report unauthorized access or suspected breaches.</p>
                     </div>
                 </div>
             )
@@ -80,7 +80,7 @@ const SecurityAndGuidelines = () => {
                             </li>
                         ))}
                     </ul>
-                    <p className="text-xs text-subtext mt-2 italic">AI-Mall™ reserves the right to suspend or terminate accounts found in violation of these guidelines.</p>
+                    <p className="text-xs text-subtext mt-2 italic">A-Series™ reserves the right to suspend or terminate accounts found in violation of these guidelines.</p>
                 </div>
             )
         },
@@ -96,7 +96,7 @@ const SecurityAndGuidelines = () => {
                     </div>
                     <div className="bg-surface/50 p-3 rounded-lg border border-border">
                         <h4 className="font-semibold text-maintext text-sm mb-1">4.2 Reliability Disclaimer</h4>
-                        <p className="text-xs text-subtext">Users acknowledge that AI-Mall™ shall not be held responsible for decisions or outcomes arising from reliance on AI-generated content, including legal, financial, or medical decisions.</p>
+                        <p className="text-xs text-subtext">Users acknowledge that A-Series™ shall not be held responsible for decisions or outcomes arising from reliance on AI-generated content, including legal, financial, or medical decisions.</p>
                     </div>
                 </div>
             )
@@ -119,7 +119,7 @@ const SecurityAndGuidelines = () => {
             icon: <Eye className="w-5 h-5 text-primary" />,
             content: (
                 <div className="space-y-2">
-                    <p className="text-subtext">AI-Mall™ uses cookies for functionality, security, and optimization.</p>
+                    <p className="text-subtext">A-Series™ uses cookies for functionality, security, and optimization.</p>
                     <p className="text-subtext">Users may manage cookies via browser settings. See <span className="text-primary cursor-pointer hover:underline">Cookie Policy</span>.</p>
                 </div>
             )
@@ -136,7 +136,7 @@ const SecurityAndGuidelines = () => {
             icon: <div className="w-5 h-5 flex items-center justify-center font-bold text-primary text-xs">©</div>,
             content: <div className="text-subtext space-y-2">
                 <p><strong>8.1 License:</strong> Limited, non-exclusive, non-transferable access.</p>
-                <p><strong>8.2 Ownership:</strong> All rights remain with AI-Mall™ and UWO™.</p>
+                <p><strong>8.2 Ownership:</strong> All rights remain with A-Series™ and UWO™.</p>
                 <p><strong>8.3 Transfer:</strong> No transfer of ownership implies.</p>
             </div>
         },
@@ -210,7 +210,7 @@ const SecurityAndGuidelines = () => {
                         className="border border-border rounded-xl p-6 shadow-sm"
                     >
                         <p className="text-subtext leading-relaxed">
-                            This Security & Guidelines section governs the acceptable use, data protection practices, and security standards applicable to <span className="text-maintext font-semibold">AI-Mall™</span>, operated by <span className="text-maintext font-semibold">UWO™</span>. By accessing or using the platform, you agree to comply with the terms set forth herein.
+                            This Security & Guidelines section governs the acceptable use, data protection practices, and security standards applicable to <span className="text-maintext font-semibold">A-Series™</span>, operated by <span className="text-maintext font-semibold">UWO™</span>. By accessing or using the platform, you agree to comply with the terms set forth herein.
                         </p>
                     </motion.div>
 
@@ -249,7 +249,7 @@ const SecurityAndGuidelines = () => {
                                 🧠 Legal Summary Statement
                             </h3>
                             <p className="text-subtext text-sm italic">
-                                "These Security & Guidelines establish the framework for lawful use, data protection, AI governance, and operational security within the AI-Mall platform."
+                                "These Security & Guidelines establish the framework for lawful use, data protection, AI governance, and operational security within the A-Series platform."
                             </p>
                         </motion.div>
                     </div>

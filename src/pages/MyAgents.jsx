@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Settings, Trash2, Bot, Code, Edit3, Save, FileText, Download } from 'lucide-react';
 import { apiService } from '../services/apiService';
-import axios from 'axios';
-import { apis, AppRoute } from '../types';
+import { AppRoute } from '../types';
 import { getUserData } from '../userStore/userData';
 import { useNavigate, Link } from 'react-router-dom';
 import AgentModal from '../Components/AgentModal/AgentModal';
@@ -30,10 +29,14 @@ const MyAgents = () => {
     const loadAgents = async () => {
         setLoading(true);
         const userId = user?.id || user?._id;
-        axios.post(apis.getUserAgents, { userId }).then((res) => {
-            console.log(res.data.agents);
-            setAgents(res.data.agents);
-        }).catch(err => console.log(err))
+        if (userId) {
+            try {
+                const data = await apiService.getUserAgents(userId);
+                setAgents(data.agents || []);
+            } catch (err) {
+                console.error("Error loading user agents:", err);
+            }
+        }
         setLoading(false);
     };
 
@@ -84,10 +87,8 @@ const MyAgents = () => {
     };
 
     return (
-        <div className="p-4 md:p-8 h-full overflow-y-auto relative">
-            {/* Background Blur Effects */}
-            <div className="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-            <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="p-4 md:p-8 h-full bg-white overflow-y-auto relative">
+            {/* Background Blur Effects Removed */}
 
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -128,7 +129,7 @@ const MyAgents = () => {
                                     </div>
                                 </div>
 
-                                <h3 className="text-lg font-bold text-maintext mb-1">{agent.agentName}</h3>
+                                <h3 className="text-lg font-bold text-maintext mb-1">{agent.agentName}<sup className="text-xs">TM</sup></h3>
 
                                 <span className="text-xs text-primary uppercase tracking-wider font-semibold mb-3">
                                     {agent.category}
@@ -141,8 +142,12 @@ const MyAgents = () => {
                                     <button
                                         onClick={() => {
                                             const targetUrl = (!agent?.url || agent.url.trim() === "") ? AppRoute.agentSoon : agent.url;
-                                            setSelectedAgent({ ...agent, url: targetUrl });
-                                            setIsModalOpen(true);
+                                            if (targetUrl.startsWith('/')) {
+                                                navigate(targetUrl);
+                                            } else {
+                                                setSelectedAgent({ ...agent, url: targetUrl });
+                                                setIsModalOpen(true);
+                                            }
                                         }}
                                         className="flex-1 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all bg-green-50 text-green-600 border border-green-100 hover:bg-green-100 hover:shadow-md"
                                     >

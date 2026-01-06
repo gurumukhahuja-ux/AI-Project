@@ -163,7 +163,7 @@ const ReportModal = ({ isOpen, onClose }) => {
                                     <CheckCircle className="w-8 h-8" />
                                 </motion.div>
                                 <h3 className="text-xl font-bold text-maintext mb-2">Report Submitted!</h3>
-                                <p className="text-subtext max-w-[250px] mb-6">Thank you for helping us make AI-Mall better. We've received your report.</p>
+                                <p className="text-subtext max-w-[250px] mb-6">Thank you for helping us make A-Series<sup className="text-xs">TM</sup> better. We've received your report.</p>
                                 <button
                                     onClick={handleClose}
                                     className="px-6 py-2 bg-surface border border-border text-maintext rounded-xl font-medium hover:bg-secondary transition-colors"

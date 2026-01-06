@@ -56,7 +56,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 {/* Navigation Menu */}
                 <nav className="flex-1 overflow-y-auto py-8 px-4 space-y-2">
                     <div className="px-4 mb-4">
-                        <p className="text-[10px] font-bold text-subtext uppercase tracking-[0.2em]">Management</p>
+                        <p className="text-gray-600">Join A-Series<sup className="text-xs">TM</sup> and start selling your AI agents</p>
                     </div>
                     {menuItems.map((item) => {
                         const active = isActive(item.path);
@@ -101,7 +101,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     })}
                 </nav>
 
-                {/* Bottom Section: Go to AI Mall */}
+                {/* Bottom Section: Go to A-Series */}
                 <div className="p-4 border-t border-gray-50 space-y-2">
                     <button
                         onClick={() => navigate('/dashboard/marketplace')}
@@ -110,7 +110,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                         <div className="p-2 bg-secondary rounded-lg text-subtext mr-3 group-hover:bg-red-100 group-hover:text-red-500 transition-colors">
                             <LogOut size={20} className="rotate-180" />
                         </div>
-                        Go to AI Mall
+                        Go to A-Series<sup className="text-xs">TM</sup>
                     </button>
                 </div>
 

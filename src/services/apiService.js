@@ -115,27 +115,32 @@ export const apiService = {
       const response = await apiClient.get('/admin/stats');
       return response.data;
     } catch (error) {
-      console.warn('Backend admin stats failed, falling back to mock:', error.message);
-      const agents = JSON.parse(localStorage.getItem('mock_agents') || '[]');
-      return {
-        totalUsers: 0,
-        activeAgents: agents.length,
-        pendingApprovals: 0,
-        totalRevenue: 0,
-        openComplaints: 0,
-        recentActivity: [],
-        inventory: agents.map(a => ({
-          ...a,
-          id: a._id,
-          name: a.name || a.agentName,
-          pricing: a.pricing || 'Free',
-          status: a.status || 'Active'
-        }))
-      };
+      console.error('Backend admin stats failed:', error.message);
+      // Only fallback if specifically in a demo environment or if backend is unreachable
+      if (error.code === 'ECONNABORTED' || !error.response) {
+        const agents = JSON.parse(localStorage.getItem('mock_agents') || '[]');
+        return {
+          totalUsers: 0,
+          activeAgents: agents.length,
+          pendingApprovals: 0,
+          totalRevenue: 0,
+          openComplaints: 0,
+          recentActivity: [],
+          inventory: agents.map(a => ({
+            ...a,
+            id: a._id || a.id,
+            name: a.agentName || a.name,
+            pricing: a.pricing || 'Free',
+            status: a.status || 'Active'
+          }))
+        };
+      }
+      throw error;
     }
   },
 
-  // --- Agents ---
+
+
   async getCreatedAgents() {
     try {
       const response = await apiClient.get('/agents/created-by-me');
@@ -148,25 +153,24 @@ export const apiService = {
     }
   },
 
-  async getAgents() {
+  async getAgents(params = {}) {
     try {
-      const response = await apiClient.get('/agents');
+      const response = await apiClient.get('/agents', { params });
       return response.data;
     } catch (error) {
-      const stored = localStorage.getItem('mock_agents');
-      if (stored) return JSON.parse(stored);
+      console.error('Failed to fetch agents from backend:', error.message);
+      // Return empty array instead of mock data to properly reflect backend state
+      return [];
+    }
+  },
 
-      const defaults = [
-        { _id: '683d38ce-1', name: 'AIFLOW', description: 'Streamline your AI workflows.', pricing: 'Free', status: 'Inactive' },
-        { _id: '683d38ce-2', name: 'AIMARKET', description: 'AI-driven marketplace insights.', pricing: 'Free', status: 'Inactive' },
-        { _id: '683d38ce-3', name: 'AICONNECT', description: 'Connect all your AI tools.', pricing: 'Free', status: 'Inactive' },
-        { _id: '693d38ce-4', name: 'AIMUSIC', description: 'AI-powered music generation.', pricing: 'Free', status: 'Inactive' },
-        { _id: '693d38ce-5', name: 'AITRANS', description: 'Advanced AI translation services.', pricing: 'Free', status: 'Inactive' },
-        { _id: '683d38ce-6', name: 'AISCRIPT', description: 'AI script writing and automation.', pricing: 'Free', status: 'Inactive' }
-      ];
-
-      localStorage.setItem('mock_agents', JSON.stringify(defaults));
-      return defaults;
+  async getUserAgents(userId) {
+    try {
+      const response = await apiClient.post('/agents/get_my_agents', { userId });
+      return response.data;
+    } catch (error) {
+      console.warn("Failed to fetch user agents from server");
+      return { agents: [] };
     }
   },
 
@@ -175,11 +179,23 @@ export const apiService = {
       const response = await apiClient.post('/agents', agentData);
       return response.data;
     } catch (error) {
-      const stored = JSON.parse(localStorage.getItem('mock_agents') || '[]');
-      const newAgent = { ...agentData, _id: Date.now().toString() };
-      stored.push(newAgent);
-      localStorage.setItem('mock_agents', JSON.stringify(stored));
-      return newAgent;
+      console.error('Failed to create agent on backend:', error.response?.data || error.message);
+
+      // If unauthorized, we MUST throw so the UI can redirect or show error
+      if (error.response?.status === 401) {
+        throw new Error("Unauthorized: Please login again.");
+      }
+
+      // Fallback only if backend is completely down (Demo Mode)
+      if (!error.response) {
+        const stored = JSON.parse(localStorage.getItem('mock_agents') || '[]');
+        const newAgent = { ...agentData, _id: Date.now().toString(), id: Date.now().toString() };
+        stored.push(newAgent);
+        localStorage.setItem('mock_agents', JSON.stringify(stored));
+        return newAgent;
+      }
+
+      throw error;
     }
   },
 
@@ -202,8 +218,8 @@ export const apiService = {
 
   async deleteAgent(id) {
     try {
-      await apiClient.delete(`/agents/${id}`);
-      return true;
+      const response = await apiClient.delete(`/agents/${id}`);
+      return response.data;
     } catch (error) {
       const stored = JSON.parse(localStorage.getItem('mock_agents') || '[]');
       const filtered = stored.filter(a => a._id !== id);
@@ -228,7 +244,7 @@ export const apiService = {
       const response = await apiClient.post(`/agents/approve/${id}`, { message });
       return response.data;
     } catch (error) {
-      console.error("Failed to approve agent:", error);
+      console.error("Failed to approve agent:", error.response ? error.response.data : error.message);
       throw error;
     }
   },
@@ -241,6 +257,16 @@ export const apiService = {
       console.error("Failed to reject agent:", error);
       throw error;
     }
+  },
+
+  async approveAgentDeletion(id) {
+    const response = await apiClient.post(`/agents/admin/approve-deletion/${id}`);
+    return response.data;
+  },
+
+  async rejectAgentDeletion(id, reason) {
+    const response = await apiClient.post(`/agents/admin/reject-deletion/${id}`, { reason });
+    return response.data;
   },
 
   async getVendorRevenue() {
@@ -401,12 +427,8 @@ export const apiService = {
       const response = await apiClient.get('/user/all');
       return response.data;
     } catch (error) {
-      console.warn('Backend get users failed, falling back to mock:', error.message);
-      // Mock fallback
-      return [
-        { id: '1', name: 'Mock User 1', email: 'user1@example.com', role: 'user', status: 'Active', agents: [], spent: 120 },
-        { id: '2', name: 'Mock User 2', email: 'user2@example.com', role: 'user', status: 'Active', agents: [], spent: 250 }
-      ];
+      console.error('Backend get users failed:', error.message);
+      throw error;
     }
   },
 
@@ -458,6 +480,47 @@ export const apiService = {
       return response.data;
     } catch (error) {
       console.error("Failed to resolve report:", error);
+      throw error;
+    }
+  },
+
+  async deleteReport(id) {
+    try {
+      await apiClient.delete(`/reports/${id}`);
+      return true;
+    } catch (error) {
+      console.error("Failed to delete report:", error);
+      throw error;
+    }
+  },
+
+
+  async toggleMaintenance(enabled) {
+    try {
+      const response = await apiClient.post('/admin/settings/maintenance', { enabled });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to toggle maintenance mode:", error);
+      throw error;
+    }
+  },
+
+  async toggleKillSwitch(enabled) {
+    try {
+      const response = await apiClient.post('/admin/settings/killswitch', { enabled });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to toggle kill switch:", error);
+      throw error;
+    }
+  },
+
+  async updateRateLimit(limit) {
+    try {
+      const response = await apiClient.post('/admin/settings/ratelimit', { limit });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update rate limit:", error);
       throw error;
     }
   },

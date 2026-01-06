@@ -15,14 +15,30 @@ import { demoModalState } from '../userStore/demoStore';
 import SecurityModal from '../Components/LiveDemo/SecurityModal';
 import { FaXTwitter } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
+import StatsBanner from '../components/Landing/StatsBanner';
+import FeaturesSection from '../components/Landing/FeaturesSection';
+import apiService from '../services/apiService';
+
 const Landing = () => {
   const navigate = useNavigate();
   const user = getUserData("user")
   const [demoState, setDemoState] = useRecoilState(demoModalState);
   const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
+  const [featuredAgents, setFeaturedAgents] = useState([]);
 
-
-
+  React.useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        // Fetch top 5 agents for featured section (all agents, not just Live)
+        const data = await apiService.getAgents({ limit: 5, featured: 'true' });
+        setFeaturedAgents(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Failed to fetch featured agents:", error);
+        setFeaturedAgents([]);
+      }
+    };
+    fetchAgents();
+  }, []);
 
   const btnClass = "px-8 py-4 bg-primary rounded-2xl font-bold text-lg text-white shadow-xl shadow-primary/30 flex items-center justify-center gap-2 border border-primary/10 w-full sm:w-auto overflow-hidden";
 
@@ -37,7 +53,7 @@ const Landing = () => {
       <header className="relative z-10 px-6 py-6 flex justify-between items-center max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3">
           <img src={logo} alt="Logo" className="w-14 h-14 object-contain" />
-          <span className="text-3xl font-black tracking-tighter text-maintext">{name}</span>
+          <span className="text-3xl font-black tracking-tighter text-maintext">A-Series<sup className="text-sm">TM</sup></span>
         </div>
         {user ? <Link to={AppRoute.PROFILE}><CircleUser className=' h-7 w-7' /></Link> : <div className="flex gap-4">
           <button
@@ -85,7 +101,7 @@ const Landing = () => {
           className="text-lg text-subtext max-w-2xl mb-10 leading-relaxed"
         >
           Experience the next generation of intelligent assistance.
-          AI Mall learns, adapts, and creates with you in real-time through a stunning interface.
+          A-Series<sup className="text-xs">TM</sup> learns, adapts, and creates with you in real-time through a stunning interface.
         </motion.p>
 
         <motion.div
@@ -123,43 +139,89 @@ const Landing = () => {
 
 
 
-        {/* Features Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full text-left"
-        >
-          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Bot className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-2 text-maintext">Smart Agents</h3>
-            <p className="text-subtext">
-              Access a marketplace of specialized AI agents for coding, writing, and analysis.
-            </p>
-          </div>
+        <StatsBanner />
 
-          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Zap className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-2 text-maintext">Real-time Speed</h3>
-            <p className="text-subtext">
-              Powered by the fastest AI models for instant, fluid conversation.
-            </p>
-          </div>
+        <FeaturesSection />
 
-          <div className="p-6 rounded-3xl bg-background border border-border shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Shield className="w-6 h-6 text-primary" />
+        {/* Featured Agents Preview */}
+        <div className="w-full py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">Featured Agents</h2>
+                <p className="text-lg text-gray-500">Discover top-rated AI agents from our marketplace.</p>
+              </div>
+              <button
+                onClick={() => navigate(AppRoute.MARKETPLACE)}
+                className="hidden md:flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all"
+              >
+                View Marketplace <ArrowRight className="w-5 h-5" />
+              </button>
             </div>
-            <h3 className="text-xl font-bold mb-2 text-maintext">Secure & Private</h3>
-            <p className="text-subtext">
-              Enterprise-grade security ensures your data and conversations stay private.
-            </p>
+
+            {/* We will load agents here dynamically in the next step, for now showing a placeholder or static content is better than breaking */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredAgents.length > 0 ? (
+                featuredAgents.map((agent) => (
+                  <div key={agent._id} className="group relative bg-white rounded-3xl border border-gray-100 p-4 hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer" onClick={() => navigate(`${AppRoute.MARKETPLACE}/${agent._id}`)}>
+                    <div className="aspect-square rounded-2xl bg-indigo-50 mb-4 overflow-hidden relative p-6">
+                      <div className="absolute inset-0 bg-primary/10 group-hover:bg-primary/5 transition-colors" />
+                      {agent.avatar ? (
+                        <img src={agent.avatar} alt={agent.agentName} className="w-full h-full object-contain" />
+                      ) : (
+                        <Bot className="w-12 h-12 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 group-hover:scale-110 transition-transform" />
+                      )}
+
+                    </div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-full uppercase tracking-wider">{agent.category || 'AI'}</span>
+                      <span className="text-sm font-bold text-gray-900">{agent.pricing?.type !== 'Free' ? 'Paid' : 'Free'}</span>
+                    </div>
+                    <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors truncate">{agent.agentName}<sup className="text-xs">TM</sup></h3>
+                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{agent.description}</p>
+                  </div>
+                ))
+              ) : (
+                // Show helpful message when no agents are available
+                <div className="col-span-full text-center py-12">
+                  <Bot className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Featured Agents Yet</h3>
+                  <p className="text-gray-500 mb-6">Check back soon for amazing AI agents in our marketplace!</p>
+                  <button
+                    onClick={() => navigate(AppRoute.MARKETPLACE)}
+                    className="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:opacity-90 transition-all"
+                  >
+                    Explore Marketplace
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => navigate(AppRoute.MARKETPLACE)}
+              className="md:hidden w-full mt-8 flex items-center justify-center gap-2 text-primary font-bold bg-indigo-50 py-4 rounded-xl"
+            >
+              View All Agents <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
-        </motion.div>
+        </div>
+
+        {/* Vendor Call to Action */}
+        <div className="w-full py-24 bg-black relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 relative z-50 text-center">
+            <span className="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider mb-6">For Developers</span>
+            <h2 className="text-4xl md:text-6xl font-black force-white-text mb-6 tracking-tight">Monetize Your AI Models</h2>
+            <p className="text-xl force-white-text max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+              Join thousands of developers earning revenue by publishing their AI agents on A-Series<sup className="text-xs">TM</sup>. We handle the billing, you handle the code.
+            </p>
+            <button
+              onClick={() => navigate("/vendor")}
+              className="px-8 py-5 bg-white text-gray-900 rounded-2xl font-bold text-lg hover:bg-gray-100 transition-colors shadow-2xl shadow-white/20"
+            >
+              Become a Vendor
+            </button>
+          </div>
+        </div>
 
 
       </main>
@@ -172,10 +234,10 @@ const Landing = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <img src={logo} alt="Logo" className="w-12 h-12 object-contain" />
-                <span className="text-2xl font-black tracking-tighter text-maintext">{name}</span>
+                <span className="text-2xl font-black tracking-tighter text-maintext">A-Series<sup className="text-xs">TM</sup></span>
               </div>
               <p className="text-sm text-subtext leading-relaxed max-w-sm">
-                Ai-Mall™ — India’s First AI App Marketplace 🚀<br />
+                A-Series<sup className="text-[10px]">TM</sup> — India’s First AI App Marketplace <br />
                 100 AI Apps | A-Series™ | Partner Integrations<br />
                 Powered by UWO™
               </p>
@@ -270,7 +332,7 @@ const Landing = () => {
                 {[
                   { label: "Help Center", path: "#" },
                   { label: "Security & Guidelines", onClick: () => setIsSecurityModalOpen(true) },
-                  { label: "Contact Us", path: "mailto:contact@ai-mall.in" },
+                  { label: "Contact Us", path: "mailto:contact@a-series.ai" },
                   { label: "Status Page", path: "#" }
                 ].map((link, i) => (
                   <li key={i}>
@@ -310,12 +372,12 @@ const Landing = () => {
                   </p>
                 </a>
                 <a
-                  href="mailto:support@ai-mall.in"
+                  href="mailto:support@a-series.ai"
                   className="flex items-center gap-3 group"
                 >
                   <Mail className="w-5 h-5 text-primary shrink-0 group-hover:scale-110 transition-transform" />
                   <span className="text-sm text-subtext group-hover:text-primary transition-colors font-medium">
-                    support@ai-mall.in
+                    support@a-series.ai
                   </span>
                 </a>
                 <a

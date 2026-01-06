@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import AppDetail from '../../Components/Vendor/AppDetail';
 import vendorService from '../../services/vendorService';
 import { Loader2, AlertCircle } from 'lucide-react';
@@ -56,12 +56,12 @@ const VendorAppDetail = () => {
     const handleSubmitForReview = async () => {
         try {
             await vendorService.submitForReview(appId);
-            alert("Successfully submitted for review"); // Added success popup
+            alert("✅ Successfully submitted for review!\n\nYour app has been sent to the admin for approval. You'll receive a notification once it's reviewed.");
             fetchData();
         } catch (err) {
             console.error('[VendorAppDetail] Submission failed detailed:', err);
             const msg = err.response?.data?.error || err.message || 'Submission failed';
-            alert(`Submission failed: ${msg}`);
+            alert(`❌ Submission failed: ${msg}`);
         }
     };
 
@@ -70,7 +70,9 @@ const VendorAppDetail = () => {
             await vendorService.deleteApp(appId);
             navigate('/vendor/apps'); // Redirect to app list after delete
         } catch (err) {
-            alert('Deletion failed. Please try again.');
+            console.error('[VendorAppDetail] Delete failed:', err);
+            const msg = err.response?.data?.error || err.message || 'Deletion failed. Please try again.';
+            alert(`Deletion failed: ${msg}`);
         }
     };
 
@@ -80,6 +82,16 @@ const VendorAppDetail = () => {
             fetchData();
         } catch (err) {
             alert('Update failed. Please try again.');
+        }
+    };
+
+    const handleUpdateAvatar = async (base64) => {
+        try {
+            await vendorService.updateApp(appId, { avatar: base64 });
+            fetchData();
+        } catch (err) {
+            console.error('[VendorAppDetail] Avatar update failed:', err);
+            alert('Failed to update avatar. Please try again.');
         }
     };
 
@@ -114,6 +126,7 @@ const VendorAppDetail = () => {
                 onSubmitForReview={handleSubmitForReview}
                 onDelete={handleDelete}
                 onUpdateUrl={handleUpdateUrl}
+                onUpdateAvatar={handleUpdateAvatar}
                 onBack={() => navigate('/vendor/apps')}
             />
         </div>

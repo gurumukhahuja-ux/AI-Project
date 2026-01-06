@@ -164,7 +164,7 @@ export default function ContentForm({ onGenerate, loading }) {
                         id="businessName"
                         className="w-full px-4 h-12 border border-gray-200 rounded-lg text-gray-700 shadow-sm hover:shadow-md transition-shadow duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 placeholder-gray-400"
                         name="businessName"
-                        placeholder="e.g., AI Mall"
+                        placeholder="e.g., A-Series"
                         value={form.businessName}
                         onChange={handleChange}
                         required

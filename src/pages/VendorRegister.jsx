@@ -97,10 +97,10 @@ const VendorRegister = () => {
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="inline-block rounded-full w-25 mb-4">
-                        <img src={logo} alt="AI-Mall Logo" />
+                        <img src={logo} alt="A-Series Logo" />
                     </div>
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">Become a Vendor</h2>
-                    <p className="text-gray-600">Join AI-Mall and start selling your AI agents</p>
+                    <p className="text-gray-600">Join A-Series<sup className="text-xs">TM</sup> and start selling your AI agents</p>
                 </div>
 
                 {/* Card */}

@@ -51,7 +51,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="h-full flex flex-col p-4 md:p-8 overflow-y-auto custom-scrollbar">
+        <div className="h-full flex flex-col bg-white p-4 md:p-8 overflow-y-auto custom-scrollbar">
             <div className="max-w-4xl mx-auto w-full space-y-8 pb-12">
 
                 {/* Profile Header */}

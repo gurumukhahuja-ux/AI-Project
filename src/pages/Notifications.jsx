@@ -2,25 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { Bell, Check, Trash2, Clock, ShieldAlert, BadgeInfo, BadgeCheck } from 'lucide-react';
 import axios from 'axios';
 import { apis } from '../types';
-import { getUserData } from '../userStore/userData';
+import { getUserData, notificationsState } from '../userStore/userData';
+import { useRecoilState } from 'recoil';
 
 const Notifications = () => {
-    const [notifications, setNotifications] = useState([]);
+    const [notifications, setNotifications] = useRecoilState(notificationsState);
     const [loading, setLoading] = useState(true);
     const [appIcons, setAppIcons] = useState({});
     const token = getUserData()?.token;
 
     useEffect(() => {
+        // We rely on Sidebar or a global fetcher, but let's allow fetching here if empty just in case
         const fetchNotifications = async () => {
+            if (notifications.length > 0) {
+                setLoading(false);
+                return;
+            }
+
             try {
                 const res = await axios.get(apis.notifications, {
                     headers: { 'Authorization': `Bearer ${token}` },
-                    timeout: 5000 // 5 seconds timeout
+                    timeout: 5000
                 });
                 setNotifications(res.data);
             } catch (err) {
                 console.error('Error fetching notifications:', err);
-                // On error, we still clear loading to show the demo fallback
             } finally {
                 setLoading(false);
             }
@@ -57,21 +63,26 @@ const Notifications = () => {
 
     const markAsRead = async (id) => {
         try {
-            await axios.put(`${apis.notifications}/read/${id}`, {}, {
+            // Optimistic update
+            setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+
+            await axios.put(`${apis.notifications}/${id}/read`, {}, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            setNotifications(notifications.map(n => n._id === id ? { ...n, isRead: true } : n));
         } catch (err) {
             console.error('Error marking as read:', err);
+            // Revert on error (optional, or just show toast)
         }
     };
 
     const deleteNotification = async (id) => {
         try {
+            // Optimistic update
+            setNotifications(prev => prev.filter(n => n._id !== id));
+
             await axios.delete(`${apis.notifications}/${id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            setNotifications(notifications.filter(n => n._id !== id));
         } catch (err) {
             console.error('Error deleting notification:', err);
         }
@@ -85,19 +96,10 @@ const Notifications = () => {
         }
     };
 
-    const filteredNotifications = notifications
-        .filter(notif => {
-            // Exclude vendor-specific notifications (approval/rejection messages)
-            const isVendorNotification =
-                notif.message.includes('Congratulations!') ||
-                notif.message.includes('approved') ||
-                notif.message.includes('rejected') ||
-                notif.message.includes('good work');
-            return !isVendorNotification;
-        });
+    const filteredNotifications = notifications;
 
     return (
-        <div className="p-4 md:p-8 h-full overflow-y-auto">
+        <div className="p-4 md:p-8 h-full bg-white overflow-y-auto">
             <div className="mb-8">
                 <h1 className="text-2xl md:text-3xl font-bold text-maintext mb-2">Notifications</h1>
                 <p className="text-sm md:text-base text-subtext">Stay updated with your account and subscription status.</p>

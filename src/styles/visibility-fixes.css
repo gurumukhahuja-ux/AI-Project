@@ -1,4 +1,4 @@
-/* AI-MALL Text Visibility Fixes */
+/* A-Series Text Visibility Fixes */
 
 /* Force all text to be clearly visible with black color */
 .text-maintext {
@@ -38,7 +38,12 @@ button {
 }
 
 /* Ensure headings are always black */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #000000 !important;
 }
 

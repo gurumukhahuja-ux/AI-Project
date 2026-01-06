@@ -34,7 +34,7 @@ const SubscriptionForm = ({ id }) => {
 
 
   return (
-    <div className='fixed z-50 bg-black bg-opacity-10 bottom-0 right-0 left-0 top-0  flex justify-center items-center'>
+    <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/20 backdrop-blur-sm'>
       <StyledWrapper  >
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}>
           <form className="plan-chooser ">
