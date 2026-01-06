@@ -15,8 +15,8 @@ import { demoModalState } from '../userStore/demoStore';
 import SecurityModal from '../Components/LiveDemo/SecurityModal';
 import { FaXTwitter } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
-import StatsBanner from '../components/Landing/StatsBanner';
-import FeaturesSection from '../components/Landing/FeaturesSection';
+import StatsBanner from '../Components/Landing/StatsBanner';
+import FeaturesSection from '../Components/Landing/FeaturesSection';
 import apiService from '../services/apiService';
 
 const Landing = () => {
