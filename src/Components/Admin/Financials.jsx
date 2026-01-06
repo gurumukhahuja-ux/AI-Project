@@ -88,7 +88,7 @@ const Financials = () => {
     return (
         <div className="space-y-8 font-sans">
             <div>
-                <h2 className="text-2xl font-bold text-[#1E293B]">Revenue Overview</h2>
+                <h2 className="text-2xl font-bold text-maintext">Revenue Overview</h2>
                 <p className="text-subtext text-sm">Platform-wide financial performance</p>
             </div>
 
@@ -100,10 +100,10 @@ const Financials = () => {
                     amount={overview.totalGross}
                     subtitle="Before platform fees & payouts"
                     icon={TrendingUp}
-                    colorClass="text-[#1E293B]"
-                    bgClass="bg-white"
-                    borderClass="border border-[#E0E4E8]"
-                    iconBgClass="bg-blue-50 text-blue-600"
+                    colorClass="text-maintext"
+                    bgClass="bg-card"
+                    borderClass="border border-border"
+                    iconBgClass="bg-blue-500/10 text-blue-600 dark:text-blue-400"
                 />
 
                 <Card
@@ -112,10 +112,10 @@ const Financials = () => {
                     amount={overview.totalVendorPayouts}
                     subtitle="Disbursed to vendors (50%)"
                     icon={CreditCard}
-                    colorClass="text-[#22C55E]"
-                    bgClass="bg-white"
-                    borderClass="border border-[#E0E4E8]"
-                    iconBgClass="bg-green-50 text-green-600"
+                    colorClass="text-green-600 dark:text-green-400"
+                    bgClass="bg-card"
+                    borderClass="border border-border"
+                    iconBgClass="bg-green-500/10 text-green-600 dark:text-green-400"
                 />
 
                 <Card
@@ -125,34 +125,34 @@ const Financials = () => {
                     subtitle="Gross Revenue - Vendor Payouts"
                     icon={DollarSign}
                     colorClass="text-primary"
-                    bgClass="bg-blue-50/50"
+                    bgClass="bg-blue-500/10"
                     borderClass="border border-primary/20"
                     iconBgClass="bg-primary/10 text-primary"
                 />
             </div>
 
             {/* App-wise Performance Table */}
-            <div className="bg-white border border-[#E0E4E8] rounded-3xl overflow-hidden shadow-sm">
-                <div className="p-6 border-b border-[#E0E4E8]">
-                    <h3 className="text-lg font-bold text-[#1E293B]">App-wise Performance</h3>
+            <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+                <div className="p-6 border-b border-border">
+                    <h3 className="text-lg font-bold text-maintext">App-wise Performance</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-[#F8F9FB] text-[10px] text-subtext font-bold uppercase tracking-wider">
+                            <tr className="bg-secondary text-[10px] text-subtext font-bold uppercase tracking-wider">
                                 <th className="px-8 py-5">App Name</th>
                                 <th className="px-8 py-5 text-right">Total Revenue</th>
                                 <th className="px-8 py-5 text-right">Vendor Earnings</th>
                                 <th className="px-8 py-5 text-right">Platform Fees (50%)</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#E0E4E8]">
+                        <tbody className="divide-y divide-border">
                             {apps.length > 0 ? (
                                 apps.map((app) => (
-                                    <tr key={app.id} className="hover:bg-[#F8F9FB] transition-colors">
-                                        <td className="px-8 py-5 font-bold text-[#1E293B]">{app.name}</td>
+                                    <tr key={app.id} className="hover:bg-secondary transition-colors">
+                                        <td className="px-8 py-5 font-bold text-maintext">{app.name}</td>
                                         <td className="px-8 py-5 text-right font-medium text-subtext">{formatCurrency(app.totalRevenue)}</td>
-                                        <td className="px-8 py-5 text-right font-bold text-green-600">{formatCurrency(app.vendorEarnings)}</td>
+                                        <td className="px-8 py-5 text-right font-bold text-green-600 dark:text-green-400">{formatCurrency(app.vendorEarnings)}</td>
                                         <td className="px-8 py-5 text-right font-bold text-primary">{formatCurrency(app.platformFees)}</td>
                                     </tr>
                                 ))
@@ -160,8 +160,8 @@ const Financials = () => {
                                 <tr>
                                     <td colSpan="4" className="px-8 py-20 text-center">
                                         <div className="flex flex-col items-center gap-3">
-                                            <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center">
-                                                <Activity className="w-6 h-6 text-slate-300" />
+                                            <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
+                                                <Activity className="w-6 h-6 text-subtext/50" />
                                             </div>
                                             <p className="text-sm text-subtext italic">No transaction data available yet.</p>
                                         </div>

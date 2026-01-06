@@ -13,14 +13,14 @@ const AuditLogs = () => {
         <div className="space-y-6">
             <h2 className="text-xl font-bold text-maintext">Audit Logs</h2>
 
-            <div className="bg-surface border border-border rounded-xl p-4 flex gap-2">
+            <div className="bg-card border border-border rounded-xl p-4 flex gap-2">
                 <Search className="w-5 h-5 text-subtext" />
                 <input type="text" placeholder="Search logs by user, action, or target..." className="bg-transparent outline-none flex-1 text-maintext placeholder:text-subtext" />
             </div>
 
-            <div className="bg-secondary rounded-xl border border-border overflow-hidden">
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-left text-sm">
-                    <thead className="bg-surface border-b border-border text-subtext">
+                    <thead className="bg-secondary border-b border-border text-subtext">
                         <tr>
                             <th className="px-5 py-3 font-medium">Action</th>
                             <th className="px-5 py-3 font-medium">User</th>
@@ -30,7 +30,7 @@ const AuditLogs = () => {
                     </thead>
                     <tbody className="divide-y divide-border">
                         {logs.map((log) => (
-                            <tr key={log.id} className="hover:bg-surface/50 font-mono text-xs">
+                            <tr key={log.id} className="hover:bg-secondary font-mono text-xs cursor-pointer transition-colors">
                                 <td className="px-5 py-3 text-primary">{log.action}</td>
                                 <td className="px-5 py-3 text-maintext">{log.user}</td>
                                 <td className="px-5 py-3 text-subtext">{log.target}</td>

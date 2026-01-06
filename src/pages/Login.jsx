@@ -66,11 +66,11 @@ const Login = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-border p-8 rounded-3xl shadow-xl">
+        <div className="bg-card border border-border p-8 rounded-3xl shadow-xl">
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-3 rounded-xl bg-red-50 border border-red-100 flex items-center gap-2 text-red-500 text-sm">
+            <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
               <AlertCircle className="w-4 h-4" />
               {message}
             </div>

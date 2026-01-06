@@ -58,10 +58,10 @@ const VendorSupport = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'open': return 'text-blue-600 bg-blue-50 border-blue-100';
-            case 'in-progress': return 'text-amber-600 bg-amber-50 border-amber-100';
-            case 'resolved': return 'text-green-600 bg-green-50 border-green-100';
-            default: return 'text-slate-500 bg-slate-50';
+            case 'open': return 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20';
+            case 'in-progress': return 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20';
+            case 'resolved': return 'text-green-600 dark:text-green-400 bg-green-500/10 border-green-500/20';
+            default: return 'text-subtext bg-secondary border-border';
         }
     };
 
@@ -69,7 +69,7 @@ const VendorSupport = () => {
         <div className="space-y-6 max-w-5xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-[#1E293B]">Support Tickets</h2>
+                    <h2 className="text-2xl font-bold text-maintext">Support Tickets</h2>
                     <p className="text-subtext text-sm">Track and submit issues</p>
                 </div>
                 <button
@@ -86,13 +86,13 @@ const VendorSupport = () => {
             ) : reports.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {reports.map(report => (
-                        <div key={report._id} className="bg-white border border-[#E0E4E8] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div key={report._id} className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-4">
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${report.type === 'bug' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>{report.type}</span>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${report.type === 'bug' ? 'bg-red-500/10 text-red-700 dark:text-red-400' : 'bg-blue-500/10 text-blue-700 dark:text-blue-400'}`}>{report.type}</span>
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${getStatusColor(report.status)}`}>{report.status}</span>
                             </div>
-                            <p className="text-[#1E293B] font-medium text-sm mb-4 line-clamp-3">{report.description}</p>
-                            <div className="flex items-center justify-between text-xs text-subtext pt-4 border-t border-[#E0E4E8]">
+                            <p className="text-maintext font-medium text-sm mb-4 line-clamp-3">{report.description}</p>
+                            <div className="flex items-center justify-between text-xs text-subtext pt-4 border-t border-border">
                                 <div className="flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
                                     <span>{new Date(report.timestamp).toLocaleDateString()}</span>
@@ -103,11 +103,11 @@ const VendorSupport = () => {
                     ))}
                 </div>
             ) : (
-                <div className="bg-white border border-dashed border-[#E0E4E8] rounded-2xl p-12 text-center">
-                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <MessageSquare className="w-8 h-8 text-slate-300" />
+                <div className="bg-card border border-dashed border-border rounded-2xl p-12 text-center">
+                    <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MessageSquare className="w-8 h-8 text-subtext/50" />
                     </div>
-                    <h3 className="text-lg font-bold text-[#1E293B]">No Tickets Yet</h3>
+                    <h3 className="text-lg font-bold text-maintext">No Tickets Yet</h3>
                     <p className="text-subtext text-sm mb-6">Need help? Create a new support ticket.</p>
                     <button onClick={() => setShowForm(true)} className="text-primary font-bold text-sm hover:underline">Create Ticket</button>
                 </div>
@@ -116,17 +116,17 @@ const VendorSupport = () => {
             {/* Create Ticket Modal */}
             {showForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <div className="p-6 border-b border-[#E0E4E8] flex justify-between items-center bg-[#F8F9FB] rounded-t-2xl">
-                            <h3 className="font-bold text-lg text-[#1E293B]">Create Support Ticket</h3>
-                            <button onClick={() => setShowForm(false)} className="text-subtext hover:text-[#1E293B]"><X className="w-5 h-5" /></button>
+                    <div className="bg-card rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-border flex justify-between items-center bg-secondary rounded-t-2xl">
+                            <h3 className="font-bold text-lg text-maintext">Create Support Ticket</h3>
+                            <button onClick={() => setShowForm(false)} className="text-subtext hover:text-maintext"><X className="w-5 h-5" /></button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-subtext uppercase mb-1">Type</label>
                                     <select
-                                        className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                                        className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary text-maintext"
                                         value={formData.type}
                                         onChange={e => setFormData({ ...formData, type: e.target.value })}
                                     >
@@ -138,7 +138,7 @@ const VendorSupport = () => {
                                 <div>
                                     <label className="block text-xs font-bold text-subtext uppercase mb-1">Priority</label>
                                     <select
-                                        className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                                        className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary text-maintext"
                                         value={formData.priority}
                                         onChange={e => setFormData({ ...formData, priority: e.target.value })}
                                     >
@@ -152,18 +152,18 @@ const VendorSupport = () => {
                                 <label className="block text-xs font-bold text-subtext uppercase mb-1">Description</label>
                                 <textarea
                                     required
-                                    className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary min-h-[120px]"
+                                    className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary min-h-[120px] text-maintext"
                                     placeholder="Describe your issue in detail..."
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                                 />
                             </div>
                             <div className="flex gap-3 justify-end pt-4">
-                                <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl text-sm font-bold text-subtext hover:bg-slate-50">Cancel</button>
+                                <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl text-sm font-bold text-subtext hover:bg-secondary">Cancel</button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="bg-black text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-800 shadow-lg shadow-black/20 flex items-center gap-2 disabled:opacity-50"
+                                    className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
                                 >
                                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                                     Submit Ticket

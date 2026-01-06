@@ -66,7 +66,7 @@ const UserManagement = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl font-bold text-[#1E293B]">User Management</h2>
+                    <h2 className="text-xl font-bold text-maintext">User Management</h2>
                     <p className="text-sm text-subtext">Manage platform users and view subscriptions</p>
                 </div>
                 <div className="flex gap-2">
@@ -77,16 +77,16 @@ const UserManagement = () => {
                             placeholder="Search users..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 pr-4 py-2 bg-white border border-[#E0E4E8] rounded-xl text-sm outline-none w-64 focus:ring-2 focus:ring-primary/10"
+                            className="pl-9 pr-4 py-2 bg-card border border-border rounded-xl text-sm outline-none w-64 focus:ring-2 focus:ring-primary/10 text-maintext placeholder-subtext/50"
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white border border-[#E0E4E8] rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
                 <table className="w-full text-left text-sm">
                     <thead>
-                        <tr className="bg-[#F8F9FB] border-b border-[#E0E4E8] text-[11px] font-bold text-subtext uppercase tracking-wider">
+                        <tr className="bg-secondary border-b border-border text-[11px] font-bold text-subtext uppercase tracking-wider">
                             <th className="px-6 py-4">User</th>
                             <th className="px-6 py-4">Role</th>
                             <th className="px-6 py-4">Subscribed Agents</th>
@@ -95,23 +95,23 @@ const UserManagement = () => {
                             <th className="px-6 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E0E4E8]">
+                    <tbody className="divide-y divide-border">
                         {filteredUsers.length > 0 ? (
                             filteredUsers.map((user) => (
-                                <tr key={user.id} className="hover:bg-[#F8F9FB] transition-colors align-top">
+                                <tr key={user.id} className="hover:bg-secondary transition-colors align-top">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[#1E293B] font-bold text-sm">
+                                            <div className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center text-maintext font-bold text-sm">
                                                 {user.avatar ? <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" /> : user.name.charAt(0)}
                                             </div>
                                             <div>
-                                                <p className="font-bold text-[#1E293B]">{user.name}</p>
+                                                <p className="font-bold text-maintext">{user.name}</p>
                                                 <p className="text-xs text-subtext">{user.email}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${user.role === 'admin' ? 'bg-purple-50 text-purple-700 border-purple-100' : 'bg-slate-50 text-slate-600 border-slate-100'} uppercase`}>
+                                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${user.role === 'admin' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' : 'bg-secondary text-subtext border-border'} uppercase`}>
                                             {user.role === 'admin' && <ShieldCheck className="w-3 h-3" />}
                                             {user.role}
                                         </span>
@@ -120,7 +120,7 @@ const UserManagement = () => {
                                         <div className="relative">
                                             <button
                                                 onClick={() => toggleExpand(user.id)}
-                                                className="flex items-center gap-2 text-sm font-medium text-[#1E293B] hover:text-primary transition-colors focus:outline-none"
+                                                className="flex items-center gap-2 text-sm font-medium text-maintext hover:text-primary transition-colors focus:outline-none"
                                             >
                                                 <span>{user.agents?.length || 0} Agents</span>
                                                 {expandedUser === user.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -128,19 +128,19 @@ const UserManagement = () => {
 
                                             {/* Dropdown */}
                                             {expandedUser === user.id && (
-                                                <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-[#E0E4E8] rounded-xl shadow-xl z-10 animate-in fade-in zoom-in duration-200">
+                                                <div className="absolute top-full left-0 mt-2 w-64 bg-card border border-border rounded-xl shadow-xl z-10 animate-in fade-in zoom-in duration-200">
                                                     <div className="p-2 space-y-1 max-h-60 overflow-y-auto">
                                                         {user.agents && user.agents.length > 0 ? (
                                                             user.agents.map((agent, idx) => (
-                                                                <div key={idx} className="flex items-center justify-between p-2 hover:bg-[#F8F9FB] rounded-lg">
+                                                                <div key={idx} className="flex items-center justify-between p-2 hover:bg-secondary rounded-lg">
                                                                     <div className="flex items-center gap-2">
                                                                         <Bot className="w-3 h-3 text-subtext" />
-                                                                        <span className="text-sm font-medium text-[#1E293B] line-clamp-1">{agent.agentName || agent.name}</span>
+                                                                        <span className="text-sm font-medium text-maintext line-clamp-1">{agent.agentName || agent.name}</span>
                                                                     </div>
                                                                     {(() => {
                                                                         const priceType = typeof agent.pricing === 'object' ? agent.pricing?.type : agent.pricing;
                                                                         return (
-                                                                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${priceType === 'Pro' ? 'bg-indigo-50 text-indigo-600' : priceType === 'Basic' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${priceType === 'Pro' ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' : priceType === 'Basic' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-secondary text-subtext'}`}>
                                                                                 {priceType || 'Free'}
                                                                             </span>
                                                                         );
@@ -156,18 +156,18 @@ const UserManagement = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase ${user.isBlocked ? 'bg-red-50 text-red-600 border-red-100' : (user.status === 'Active' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100')}`}>
+                                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase ${user.isBlocked ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' : (user.status === 'Active' ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20')}`}>
                                             {user.isBlocked ? 'Blocked' : user.status}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-right font-bold text-[#1E293B]">
+                                    <td className="px-6 py-4 text-right font-bold text-maintext">
                                         {formatCurrency(user.spent)}
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => handleBlockUser(user.id, user.isBlocked)}
-                                                className={`p-2 rounded-xl transition-colors ${user.isBlocked ? 'text-green-600 hover:bg-green-50' : 'text-subtext hover:text-red-500 hover:bg-red-50'}`}
+                                                className={`p-2 rounded-xl transition-colors ${user.isBlocked ? 'text-green-600 hover:bg-green-500/10' : 'text-subtext hover:text-red-500 hover:bg-red-500/10'}`}
                                                 title={user.isBlocked ? "Unblock User" : "Block User"}
                                             >
                                                 <Ban className={`w-4 h-4 ${user.isBlocked ? 'rotate-180' : ''}`} />
