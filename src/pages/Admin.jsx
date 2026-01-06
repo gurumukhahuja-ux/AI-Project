@@ -19,18 +19,18 @@ import { useNavigate } from "react-router-dom";
 import { AppRoute } from "../types";
 
 // Sub-Components
-import AdminOverview from "../components/Admin/AdminOverview";
-import Approvals from "../components/Admin/Approvals";
-import UserManagement from "../components/Admin/UserManagement";
-import VendorManagement from "../components/Admin/VendorManagement";
-import AgentManagement from "../components/Admin/AgentManagement";
-import Financials from "../components/Admin/Financials";
-import TransactionHistory from "../components/Admin/TransactionHistory";
-import Complaints from "../components/Admin/Complaints";
-import AccessControl from "../components/Admin/AccessControl";
-import PlatformSettings from "../components/Admin/PlatformSettings";
-import AdminSupport from "../components/Admin/Support";
-import VendorList from "../components/Admin/VendorList";
+import AdminOverview from "../Components/Admin/AdminOverview";
+import Approvals from "../Components/Admin/Approvals";
+import UserManagement from "../Components/Admin/UserManagement";
+import VendorManagement from "../Components/Admin/VendorManagement";
+import AgentManagement from "../Components/Admin/AgentManagement";
+import Financials from "../Components/Admin/Financials";
+import TransactionHistory from "../Components/Admin/TransactionHistory";
+import Complaints from "../Components/Admin/Complaints";
+import AccessControl from "../Components/Admin/AccessControl";
+import PlatformSettings from "../Components/Admin/PlatformSettings";
+import AdminSupport from "../Components/Admin/Support";
+import VendorList from "../Components/Admin/VendorList";
 
 const Admin = () => {
   const navigate = useNavigate();
