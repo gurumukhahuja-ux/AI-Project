@@ -140,7 +140,7 @@ const MyAgents = () => {
                                             setSelectedAgent({ ...agent, url: targetUrl });
                                             setIsModalOpen(true);
                                         }}
-                                        className="flex-1 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all bg-green-50 text-green-600 border border-green-100 hover:bg-green-100 hover:shadow-md"
+                                        className="flex-1 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:shadow-md"
                                     >
                                         Use
                                     </button>

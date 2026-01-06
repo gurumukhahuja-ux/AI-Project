@@ -84,4 +84,5 @@ export const apis = {
   chatAgent: `${API}/chat`,
   aibiz: `${API}/aibiz`,
   support: `${API}/support`,
+  resetPasswordEmail: `${API}/auth/reset-password-email`,
 };

@@ -86,7 +86,7 @@ const Admin = () => {
           }}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-sm font-bold ${isMainActive
             ? "bg-primary/5 text-primary"
-            : "text-subtext hover:bg-slate-50 hover:text-maintext"
+            : "text-subtext hover:bg-secondary hover:text-maintext"
             }`}
         >
           <div className="flex items-center gap-3">
@@ -107,7 +107,7 @@ const Admin = () => {
                 }}
                 className={`w-full text-left px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${isMainActive && activeSubTab === sub.id
                   ? "text-primary bg-primary/5"
-                  : "text-subtext hover:text-maintext hover:bg-slate-50"
+                  : "text-subtext hover:text-maintext hover:bg-secondary"
                   }`}
               >
                 {sub.label}
@@ -120,9 +120,9 @@ const Admin = () => {
   };
 
   return (
-    <div className="h-screen flex bg-[#F8F9FB] text-[#2C3E50] overflow-hidden">
+    <div className="h-screen flex bg-secondary text-maintext overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-[#E0E4E8] bg-white flex flex-col shrink-0">
+      <aside className="w-64 border-r border-border bg-card flex flex-col shrink-0">
         <div className="p-6 flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20">
             M
@@ -146,7 +146,7 @@ const Admin = () => {
           </div>
         </div>
 
-        <div className="p-4 border-t border-[#E0E4E8]">
+        <div className="p-4 border-t border-border">
           <button className="w-full flex items-center gap-3 px-4 py-2.5 text-subtext hover:text-red-500 transition-colors text-sm font-medium">
             <Activity className="w-4 h-4 rotate-180" />
             Sign Out
@@ -157,14 +157,14 @@ const Admin = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="h-[72px] bg-white border-b border-[#E0E4E8] flex items-center justify-between px-8 shrink-0">
+        <header className="h-[72px] bg-card border-b border-border flex items-center justify-between px-8 shrink-0">
           <div className="flex-1 max-w-xl">
             <div className="relative group">
               <Activity className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-subtext group-focus-within:text-primary transition-colors" />
               <input
                 type="text"
                 placeholder="Search your apps..."
-                className="w-full bg-[#F3F5F7] border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                className="w-full bg-secondary border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none text-maintext placeholder:text-subtext/50"
               />
             </div>
           </div>
@@ -185,7 +185,7 @@ const Admin = () => {
         </header>
 
         {/* Dynamic Content */}
-        <main className="flex-1 overflow-y-auto bg-[#F8F9FB] p-8">
+        <main className="flex-1 overflow-y-auto bg-secondary p-8">
           <div className="max-w-[1400px] mx-auto">
             {renderContent()}
           </div>

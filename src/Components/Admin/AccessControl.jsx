@@ -6,7 +6,7 @@ const AccessControl = () => {
         <div className="space-y-6">
             <h2 className="text-xl font-bold text-maintext">Roles & Permissions</h2>
 
-            <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4 flex gap-3 text-orange-600">
+            <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4 flex gap-3 text-orange-600 dark:text-orange-400">
                 <Lock className="w-5 h-5 shrink-0" />
                 <p className="text-sm">You are logged in as <strong>Super Admin</strong>. You have full read/write access to all resources.</p>
             </div>
@@ -15,7 +15,7 @@ const AccessControl = () => {
                 {[
                     { role: 'Vendor', users: 84, desc: 'Limited access to their own agents and analytics.' },
                 ].map((role) => (
-                    <div key={role.role} className="bg-surface border border-border rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-colors cursor-pointer group">
+                    <div key={role.role} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between hover:border-primary/50 transition-colors cursor-pointer group">
                         <div className="flex items-center gap-4">
                             <div className="p-2 bg-secondary rounded-lg group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                                 <Users className="w-5 h-5" />

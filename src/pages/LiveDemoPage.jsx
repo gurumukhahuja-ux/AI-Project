@@ -183,7 +183,7 @@ const LiveDemoPage = () => {
                         onClick={() => setFilter(cat)}
                         className={`px-4 py-2 rounded-full text-sm font-medium capitalize whitespace-nowrap transition-all border ${filter === cat
                             ? 'bg-primary text-white border-primary'
-                            : 'bg-white text-subtext border-border hover:bg-surface'
+                            : 'bg-card text-subtext border-border hover:bg-surface'
                             }`}
                     >
                         {cat}

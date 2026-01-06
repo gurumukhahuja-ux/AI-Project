@@ -21,7 +21,7 @@ const LiveDemoCard = ({ agent, onSubscribe }) => {
     };
 
     return (
-        <div className="group bg-white border border-border hover:border-primary/50 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col h-full shadow-sm">
+        <div className="group bg-card border border-border hover:border-primary/50 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col h-full shadow-sm">
             {/* Thumbnail Area */}
             <div
                 className="relative aspect-video mb-4 rounded-xl overflow-hidden bg-surface cursor-pointer group/thumb"
@@ -70,7 +70,7 @@ const LiveDemoCard = ({ agent, onSubscribe }) => {
                 </button>
                 <button
                     onClick={handleSubscribe}
-                    className="w-full py-2.5 rounded-xl font-semibold bg-white text-primary border border-primary/20 hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-2.5 rounded-xl font-semibold bg-card text-primary border border-primary/20 hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
                 >
                     <Download className="w-4 h-4" /> Subscribe
                 </button>

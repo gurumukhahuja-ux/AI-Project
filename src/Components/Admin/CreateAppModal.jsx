@@ -40,21 +40,21 @@ const CreateAppModal = ({ isOpen, onClose, onSubmit }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-2xl rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="bg-card w-full max-w-2xl rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
                 {/* Header */}
-                <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div className="px-8 py-6 border-b border-border flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
                             <Sparkles className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-[#1E293B]">Create New App</h2>
+                            <h2 className="text-2xl font-bold text-maintext">Create New App</h2>
                             <p className="text-sm text-subtext">Add a new AI agent to your marketplace</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-slate-100 rounded-full transition-colors text-subtext"
+                        className="p-2 hover:bg-secondary rounded-full transition-colors text-subtext"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -63,7 +63,7 @@ const CreateAppModal = ({ isOpen, onClose, onSubmit }) => {
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6 overflow-y-auto max-h-[75vh]">
                     <div className="space-y-2">
-                        <label className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider flex items-center gap-1">
+                        <label className="text-[11px] font-extrabold text-maintext uppercase tracking-wider flex items-center gap-1">
                             App Name <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -74,12 +74,12 @@ const CreateAppModal = ({ isOpen, onClose, onSubmit }) => {
                             autoComplete="off"
                             value={formData.agentName}
                             onChange={handleChange}
-                            className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
+                            className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-subtext/50 text-maintext"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider flex items-center gap-1">
+                        <label className="text-[11px] font-extrabold text-maintext uppercase tracking-wider flex items-center gap-1">
                             Description <span className="text-red-500">*</span>
                         </label>
                         <textarea
@@ -89,12 +89,12 @@ const CreateAppModal = ({ isOpen, onClose, onSubmit }) => {
                             placeholder="Describe what your AI agent does..."
                             value={formData.description}
                             onChange={handleChange}
-                            className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none"
+                            className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none text-maintext placeholder:text-subtext/50"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider">
+                        <label className="text-[11px] font-extrabold text-maintext uppercase tracking-wider">
                             App Live URL
                         </label>
                         <input
@@ -103,20 +103,20 @@ const CreateAppModal = ({ isOpen, onClose, onSubmit }) => {
                             placeholder="e.g., yourapp.com or https://yourapp.com"
                             value={formData.agentUrl}
                             onChange={handleChange}
-                            className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
+                            className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-subtext/50 text-maintext"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider">
+                            <label className="text-[11px] font-extrabold text-maintext uppercase tracking-wider">
                                 Category
                             </label>
                             <select
                                 name="category"
                                 value={formData.category}
                                 onChange={handleChange}
-                                className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer"
+                                className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer text-maintext"
                             >
                                 <option>Business OS</option>
                                 <option>Data & Intelligence</option>
@@ -128,14 +128,14 @@ const CreateAppModal = ({ isOpen, onClose, onSubmit }) => {
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-wider">
+                            <label className="text-[11px] font-extrabold text-maintext uppercase tracking-wider">
                                 Pricing Model
                             </label>
                             <select
                                 name="pricing"
                                 value={formData.pricing}
                                 onChange={handleChange}
-                                className="w-full bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer"
+                                className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer text-maintext"
                             >
                                 <option value="Free">Free</option>
                                 <option value="Prime (₹100/mo)">Prime (₹100/mo)</option>
@@ -145,11 +145,11 @@ const CreateAppModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
 
                     {/* Notice */}
-                    <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 flex gap-4">
+                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-5 flex gap-4">
                         <AlertCircle className="w-6 h-6 text-primary shrink-0 mt-1" />
                         <div>
-                            <p className="text-sm font-bold text-[#1E293B] mb-1">This app will be created as a Draft.</p>
-                            <p className="text-xs text-[#64748B] leading-relaxed">
+                            <p className="text-sm font-bold text-maintext mb-1">This app will be created as a Draft.</p>
+                            <p className="text-xs text-subtext leading-relaxed">
                                 Draft apps are NOT visible on the AI-Mall Marketplace. You can publish the app later from the App Details page.
                             </p>
                         </div>
@@ -157,10 +157,10 @@ const CreateAppModal = ({ isOpen, onClose, onSubmit }) => {
                 </form>
 
                 {/* Footer */}
-                <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div className="px-8 py-6 border-t border-border flex items-center justify-between bg-secondary">
                     <button
                         onClick={onClose}
-                        className="text-sm font-bold text-subtext hover:text-[#1E293B] transition-colors"
+                        className="text-sm font-bold text-subtext hover:text-maintext transition-colors"
                     >
                         Cancel
                     </button>

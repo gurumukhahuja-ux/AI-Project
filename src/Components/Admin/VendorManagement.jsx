@@ -75,10 +75,10 @@ const VendorManagement = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'open': return 'bg-amber-50 text-amber-600 border-amber-100';
-            case 'in-progress': return 'bg-blue-50 text-blue-600 border-blue-100';
-            case 'resolved': return 'bg-green-50 text-green-600 border-green-100';
-            default: return 'bg-slate-50 text-slate-600 border-slate-100';
+            case 'open': return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+            case 'in-progress': return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
+            case 'resolved': return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20';
+            default: return 'bg-secondary text-subtext border-border';
         }
     };
 
@@ -103,34 +103,34 @@ const VendorManagement = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-bold text-[#1E293B]">Vendor Support</h2>
+                    <h2 className="text-2xl font-bold text-maintext">Vendor Support</h2>
                     <p className="text-sm text-subtext">Manage vendor support tickets and issues</p>
                 </div>
                 <div className="flex gap-2">
                     <button
                         onClick={() => setFilter('all')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filter === 'all' ? 'bg-primary text-white' : 'bg-white border border-[#E0E4E8] text-subtext hover:bg-slate-50'}`}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filter === 'all' ? 'bg-primary text-white' : 'bg-card border border-border text-subtext hover:bg-secondary'}`}
                     >
                         All ({tickets.length})
                     </button>
                     <button
                         onClick={() => setFilter('open')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filter === 'open' ? 'bg-amber-500 text-white' : 'bg-white border border-[#E0E4E8] text-subtext hover:bg-slate-50'}`}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filter === 'open' ? 'bg-amber-500 text-white' : 'bg-card border border-border text-subtext hover:bg-secondary'}`}
                     >
                         Open ({tickets.filter(t => t.status === 'open').length})
                     </button>
                     <button
                         onClick={() => setFilter('resolved')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filter === 'resolved' ? 'bg-green-500 text-white' : 'bg-white border border-[#E0E4E8] text-subtext hover:bg-slate-50'}`}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filter === 'resolved' ? 'bg-green-500 text-white' : 'bg-card border border-border text-subtext hover:bg-secondary'}`}
                     >
                         Resolved ({tickets.filter(t => t.status === 'resolved').length})
                     </button>
                 </div>
             </div>
 
-            <div className="bg-white border border-[#E0E4E8] rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
                 <table className="w-full text-left text-sm">
-                    <thead className="bg-[#F8F9FB] border-b border-[#E0E4E8]">
+                    <thead className="bg-secondary border-b border-border">
                         <tr>
                             <th className="px-6 py-4 text-[10px] font-bold text-subtext uppercase tracking-wider">Ticket ID</th>
                             <th className="px-6 py-4 text-[10px] font-bold text-subtext uppercase tracking-wider">User</th>
@@ -140,30 +140,30 @@ const VendorManagement = () => {
                             <th className="px-6 py-4 text-[10px] font-bold text-subtext uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E0E4E8]">
+                    <tbody className="divide-y divide-border">
                         {filteredTickets.length > 0 ? (
                             filteredTickets.map((ticket) => (
-                                <tr key={ticket._id} className="hover:bg-[#F8F9FB] transition-colors">
+                                <tr key={ticket._id} className="hover:bg-secondary transition-colors">
                                     <td className="px-6 py-4">
-                                        <span className="text-xs font-bold text-[#1E293B]">
+                                        <span className="text-xs font-bold text-maintext">
                                             #{ticket._id.substring(ticket._id.length - 8).toUpperCase()}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
                                             <User className="w-4 h-4 text-subtext" />
-                                            <span className="text-sm font-medium text-[#1E293B]">
+                                            <span className="text-sm font-medium text-maintext">
                                                 {ticket.userId?.name || ticket.userId || 'Anonymous'}
                                             </span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase">
+                                        <span className="px-2 py-1 bg-secondary text-subtext rounded-lg text-[10px] font-bold uppercase">
                                             {ticket.type}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <p className="text-sm text-[#64748B] line-clamp-2">{ticket.description}</p>
+                                        <p className="text-sm text-subtext line-clamp-2">{ticket.description}</p>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(ticket.status)} uppercase`}>
@@ -196,8 +196,8 @@ const VendorManagement = () => {
                             <tr>
                                 <td colSpan="6" className="px-6 py-20 text-center">
                                     <div className="flex flex-col items-center gap-3">
-                                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
-                                            <MessageSquare className="w-8 h-8 text-slate-300" />
+                                        <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center">
+                                            <MessageSquare className="w-8 h-8 text-subtext/50" />
                                         </div>
                                         <p className="text-sm font-medium text-subtext">No vendor support tickets found.</p>
                                     </div>
@@ -211,7 +211,7 @@ const VendorManagement = () => {
             {/* Reply Modal */}
             {showReplyModal && selectedTicket && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in duration-200">
+                    <div className="bg-card w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in duration-200">
                         <div className="p-6 bg-gradient-to-r from-blue-500 to-purple-500">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -229,41 +229,41 @@ const VendorManagement = () => {
 
                         <div className="p-6 space-y-4">
                             {/* Ticket Info */}
-                            <div className="bg-slate-50 rounded-xl p-4">
+                            <div className="bg-secondary rounded-xl p-4">
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div>
                                         <span className="text-subtext">Vendor:</span>
-                                        <span className="ml-2 font-bold text-[#1E293B]">{selectedTicket.userId?.name || 'Anonymous'}</span>
+                                        <span className="ml-2 font-bold text-maintext">{selectedTicket.userId?.name || 'Anonymous'}</span>
                                     </div>
                                     <div>
                                         <span className="text-subtext">Email:</span>
-                                        <span className="ml-2 font-bold text-[#1E293B]">{selectedTicket.userId?.email || 'N/A'}</span>
+                                        <span className="ml-2 font-bold text-maintext">{selectedTicket.userId?.email || 'N/A'}</span>
                                     </div>
                                     <div className="col-span-2">
                                         <span className="text-subtext">Issue:</span>
-                                        <p className="mt-1 text-[#1E293B]">{selectedTicket.description}</p>
+                                        <p className="mt-1 text-maintext">{selectedTicket.description}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Reply Message */}
                             <div>
-                                <label className="block text-sm font-bold text-[#1E293B] mb-2">Your Message</label>
+                                <label className="block text-sm font-bold text-maintext mb-2">Your Message</label>
                                 <textarea
                                     value={replyMessage}
                                     onChange={(e) => setReplyMessage(e.target.value)}
                                     placeholder="Type your reply here..."
                                     rows="6"
-                                    className="w-full border border-[#E0E4E8] rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none resize-none"
+                                    className="w-full border border-border rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none resize-none bg-card text-maintext placeholder-subtext/50"
                                 />
                                 <p className="text-xs text-subtext mt-2">This message will be sent to the vendor's email address.</p>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E0E4E8]">
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
                                 <button
                                     onClick={() => setShowReplyModal(false)}
-                                    className="px-5 py-2.5 bg-slate-100 text-[#1E293B] rounded-xl font-bold text-sm hover:bg-slate-200 transition-all"
+                                    className="px-5 py-2.5 bg-secondary text-maintext rounded-xl font-bold text-sm hover:bg-border transition-all"
                                 >
                                     Cancel
                                 </button>

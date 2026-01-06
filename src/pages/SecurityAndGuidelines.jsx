@@ -170,7 +170,7 @@ const SecurityAndGuidelines = () => {
                 <div className="space-y-4">
                     <p className="text-subtext text-sm">If you witness any security violations, encounter technical issues, or need urgent assistance, please report them immediately.</p>
                     <div className="flex flex-wrap gap-4">
-                        <button onClick={() => setIsReportModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors">
+                        <button onClick={() => setIsReportModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-500/20 border border-blue-500/20 transition-colors">
                             <span>📧 Report in App:</span>
                             <span className="font-semibold">Open Form</span>
                         </button>
@@ -185,7 +185,7 @@ const SecurityAndGuidelines = () => {
     ];
 
     return (
-        <div className="h-full flex flex-col bg-bg overflow-hidden relative">
+        <div className="h-full flex flex-col bg-background overflow-hidden relative">
             {/* Header */}
             <header className="px-6 py-5 border-b border-border bg-secondary/30 backdrop-blur-md sticky top-0 z-10">
                 <div className="flex items-center gap-3">

@@ -26,15 +26,19 @@ import { useRecoilState } from 'recoil';
 import { clearUser, getUserData, toggleState, userData } from '../../userStore/userData';
 import axios from 'axios';
 import { useLanguage } from '../../context/LanguageContext';
-
-
+import { useTheme } from '../../context/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { t } = useLanguage();
+  const { t, language, region, regionFlags } = useLanguage();
+  const { theme, setTheme } = useTheme();
+
+  const getFlagUrl = (code) => `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
+
   const navigate = useNavigate();
   const [notifiyTgl, setNotifyTgl] = useRecoilState(toggleState)
-  const [currentUserData] = useRecoilState(userData);
-  const user = currentUserData.user || { name: "User", email: "user@example.com", role: "user" };
+  const [currentUserData, setUserRecoil] = useRecoilState(userData);
+  const user = currentUserData.user || getUserData() || { name: "Loading...", email: "...", role: "user" };
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
@@ -92,7 +96,10 @@ const Sidebar = ({ isOpen, onClose }) => {
           'Authorization': `Bearer ${token}`
         }
       }).then((res) => {
-        console.log(res);
+        if (res.data) {
+          setUserRecoil({ user: res.data });
+          setUserData(res.data);
+        }
       }).catch((err) => {
         console.error(err);
         if (err.status == 401) {
@@ -198,10 +205,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             <span>{t('marketplace')}</span>
           </NavLink>
 
-          <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
+          {/* <NavLink to="/vendor/overview" className={navItemClass} onClick={onClose}>
             <LayoutGrid className="w-5 h-5" />
             <span>{t('vendorDashboard')}</span>
-          </NavLink>
+          </NavLink> */}
 
           <NavLink to={AppRoute.INVOICES} className={navItemClass} onClick={onClose}>
             <FileText className="w-5 h-5" />
@@ -214,10 +221,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             <Zap className="w-5 h-5" />
             <span>Automations</span>
           </NavLink> */}
-          <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
+          {/* <NavLink to={AppRoute.ADMIN} className={navItemClass} onClick={onClose}>
             <Settings className="w-5 h-5" />
             <span>{t('adminDashboard')}</span>
-          </NavLink>
+          </NavLink> */}
         </div>
 
         {/* Notifications Section */}
@@ -235,18 +242,34 @@ const Sidebar = ({ isOpen, onClose }) => {
           </NavLink>
 
           <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-none">
-            {notifications.length > 0 && notifications.map((notif) => (
-              <div
-                key={notif._id}
-                className={`p-2 rounded-lg border text-[11px] transition-all ${notif.type === 'ALERT'
-                  ? 'bg-red-50 border-red-100 text-red-700'
-                  : 'bg-surface border-border text-subtext'
-                  } ${!notif.isRead ? 'ring-1 ring-primary/20' : 'opacity-80'}`}
-              >
-                <p className="font-bold mb-1">{notif.title}</p>
-                <p className="leading-tight">{notif.message}</p>
-              </div>
-            ))}
+            {(() => {
+              // Check settings directly from localStorage to ensure immediate feedback
+              const settings = JSON.parse(localStorage.getItem('user_settings') || '{}');
+              const showNotifications = settings.pushNotif !== false; // Default to true if not set
+
+              if (!showNotifications) {
+                return (
+                  <div className="p-4 text-center text-xs text-subtext italic opacity-60">
+                    Notifications are disabled.
+                  </div>
+                );
+              }
+
+              return notifications.length > 0 ? notifications.map((notif) => (
+                <div
+                  key={notif._id}
+                  className={`p-2 rounded-lg border text-[11px] transition-all ${notif.type === 'ALERT'
+                    ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
+                    : 'bg-card border-border text-subtext'
+                    } ${!notif.isRead ? 'ring-1 ring-primary/20' : 'opacity-80'}`}
+                >
+                  <p className="font-bold mb-1">{notif.title}</p>
+                  <p className="leading-tight">{notif.message}</p>
+                </div>
+              )) : (
+                <div className="p-2 text-center text-xs text-subtext opacity-60">No new notifications</div>
+              );
+            })()}
           </div>
           {notifications.length > 0 && (
             <NavLink
@@ -262,7 +285,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* User Profile */}
         <div className="p-4 border-t border-border mt-auto">
           {/* Integrated Profile Card */}
-          <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isProfileOpen ? 'bg-surface border-border shadow-md' : 'border-transparent hover:bg-surface/50'}`}>
+          <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isProfileOpen ? 'bg-card border-border shadow-md' : 'border-transparent hover:bg-secondary'}`}>
             {/* Header / Toggle */}
             <div className="flex items-center gap-1 group">
               <div
@@ -274,9 +297,22 @@ const Sidebar = ({ isOpen, onClose }) => {
               >
                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm uppercase shrink-0 overflow-hidden border border-primary/10">
                   {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        // Fallback to text initial
+                        const parent = e.target.parentElement;
+                        if (parent) {
+                          parent.classList.add("flex", "items-center", "justify-center");
+                          parent.innerText = user.name ? user.name.charAt(0).toUpperCase() : "U";
+                        }
+                      }}
+                    />
                   ) : (
-                    user.name.charAt(0)
+                    user.name ? user.name.charAt(0).toUpperCase() : "U"
                   )}
                 </div>
 
@@ -309,7 +345,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     {user.name !== "User" && (
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-subtext hover:text-red-500 hover:bg-red-50 transition-all text-[13px] font-medium"
+                        className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-red-600 dark:text-red-400 bg-red-500/5 hover:bg-red-500/10 transition-all text-[13px] font-medium"
                       >
                         <LogOut className="w-4 h-4 shrink-0" />
                         <span>{t('logOut')}</span>
@@ -321,14 +357,32 @@ const Sidebar = ({ isOpen, onClose }) => {
             </AnimatePresence>
           </div>
 
-          {/* FAQ Button */}
-          <button
-            onClick={() => setIsFaqOpen(true)}
-            className="flex items-center gap-3 px-4 py-2 w-full rounded-lg text-subtext hover:bg-surface hover:text-maintext transition-all text-sm mt-1"
-          >
-            <HelpCircle className="w-4 h-4" />
-            <span>{t('helpFaq')}</span>
-          </button>
+          <div className="mt-1 flex flex-col gap-1">
+            {/* Region/Language Indicator */}
+            <button
+              onClick={() => {
+                navigate(AppRoute.PROFILE, { state: { openLanguage: true, timestamp: Date.now() } });
+                onClose();
+              }}
+              className="group flex items-center justify-center gap-2 px-2 py-2 rounded-lg text-subtext hover:bg-secondary hover:text-maintext transition-all text-xs font-bold uppercase tracking-wider border border-transparent hover:border-border"
+            >
+              <img
+                src={getFlagUrl(regionFlags[region] || 'in')}
+                alt={region}
+                className="w-4 h-3 object-cover rounded-sm shadow-sm"
+              />
+              <span>{regionFlags[region] || 'IN'} - {language.substring(0, 2).toUpperCase()}</span>
+            </button>
+
+            {/* FAQ Button */}
+            <button
+              onClick={() => setIsFaqOpen(true)}
+              className="w-full flex items-center justify-center gap-2 px-2 py-2 rounded-lg text-subtext hover:bg-secondary hover:text-maintext transition-all text-sm border border-transparent hover:border-border"
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span>{t('helpFaq')}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -337,7 +391,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-card rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
 
-            <div className="p-6 border-b border-border flex justify-between items-center bg-surface">
+            <div className="p-6 border-b border-border flex justify-between items-center bg-secondary">
               <div className="flex gap-4">
                 <button
                   onClick={() => setActiveTab('faq')}
@@ -368,7 +422,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <div key={index} className="border border-border rounded-xl bg-card overflow-hidden hover:border-primary/30 transition-all">
                       <button
                         onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
-                        className="w-full flex justify-between items-center p-4 text-left hover:bg-surface transition-colors focus:outline-none"
+                        className="w-full flex justify-between items-center p-4 text-left hover:bg-secondary transition-colors focus:outline-none"
                       >
                         <span className="font-semibold text-maintext text-[15px]">{faq.question}</span>
                         {openFaqIndex === index ? (
@@ -378,7 +432,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                         )}
                       </button>
                       <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? 'max-h-96 opacity-100 bg-surface/30' : 'max-h-0 opacity-0'
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? 'max-h-96 opacity-100 bg-secondary/50' : 'max-h-0 opacity-0'
                           }`}
                       >
                         <div className="p-4 pt-0 text-subtext text-sm leading-relaxed border-t border-border/50 mt-2 pt-3">
@@ -398,7 +452,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                       <select
                         value={issueType}
                         onChange={(e) => setIssueType(e.target.value)}
-                        className="w-full p-4 pr-10 rounded-xl bg-surface border border-border focus:border-primary outline-none appearance-none text-maintext font-medium cursor-pointer hover:border-primary/50 transition-colors"
+                        className="w-full p-4 pr-10 rounded-xl bg-secondary border border-border focus:border-primary outline-none appearance-none text-maintext font-medium cursor-pointer hover:border-primary/50 transition-colors"
                       >
                         {issueOptions.map((opt) => (
                           <option key={opt} value={opt}>{opt}</option>
@@ -412,7 +466,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                   <div>
                     <label className="block text-sm font-bold text-maintext mb-2">Describe your issue</label>
                     <textarea
-                      className="w-full p-4 rounded-xl bg-surface border border-border focus:border-primary outline-none resize-none text-maintext min-h-[150px]"
+                      className="w-full p-4 rounded-xl bg-secondary border border-border focus:border-primary outline-none resize-none text-maintext min-h-[150px]"
                       placeholder="Please provide details about the problem you are facing..."
                       value={issueText}
                       onChange={(e) => setIssueText(e.target.value)}
@@ -435,13 +489,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                   </button>
 
                   {sendStatus === 'success' && (
-                    <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm text-center font-medium border border-green-100 animate-in fade-in slide-in-from-top-2">
+                    <div className="p-3 bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg text-sm text-center font-medium border border-green-500/20 animate-in fade-in slide-in-from-top-2">
                       Tciket Submitted Successfully! Our team will contact you soon.
                     </div>
                   )}
 
                   {sendStatus === 'error' && (
-                    <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm text-center font-medium border border-red-100 animate-in fade-in slide-in-from-top-2">
+                    <div className="p-3 bg-red-500/10 text-red-600 dark:text-red-400 rounded-lg text-sm text-center font-medium border border-red-500/20 animate-in fade-in slide-in-from-top-2">
                       Failed to submit ticket. Please try again or email us directly.
                     </div>
                   )}

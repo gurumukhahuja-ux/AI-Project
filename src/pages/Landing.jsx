@@ -14,17 +14,20 @@ import { useRecoilState } from 'recoil';
 import { demoModalState } from '../userStore/demoStore';
 import SecurityModal from '../Components/LiveDemo/SecurityModal';
 import { FaXTwitter } from "react-icons/fa6";
+import { useTheme } from '../context/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 import { Link } from 'react-router';
+// Added Link import which was missing
+
 const Landing = () => {
   const navigate = useNavigate();
-  const user = getUserData("user")
+  const user = getUserData();
   const [demoState, setDemoState] = useRecoilState(demoModalState);
   const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const btnClass = "px-8 py-4 bg-surface border border-border rounded-2xl font-bold text-lg text-maintext hover:bg-secondary transition-all duration-300 flex items-center justify-center gap-2";
 
-
-
-
-  const btnClass = "px-8 py-4 bg-primary rounded-2xl font-bold text-lg text-white shadow-xl shadow-primary/30 flex items-center justify-center gap-2 border border-primary/10 w-full sm:w-auto overflow-hidden";
+  // ... (rest of code)
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-secondary">
@@ -39,21 +42,32 @@ const Landing = () => {
           <img src={logo} alt="Logo" className="w-14 h-14 object-contain" />
           <span className="text-3xl font-black tracking-tighter text-maintext">{name}</span>
         </div>
-        {user ? <Link to={AppRoute.PROFILE}><CircleUser className=' h-7 w-7' /></Link> : <div className="flex gap-4">
+
+        <div className="flex items-center gap-4">
+          {/* Theme Toggle */}
           <button
-            onClick={() => navigate("/login")}
-            className="text-subtext hover:text-primary font-medium transition-colors"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2 rounded-full bg-surface border border-border text-subtext hover:text-primary hover:border-primary/50 transition-all shadow-sm"
           >
-            Sign In
+            {theme === 'dark' ? <Sun className="w-5 h-5 text-orange-400" /> : <Moon className="w-5 h-5" />}
           </button>
 
-          <button
-            onClick={() => navigate("/signup")}
-            className="bg-primary text-white px-5 py-2 rounded-full font-semibold hover:opacity-90 transition-colors shadow-lg shadow-primary/20"
-          >
-            Get Started
-          </button>
-        </div>}
+          {user ? <Link to={AppRoute.PROFILE}><CircleUser className=' h-7 w-7 text-maintext' /></Link> : <div className="flex gap-4">
+            <button
+              onClick={() => navigate("/login")}
+              className="text-subtext hover:text-primary font-medium transition-colors"
+            >
+              Sign In
+            </button>
+
+            <button
+              onClick={() => navigate("/signup")}
+              className="bg-primary text-white px-5 py-2 rounded-full font-semibold hover:opacity-90 transition-colors shadow-lg shadow-primary/20"
+            >
+              Get Started
+            </button>
+          </div>}
+        </div>
       </header>
 
       {/* Hero Section */}
@@ -191,9 +205,9 @@ const Landing = () => {
                   {
                     icon: <FaXTwitter className="w-5 h-5" />,
                     href: "https://x.com/aimallglobal",
-                    color: "text-[#000000]",
-                    bg: "bg-[#000000]/10",
-                    hover: "hover:bg-[#000000]"
+                    color: "text-black dark:text-white",
+                    bg: "bg-black/10 dark:bg-white/10",
+                    hover: "hover:bg-black dark:hover:bg-white dark:hover:text-black"
                   },
                   {
                     icon: <Facebook className="w-5 h-5" />,

@@ -2,10 +2,14 @@ import './App.css'
 import NavigationProvider from './Navigation.Provider'
 import { RecoilRoot } from 'recoil'
 
+import { ThemeProvider } from './context/ThemeContext'
+
 function App() {
   return (
     <RecoilRoot>
-      <NavigationProvider />
+      <ThemeProvider>
+        <NavigationProvider />
+      </ThemeProvider>
     </RecoilRoot>
   )
 }

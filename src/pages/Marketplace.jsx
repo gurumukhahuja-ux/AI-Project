@@ -221,7 +221,7 @@ const Marketplace = () => {
                 onClick={() => toggleBuy(agent._id)}
                 disabled={userAgent.some((ag) => ag && agent._id == ag._id)}
                 className={`flex-1 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${userAgent.some((ag) => ag && agent._id == ag._id)
-                  ? 'bg-blue-50 text-subtext border border-blue-100 cursor-not-allowed opacity-70'
+                  ? 'bg-primary/10 text-subtext border border-primary/20 cursor-not-allowed opacity-70'
                   : 'bg-primary text-white hover:opacity-90 shadow-lg shadow-primary/20'
                   }`}
               >

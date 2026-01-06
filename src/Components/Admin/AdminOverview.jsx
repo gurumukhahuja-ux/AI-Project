@@ -59,23 +59,23 @@ const AdminOverview = () => {
             {/* Page Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#1E293B]">Dashboard Overview</h1>
+                    <h1 className="text-3xl font-bold text-maintext">Dashboard Overview</h1>
                     <p className="text-subtext mt-1">Welcome back, AI-Mall™. Here's what's happening today.</p>
                 </div>
 
             </div>
 
             {/* Main Status Card */}
-            <div className="bg-white border border-[#E0E4E8] rounded-3xl p-8 flex items-center justify-between shadow-sm">
+            <div className="bg-card border border-border rounded-3xl p-8 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-8">
-                    <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center">
+                    <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center">
                         <Activity className="w-8 h-8 text-red-500" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-[#1E293B]">Systems Operational</h2>
+                        <h2 className="text-2xl font-bold text-maintext">Systems Operational</h2>
                         <div className="flex items-center gap-4 mt-2">
-                            <span className="px-3 py-1 bg-[#F1F5F9] text-[#475569] rounded-full text-xs font-bold uppercase tracking-wider">System Ready</span>
-                            <div className="w-1 h-1 bg-[#CBD5E1] rounded-full" />
+                            <span className="px-3 py-1 bg-secondary text-subtext rounded-full text-xs font-bold uppercase tracking-wider">System Ready</span>
+                            <div className="w-1 h-1 bg-border rounded-full" />
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-primary rounded-full" />
                                 <span className="text-xs font-bold text-primary uppercase tracking-wider">Production V2.4</span>
@@ -84,12 +84,12 @@ const AdminOverview = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-12 border-l border-[#E0E4E8] pl-12">
+                <div className="flex items-center gap-12 border-l border-border pl-12">
                     <div className="flex items-center gap-3">
                         <Activity className="w-5 h-5 text-subtext" />
                         <div>
                             <p className="text-[10px] text-subtext font-bold uppercase tracking-wider">Last Review</p>
-                            <p className="text-sm font-bold text-[#1E293B]">No recent reviews</p>
+                            <p className="text-sm font-bold text-maintext">No recent reviews</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -98,7 +98,7 @@ const AdminOverview = () => {
                             <p className="text-[10px] text-subtext font-bold uppercase tracking-wider">Compliance</p>
                             <div className="flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-                                <p className="text-sm font-bold text-[#1E293B]">Pending Apps</p>
+                                <p className="text-sm font-bold text-maintext">Pending Apps</p>
                             </div>
                         </div>
                     </div>
@@ -109,11 +109,11 @@ const AdminOverview = () => {
             <div>
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-1 h-6 bg-primary rounded-full" />
-                    <h3 className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-[2px]">Performance Snapshot</h3>
+                    <h3 className="text-[11px] font-extrabold text-maintext uppercase tracking-[2px]">Performance Snapshot</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {snapshot.map((item, index) => (
-                        <div key={index} className="bg-white border border-[#E0E4E8] rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
+                        <div key={index} className="bg-card border border-border rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex items-center justify-between mb-4 text-subtext">
                                 <span className="text-[11px] font-bold uppercase tracking-wider">{item.label}</span>
                                 <div className="flex items-center gap-1 text-[10px] font-bold text-red-400">
@@ -121,7 +121,7 @@ const AdminOverview = () => {
                                     {item.trend}
                                 </div>
                             </div>
-                            <h4 className="text-4xl font-bold text-[#1E293B]">{item.value}</h4>
+                            <h4 className="text-4xl font-bold text-maintext">{item.value}</h4>
                         </div>
                     ))}
                 </div>
@@ -131,10 +131,10 @@ const AdminOverview = () => {
             <div>
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-1 h-6 bg-primary rounded-full" />
-                    <h3 className="text-[11px] font-extrabold text-[#1E293B] uppercase tracking-[2px]">Financial Overview</h3>
+                    <h3 className="text-[11px] font-extrabold text-maintext uppercase tracking-[2px]">Financial Overview</h3>
                 </div>
 
-                <div className="bg-white border border-[#E0E4E8] rounded-3xl p-8 shadow-sm">
+                <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-2 text-primary font-bold text-sm">
                             <Activity className="w-4 h-4" />
@@ -150,23 +150,23 @@ const AdminOverview = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="p-6 bg-[#F8F9FB] border border-[#E0E4E8] rounded-2xl">
+                        <div className="p-6 bg-secondary border border-border rounded-2xl">
                             <p className="text-[10px] text-subtext font-bold uppercase tracking-wider mb-2">Gross Sales</p>
-                            <h4 className="text-3xl font-bold text-[#1E293B]">${(statsData?.financials?.grossSales || 0).toLocaleString()}</h4>
+                            <h4 className="text-3xl font-bold text-maintext">${(statsData?.financials?.grossSales || 0).toLocaleString()}</h4>
                         </div>
-                        <div className="p-6 bg-[#F8F9FB] border border-red-100 rounded-2xl">
+                        <div className="p-6 bg-secondary border border-red-500/20 rounded-2xl">
                             <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider mb-2">Platform Fee (50%)</p>
                             <h4 className="text-3xl font-bold text-red-500">${(statsData?.financials?.platformFee || 0).toLocaleString()}</h4>
                         </div>
-                        <div className="p-6 bg-[#F0F7FF] border border-blue-100 rounded-2xl">
+                        <div className="p-6 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
                             <p className="text-[10px] text-primary font-bold uppercase tracking-wider mb-2">Net Earnings</p>
                             <h4 className="text-3xl font-bold text-primary">${(statsData?.financials?.netEarnings || 0).toLocaleString()}</h4>
                         </div>
                         <div className="p-6 flex flex-col justify-center">
                             <p className="text-[10px] text-subtext font-bold uppercase tracking-wider mb-1">Status</p>
-                            <span className="w-fit px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-[10px] font-bold border border-orange-100 mb-3">{statsData?.financials?.status || 'N/A'}</span>
+                            <span className="w-fit px-2 py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded text-[10px] font-bold border border-orange-500/20 mb-3">{statsData?.financials?.status || 'N/A'}</span>
                             <p className="text-[10px] text-subtext font-bold uppercase tracking-wider mb-1">Next Payout</p>
-                            <p className="text-sm font-bold text-[#1E293B]">{statsData?.financials?.nextPayout || 'Pending'}</p>
+                            <p className="text-sm font-bold text-maintext">{statsData?.financials?.nextPayout || 'Pending'}</p>
                         </div>
                     </div>
                 </div>

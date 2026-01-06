@@ -17,10 +17,14 @@ import {
     Trash2,
     Eye,
     EyeOff,
-    X
+    X,
+    Moon,
+    Sun,
+    Globe
 } from 'lucide-react';
-import { useNavigate } from 'react-router';
-import { AppRoute } from '../types';
+import { useNavigate, useLocation } from 'react-router';
+import { AppRoute, apis } from '../types';
+import axios from 'axios';
 import { getUserData, clearUser, setUserData } from '../userStore/userData';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -35,36 +39,66 @@ const Profile = () => {
         const saved = localStorage.getItem('user_settings');
         return saved ? JSON.parse(saved) : {
             emailNotif: true,
-            pushNotif: false,
+            pushNotif: true,
             publicProfile: true,
             twoFactor: true
         };
     });
+
+    // Fetch latest settings from backend
+    React.useEffect(() => {
+        const fetchSettings = async () => {
+            if (!user?.token) return;
+            try {
+                const res = await axios.get(apis.user, {
+                    headers: { 'Authorization': `Bearer ${user.token}` }
+                });
+                if (res.data.settings) {
+                    setUserSettings(res.data.settings);
+                    localStorage.setItem('user_settings', JSON.stringify(res.data.settings));
+                }
+            } catch (error) {
+                console.error("Failed to fetch settings", error);
+            }
+        };
+        fetchSettings();
+    }, []); // Only on mount
 
     // Password Modal State
     const [showPasswordModal, setShowPasswordModal] = React.useState(false);
     const [passwordForm, setPasswordForm] = React.useState({ current: '', new: '', confirm: '' });
     const [showPassword, setShowPassword] = React.useState(false);
 
-    const toggleSetting = (key) => {
-        setUserSettings(prev => {
-            const newState = { ...prev, [key]: !prev[key] };
-            localStorage.setItem('user_settings', JSON.stringify(newState));
+    const toggleSetting = async (key) => {
+        const oldSettings = { ...userSettings };
+        const newState = { ...userSettings, [key]: !userSettings[key] };
 
-            // Show feedback
-            const value = newState[key] ? "Enabled" : "Disabled";
-            const labelMap = {
-                emailNotif: "Email Notifications",
-                pushNotif: "Push Notifications",
-                publicProfile: "Public Profile",
-                twoFactor: "Two-Factor Authentication"
-            };
-            toast.success(`${labelMap[key]} ${value}`);
-            return newState;
-        });
+        setUserSettings(newState);
+        localStorage.setItem('user_settings', JSON.stringify(newState));
+
+        const value = newState[key] ? "Enabled" : "Disabled";
+        const labelMap = {
+            emailNotif: "Email Notifications",
+            pushNotif: "Push Notifications",
+            publicProfile: "Public Profile",
+            twoFactor: "Two-Factor Authentication"
+        };
+        toast.success(`${labelMap[key]} ${value}`);
+
+        try {
+            if (user?.token) {
+                await axios.put(apis.user, { settings: newState }, {
+                    headers: { 'Authorization': `Bearer ${user.token}` }
+                });
+            }
+        } catch (error) {
+            console.error("Failed to save setting", error);
+            toast.error("Failed to save setting");
+            setUserSettings(oldSettings);
+        }
     };
 
-    const handlePasswordChange = (e) => {
+    const handlePasswordChange = async (e) => {
         e.preventDefault();
         if (passwordForm.new !== passwordForm.confirm) {
             toast.error("New passwords do not match!");
@@ -75,133 +109,153 @@ const Profile = () => {
             return;
         }
 
-        // Simulate API call
         const loadingToast = toast.loading("Updating password...");
-        setTimeout(() => {
+        try {
+            await axios.post(apis.resetPasswordEmail, {
+                email: user.email,
+                currentPassword: passwordForm.current,
+                newPassword: passwordForm.new
+            });
             toast.dismiss(loadingToast);
             toast.success("Password updated successfully!");
             setShowPasswordModal(false);
             setPasswordForm({ current: '', new: '', confirm: '' });
-        }, 1500);
+        } catch (error) {
+            toast.dismiss(loadingToast);
+            toast.error(error.response?.data?.message || "Failed to update password.");
+        }
     };
-
-
 
     const handleLogout = () => {
         clearUser();
         navigate(AppRoute.LANDING);
     };
 
-    const { language, setLanguage, t, languages } = useLanguage();
+    const handleDeleteAccount = async () => {
+        const confirmDelete = window.confirm("Are you SURE you want to delete your account? This action is permanent and will delete all your chats and data.");
+        if (!confirmDelete) return;
+
+        const loadingToast = toast.loading("Deleting account...");
+        try {
+            if (!user?.id || !user?.token) {
+                toast.error("User ID or token missing.");
+                toast.dismiss(loadingToast);
+                return;
+            }
+
+            await axios.delete(`${apis.user}/${user.id}`, {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+
+            toast.dismiss(loadingToast);
+            toast.success("Account deleted successfully.");
+
+            // Cleanup and Logout
+            clearUser();
+            navigate(AppRoute.LANDING);
+            window.location.reload(); // Ensure all state is cleared
+        } catch (error) {
+            toast.dismiss(loadingToast);
+            console.error("Failed to delete account", error);
+            toast.error(error.response?.data?.error || "Failed to delete account. Please try again.");
+        }
+    };
+
+    const { language, setLanguage, t, region, setRegion, regions, regionFlags, allTimezones, regionTimezones } = useLanguage();
     const { theme, setTheme } = useTheme();
 
-    const [profileImage, setProfileImage] = React.useState(user.avatar || null);
+    const getFlagUrl = (code) => `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 
-    // Edit Profile Logic
     const [isEditing, setIsEditing] = React.useState(false);
-    const [editForm, setEditForm] = React.useState({
-        name: user.name,
-        email: user.email
-    });
+    const [editForm, setEditForm] = React.useState({ name: user.name, email: user.email });
 
     const handleSaveProfile = () => {
-        const updatedUser = { ...user, name: editForm.name }; // Only update name
+        const updatedUser = { ...user, name: editForm.name };
         setUserData(updatedUser);
         setIsEditing(false);
-        // Force refresh or update local user variable if needed, 
-        // but since we read from getUserData() at top which might not react, 
-        // better to use state or window reload if standard react state flow isn't used for user.
-        // For now, let's assume the user variable needs update. 
-        // Ideally 'user' should be a state or useRecoilValue.
-        // Assuming user is just a const at top, we might need to refresh page or use setProfileImage trick to re-render?
-        // Let's just reload for simplicity if state mgmt is basic, OR update a local state version of user.
         window.location.reload();
     };
+
     const [preferences, setPreferences] = React.useState({
-        timezone: 'India (GMT+5:30)',
+        timezone: regionTimezones[region] || 'India (GMT+5:30)',
         currency: 'INR (₹)'
     });
 
-
+    // Update timezone when region changes
+    React.useEffect(() => {
+        if (regionTimezones[region]) {
+            setPreferences(prev => ({ ...prev, timezone: regionTimezones[region] }));
+        }
+    }, [region]);
 
     const [activeSection, setActiveSection] = React.useState(null);
+    const [selectionMode, setSelectionMode] = React.useState('language'); // 'language' or 'region'
 
-    const timezones = [
-        "UTC (GMT+0:00)",
-        "New York (GMT-4:00)",
-        "Los Angeles (GMT-7:00)",
-        "London (GMT+1:00)",
-        "Paris (GMT+2:00)",
-        "India (GMT+5:30)",
-        "Tokyo (GMT+9:00)",
-        "Sydney (GMT+10:00)",
-        "Dubai (GMT+4:00)"
-    ];
+    const location = useLocation();
 
-    const currencies = [
-        "USD ($)",
-        "EUR (€)",
-        "GBP (£)",
-        "INR (₹)",
-        "JPY (¥)",
-        "CNY (¥)",
-        "AUD (A$)",
-        "CAD (C$)"
-    ];
+    // Automatically open language section if navigated from Sidebar indicator
+    React.useEffect(() => {
+        if (location.state?.openLanguage) {
+            setActiveSection('language');
+            setSelectionMode('language');
+        }
+    }, [location.state]);
+
+    const currencies = ["USD ($)", "EUR (€)", "GBP (£)", "INR (₹)", "JPY (¥)", "CNY (¥)", "AUD (A$)", "CAD (C$)"];
 
     const handlePreferenceClick = (key) => {
         setActiveSection(activeSection === key ? null : key);
+        if (key === 'language') setSelectionMode('language');
     };
 
-    const selectLanguage = (lang) => {
-        setLanguage(lang);
-        setActiveSection(null);
+    const nativeLanguageNames = {
+        "English": "English - EN",
+        "Hindi": "हिन्दी - HI",
+        "Tamil": "தமிழ் - TA",
+        "Telugu": "తెలుగు - TE",
+        "Kannada": "ಕನ್ನಡ - KN",
+        "Malayalam": "മലയാളം - ML",
+        "Bengali": "বাংলা - BN",
+        "Marathi": "मराठी - MR",
+        "Urdu": "اردو - UR",
+        "Mandarin Chinese": "中文 (简体) - ZH",
+        "Spanish": "Español - ES",
+        "French": "Français - FR",
+        "German": "Deutsch - DE",
+        "Japanese": "日本語 - JA",
+        "Portuguese": "Português - PT",
+        "Arabic": "العربية - AR",
+        "Korean": "한국어 - KO",
+        "Italian": "Italiano - IT",
+        "Russian": "Русский - RU",
+        "Turkish": "Türkçe - TR",
+        "Dutch": "Nederlands - NL"
     };
 
-    const selectTimezone = (tz) => {
-        setPreferences(prev => ({ ...prev, timezone: tz }));
-        setActiveSection(null);
-    };
-
-    const selectCurrency = (curr) => {
-        setPreferences(prev => ({ ...prev, currency: curr }));
-        setActiveSection(null);
-    };
+    const getNativeName = (lang) => nativeLanguageNames[lang] || lang;
 
     const stats = [
-        {
-            label: t('totalSessions'),
-            value: '128',
-            icon: Clock,
-            color: 'bg-blue-500/10 text-blue-600',
-        },
-        {
-            label: t('proFeatures'),
-            value: 'Active',
-            icon: Star,
-            color: 'bg-amber-500/10 text-amber-600',
-        },
-        {
-            label: t('accountSettings'),
-            value: 'Configured',
-            icon: Settings,
-            color: 'bg-purple-500/10 text-purple-600',
-        },
-        {
-            label: t('credits'),
-            value: <Infinity className="w-5 h-5" />,
-            icon: Shield,
-            color: 'bg-green-500/10 text-green-600',
-        }
+        { label: t('totalSessions'), value: '128', icon: Clock, color: 'bg-blue-500/10 text-blue-600' },
+        { label: t('proFeatures'), value: 'Active', icon: Star, color: 'bg-sky-400/10 text-sky-600' },
+        { label: t('accountSettings'), value: 'Configured', icon: Settings, color: 'bg-purple-500/10 text-purple-600' },
+        { label: t('credits'), value: <Infinity className="w-5 h-5" />, icon: Shield, color: 'bg-green-500/10 text-green-600' }
     ];
 
     const preferenceItems = [
-        { key: 'language', label: t('displayLanguage'), value: language },
+        {
+            key: 'language',
+            label: 'Country/Region & Language',
+            value: (
+                <div className="flex items-center gap-2">
+                    <img src={getFlagUrl(regionFlags[region] || 'us')} alt={region} className="w-5 h-3.5 object-cover rounded-sm shadow-sm" />
+                    <span>{region} ({language})</span>
+                </div>
+            )
+        },
+        { key: 'theme', label: 'Display Theme', value: theme },
         { key: 'timezone', label: t('timezone'), value: preferences.timezone },
         { key: 'currency', label: t('currency'), value: preferences.currency }
     ];
-
-
 
     return (
         <div className="h-full flex flex-col bg-secondary p-4 md:p-8 overflow-y-auto custom-scrollbar">
@@ -209,97 +263,61 @@ const Profile = () => {
 
                 {/* Profile Header */}
                 <div className="flex flex-col md:flex-row items-center gap-6 bg-card border border-border p-8 rounded-[32px] shadow-sm relative overflow-hidden">
-                    <div className="relative group">
-                        <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center text-primary border-2 border-primary/20 shadow-inner overflow-hidden">
-                            {user.avatar ? (
-                                <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
-                            ) : (
-                                <CircleUser className="w-12 h-12" />
-                            )}
-                        </div>
+                    <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center text-primary border-2 border-primary/20 shadow-inner overflow-hidden text-3xl font-bold">
+                        {user.avatar ? (
+                            <img
+                                src={user.avatar}
+                                alt="Profile"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.parentElement.innerText = user.name ? user.name.charAt(0).toUpperCase() : "U";
+                                }}
+                            />
+                        ) : (
+                            user.name ? user.name.charAt(0).toUpperCase() : <CircleUser className="w-12 h-12" />
+                        )}
                     </div>
 
                     <div className="text-center md:text-left space-y-1 flex-1">
                         {isEditing ? (
                             <div className="space-y-3 max-w-md">
-                                <div>
-                                    <label className="text-xs font-bold text-subtext uppercase ml-1">Name</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.name}
-                                        onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                                        className="w-full text-2xl font-bold bg-secondary/50 border border-border rounded-xl px-4 py-2 focus:outline-none focus:border-primary text-maintext"
-                                    />
-                                </div>
-                                <div className="flex gap-2 mt-2">
-                                    <button
-                                        onClick={handleSaveProfile}
-                                        className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-opacity"
-                                    >
+                                <input
+                                    type="text"
+                                    value={editForm.name}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                                    className="w-full text-2xl font-bold bg-secondary/50 border border-border rounded-xl px-4 py-2 focus:outline-none focus:border-primary text-maintext"
+                                />
+                                <div className="flex gap-2">
+                                    <button onClick={handleSaveProfile} className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold flex items-center gap-2">
                                         <Check className="w-4 h-4" /> Save
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            setIsEditing(false);
-                                            setEditForm({ name: user.name, email: user.email });
-                                        }}
-                                        className="px-4 py-2 bg-surface text-maintext border border-border rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-secondary transition-colors"
-                                    >
+                                    <button onClick={() => setIsEditing(false)} className="px-4 py-2 bg-surface text-maintext border border-border rounded-lg text-sm font-bold flex items-center gap-2">
                                         <X className="w-4 h-4" /> Cancel
                                     </button>
-                                </div>
-                                {/* Static Email Display during Edit Mode */}
-                                <div>
-                                    <p className="text-subtext font-medium">{user.email}</p>
                                 </div>
                             </div>
                         ) : (
                             <div className="group relative inline-block">
                                 <div className="flex items-center gap-3">
                                     <h1 className="text-3xl font-black text-maintext">{user.name}</h1>
-                                    <button
-                                        onClick={() => setIsEditing(true)}
-                                        className="p-1.5 text-subtext hover:text-primary hover:bg-primary/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                                        title="Edit Profile"
-                                    >
+                                    <button onClick={() => setIsEditing(true)} className="p-1.5 text-subtext hover:text-primary hover:bg-primary/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
                                         <Pencil className="w-4 h-4" />
                                     </button>
                                 </div>
                                 <p className="text-subtext font-medium">{user.email}</p>
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-xs font-bold uppercase tracking-wider mt-2">
-                                    {t.joined}
-                                </div>
                             </div>
                         )}
-                    </div>
-                    <div className="md:ml-auto flex gap-3">
-                        <button
-                            onClick={() => navigate(AppRoute.SECURITY)}
-                            className="px-6 py-3 bg-card border border-border rounded-xl text-sm font-bold text-maintext hover:bg-surface transition-all flex items-center gap-2"
-                        >
-                            <Shield className="w-4 h-4 text-primary" />
-                            {t.securityBtn}
-                        </button>
                     </div>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {stats.map((stat, index) => (
-                        <motion.div
-                            key={stat.label}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="bg-card border border-border p-6 rounded-3xl shadow-sm hover:shadow-md transition-all group cursor-default"
-                        >
-                            <div className={`w-10 h-10 ${stat.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                                <stat.icon className="w-5 h-5" />
-                            </div>
+                        <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="bg-card border border-border p-6 rounded-3xl shadow-sm hover:shadow-md transition-all group">
+                            <div className={`w-10 h-10 ${stat.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}><stat.icon className="w-5 h-5" /></div>
                             <p className="text-xs font-bold text-subtext uppercase tracking-widest mb-1">{stat.label}</p>
-                            <div className="text-xl font-black text-maintext flex items-center">
-                                {stat.value}
-                            </div>
+                            <div className="text-xl font-black text-maintext">{stat.value}</div>
                         </motion.div>
                     ))}
                 </div>
@@ -307,43 +325,85 @@ const Profile = () => {
                 {/* Account Details & Settings */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
                     <div className="bg-card border border-border rounded-[32px] p-8 space-y-8">
-                        {/* General Preferences */}
                         <div className="space-y-6">
-                            <h2 className="text-xl font-bold text-maintext flex items-center gap-2">
-                                <Settings className="w-5 h-5 text-primary" />
-                                {t.accountPreferences}
-                            </h2>
+                            <h2 className="text-xl font-bold text-maintext flex items-center gap-2"><Settings className="w-5 h-5 text-primary" />{t.accountPreferences}</h2>
                             <div className="space-y-4">
                                 {preferenceItems.map((item) => (
                                     <div key={item.key} className={`relative ${activeSection === item.key ? 'z-20' : 'z-0'}`}>
-                                        <div
-                                            onClick={() => handlePreferenceClick(item.key)}
-                                            className="flex justify-between items-center py-3 border-b border-border/50 last:border-0 hover:bg-secondary/30 px-2 rounded-lg transition-colors cursor-pointer group select-none"
-                                        >
+                                        <div onClick={() => handlePreferenceClick(item.key)} className="flex justify-between items-center py-3 border-b border-border/50 last:border-0 hover:bg-secondary/30 px-2 rounded-lg transition-colors cursor-pointer group">
                                             <span className="text-sm font-medium text-subtext">{item.label}</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm font-bold text-maintext">{item.value}</span>
-                                                {item.key !== 'theme' && (
-                                                    <ChevronRight className={`w-4 h-4 text-subtext group-hover:text-primary transition-colors ${activeSection === item.key ? 'rotate-90' : ''}`} />
-                                                )}
+                                                <ChevronRight className={`w-4 h-4 text-subtext group-hover:text-primary transition-colors ${activeSection === item.key ? 'rotate-90' : ''}`} />
                                             </div>
                                         </div>
 
                                         {/* Language Dropdown */}
                                         {item.key === 'language' && activeSection === 'language' && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="absolute md:absolute z-50 top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl overflow-hidden max-h-60 overflow-y-auto w-full md:w-auto md:min-w-[200px] md:right-0 md:left-auto"
-                                            >
-                                                {languages.map(lang => (
-                                                    <button
-                                                        key={lang}
-                                                        onClick={() => selectLanguage(lang)}
-                                                        className={`w-full text-left px-4 py-3 text-sm font-medium hover:bg-primary/5 hover:text-primary transition-colors flex justify-between items-center ${language === lang ? 'bg-primary/5 text-primary' : 'text-maintext'}`}
-                                                    >
-                                                        {lang}
-                                                        {language === lang && <Star className="w-3 h-3 fill-primary" />}
+                                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute z-50 top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl overflow-hidden p-4 min-w-[280px]">
+                                                {selectionMode === 'language' ? (
+                                                    <div className="space-y-4">
+                                                        <h3 className="text-sm font-bold text-maintext border-b pb-2">Change Language</h3>
+                                                        <div className="space-y-1 max-h-60 overflow-y-auto custom-scrollbar">
+                                                            {regions[region]?.map(lang => (
+                                                                <button
+                                                                    key={lang}
+                                                                    onClick={() => { setLanguage(lang); setActiveSection(null); }}
+                                                                    className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium flex items-center gap-3 transition-colors ${language === lang ? 'bg-sky-400/10 text-sky-600' : 'text-maintext hover:bg-secondary'}`}
+                                                                >
+                                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${language === lang ? 'border-sky-400' : 'border-border group-hover:border-subtext'}`}>
+                                                                        {language === lang && <div className="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-sm" />}
+                                                                    </div>
+                                                                    {getNativeName(lang)}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <div className="pt-3 border-t mt-3">
+                                                            <div className="flex items-center justify-between px-1 mb-3">
+                                                                <div className="flex items-center gap-2 text-xs text-subtext">
+                                                                    <img src={getFlagUrl(regionFlags[region] || 'us')} className="w-4 h-3 object-cover rounded-sm shadow-sm border border-border/50" alt="" />
+                                                                    <span>Shopping in <b>{region}</b></span>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => setSelectionMode('region')}
+                                                                className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-primary font-bold text-xs hover:bg-primary/5 transition-all group"
+                                                            >
+                                                                <span>Change country/region</span>
+                                                                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center gap-2 mb-4">
+                                                            <button onClick={() => setSelectionMode('language')} className="p-1 hover:bg-secondary rounded-lg"><ChevronRight className="w-4 h-4 rotate-180" /></button>
+                                                            <h3 className="text-sm font-bold text-maintext">Select Country/Region</h3>
+                                                        </div>
+                                                        <div className="space-y-1 max-h-60 overflow-y-auto custom-scrollbar">
+                                                            {Object.keys(regions).map(r => (
+                                                                <button
+                                                                    key={r}
+                                                                    onClick={() => { setRegion(r); setSelectionMode('language'); }}
+                                                                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors flex items-center gap-3 ${region === r ? 'bg-primary/10 text-primary' : 'text-maintext hover:bg-secondary'}`}
+                                                                >
+                                                                    <img src={getFlagUrl(regionFlags[r] || 'us')} className="w-5 h-3.5 object-cover rounded-sm shadow-sm" alt="" />
+                                                                    {r}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+
+                                        {/* Theme Dropdown */}
+                                        {item.key === 'theme' && activeSection === 'theme' && (
+                                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute z-50 top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
+                                                {['Light', 'Dark'].map(mode => (
+                                                    <button key={mode} onClick={() => { setTheme(mode); setActiveSection(null); }} className={`w-full text-left px-4 py-3 text-sm font-medium hover:bg-primary/5 hover:text-primary transition-colors flex justify-between items-center ${theme === mode ? 'bg-primary/5 text-primary' : 'text-maintext'}`}>
+                                                        <span className="flex items-center gap-2">{mode === 'Light' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}{mode} Mode</span>
+                                                        {theme === mode && <Star className="w-3 h-3 fill-primary" />}
                                                     </button>
                                                 ))}
                                             </motion.div>
@@ -351,41 +411,53 @@ const Profile = () => {
 
                                         {/* Timezone Dropdown */}
                                         {item.key === 'timezone' && activeSection === 'timezone' && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="absolute md:absolute z-50 top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl overflow-hidden max-h-60 overflow-y-auto w-full md:w-auto md:min-w-[250px] md:right-0 md:left-auto"
-                                            >
-                                                {timezones.map(tz => (
-                                                    <button
-                                                        key={tz}
-                                                        onClick={() => selectTimezone(tz)}
-                                                        className={`w-full text-left px-4 py-3 text-sm font-medium hover:bg-primary/5 hover:text-primary transition-colors flex justify-between items-center ${preferences.timezone === tz ? 'bg-primary/5 text-primary' : 'text-maintext'}`}
-                                                    >
-                                                        {tz}
-                                                        {preferences.timezone === tz && <Star className="w-3 h-3 fill-primary" />}
-                                                    </button>
-                                                ))}
+                                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute z-50 top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl overflow-hidden min-w-[300px]">
+                                                <div className="p-3 bg-secondary/30 border-b border-border">
+                                                    <h3 className="text-xs font-bold text-subtext uppercase">Select Timezone</h3>
+                                                </div>
+                                                <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                                                    {allTimezones.map(tz => (
+                                                        <button
+                                                            key={tz}
+                                                            onClick={() => {
+                                                                setPreferences(prev => ({ ...prev, timezone: tz }));
+                                                                setActiveSection(null);
+                                                            }}
+                                                            className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors flex justify-between items-center ${preferences.timezone === tz ? 'bg-primary/5 text-primary' : 'hover:bg-primary/5 text-maintext hover:text-primary'}`}
+                                                        >
+                                                            <span>{tz}</span>
+                                                            {preferences.timezone === tz && (
+                                                                <div className="w-2 h-2 rounded-full bg-primary" />
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </motion.div>
                                         )}
 
                                         {/* Currency Dropdown */}
                                         {item.key === 'currency' && activeSection === 'currency' && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="absolute md:absolute z-50 top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl overflow-hidden max-h-60 overflow-y-auto w-full md:w-auto md:min-w-[200px] md:right-0 md:left-auto"
-                                            >
-                                                {currencies.map(curr => (
-                                                    <button
-                                                        key={curr}
-                                                        onClick={() => selectCurrency(curr)}
-                                                        className={`w-full text-left px-4 py-3 text-sm font-medium hover:bg-primary/5 hover:text-primary transition-colors flex justify-between items-center ${preferences.currency === curr ? 'bg-primary/5 text-primary' : 'text-maintext'}`}
-                                                    >
-                                                        {curr}
-                                                        {preferences.currency === curr && <Star className="w-3 h-3 fill-primary" />}
-                                                    </button>
-                                                ))}
+                                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute z-50 top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
+                                                <div className="p-3 bg-secondary/30 border-b border-border">
+                                                    <h3 className="text-xs font-bold text-subtext uppercase">Select Currency</h3>
+                                                </div>
+                                                <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                                                    {currencies.map(curr => (
+                                                        <button
+                                                            key={curr}
+                                                            onClick={() => {
+                                                                setPreferences(prev => ({ ...prev, currency: curr }));
+                                                                setActiveSection(null);
+                                                            }}
+                                                            className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors flex justify-between items-center ${preferences.currency === curr ? 'bg-primary/5 text-primary' : 'hover:bg-primary/5 text-maintext hover:text-primary'}`}
+                                                        >
+                                                            <span>{curr}</span>
+                                                            {preferences.currency === curr && (
+                                                                <div className="w-2 h-2 rounded-full bg-primary" />
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </motion.div>
                                         )}
                                     </div>
@@ -395,195 +467,53 @@ const Profile = () => {
 
                         {/* Notifications */}
                         <div className="space-y-6 pt-6 border-t border-border">
-                            <h2 className="text-xl font-bold text-maintext flex items-center gap-2">
-                                <Bell className="w-5 h-5 text-blue-500" />
-                                Notifications
-                            </h2>
+                            <h2 className="text-xl font-bold text-maintext flex items-center gap-2"><Bell className="w-5 h-5 text-blue-500" />Notifications</h2>
                             <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-bold text-maintext">Email Notifications</p>
-                                        <p className="text-xs text-subtext">Receive updates via email</p>
-                                    </div>
-                                    <button
-                                        onClick={() => toggleSetting('emailNotif')}
-                                        className={`w-11 h-6 rounded-full p-1 transition-all duration-300 ${userSettings.emailNotif ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}
-                                    >
-                                        <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300 ${userSettings.emailNotif ? 'translate-x-5' : ''}`} />
-                                    </button>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-bold text-maintext">Push Notifications</p>
-                                        <p className="text-xs text-subtext">Receive updates on device</p>
-                                    </div>
-                                    <button
-                                        onClick={() => toggleSetting('pushNotif')}
-                                        className={`w-11 h-6 rounded-full p-1 transition-all duration-300 ${userSettings.pushNotif ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}
-                                    >
-                                        <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300 ${userSettings.pushNotif ? 'translate-x-5' : ''}`} />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Privacy */}
-                        <div className="space-y-6 pt-6 border-t border-border">
-                            <h2 className="text-xl font-bold text-maintext flex items-center gap-2">
-                                <Shield className="w-5 h-5 text-purple-500" />
-                                Privacy
-                            </h2>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-bold text-maintext">Public Profile</p>
-                                        <p className="text-xs text-subtext">Allow others to see your profile</p>
-                                    </div>
-                                    <button
-                                        onClick={() => toggleSetting('publicProfile')}
-                                        className={`w-11 h-6 rounded-full p-1 transition-all duration-300 ${userSettings.publicProfile ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}
-                                    >
-                                        <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300 ${userSettings.publicProfile ? 'translate-x-5' : ''}`} />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div className="bg-card border border-border rounded-[32px] p-8 flex flex-col justify-between">
-                        <div className="space-y-6">
-                            <h2 className="text-xl font-bold text-maintext flex items-center gap-2">
-                                <Lock className="w-5 h-5 text-green-500" />
-                                {t.securityStatus}
-                            </h2>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-4 p-4 bg-green-500/5 border border-green-500/10 rounded-2xl">
-                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                    <p className="text-sm font-bold text-green-700">{t.accountSecure}</p>
-                                </div>
-
-                                <button
-                                    onClick={() => setShowPasswordModal(true)}
-                                    className="w-full p-4 bg-secondary/50 rounded-2xl border border-border hover:bg-secondary transition-colors text-left group"
-                                >
-                                    <p className="text-xs text-subtext mb-1">Password</p>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-bold text-maintext">Change Password</span>
-                                        <ChevronRight className="w-4 h-4 text-subtext group-hover:text-primary transition-colors" />
-                                    </div>
-                                </button>
-
-                                <div className="p-4 bg-secondary/50 rounded-2xl border border-border">
-                                    <p className="text-xs text-subtext mb-2">{t.twoFactor}</p>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-bold text-maintext">{userSettings.twoFactor ? t.enabled : "Disabled"}</span>
-                                        <button
-                                            onClick={() => toggleSetting('twoFactor')}
-                                            className="text-primary text-xs font-bold hover:underline"
-                                        >
-                                            {userSettings.twoFactor ? "Disable" : "Enable"}
+                                {['emailNotif', 'pushNotif'].map(k => (
+                                    <div key={k} className="flex items-center justify-between">
+                                        <div><p className="text-sm font-bold text-maintext">{k === 'emailNotif' ? 'Email Notifications' : 'Push Notifications'}</p><p className="text-xs text-subtext">Receive updates</p></div>
+                                        <button onClick={() => toggleSetting(k)} className={`w-11 h-6 rounded-full p-1 transition-all duration-300 ${userSettings[k] ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                                            <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300 ${userSettings[k] ? 'translate-x-5' : ''}`} />
                                         </button>
                                     </div>
-                                </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Security Column */}
+                    <div className="bg-card border border-border rounded-[32px] p-8 flex flex-col justify-between">
+                        <div className="space-y-6">
+                            <h2 className="text-xl font-bold text-maintext flex items-center gap-2"><Lock className="w-5 h-5 text-green-500" />{t.securityStatus}</h2>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-4 p-4 bg-green-500/5 border border-green-500/10 rounded-2xl"><div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /><p className="text-sm font-bold text-green-700">{t.accountSecure}</p></div>
+                                <button onClick={() => setShowPasswordModal(true)} className="w-full p-4 bg-secondary/50 rounded-2xl border border-border hover:bg-secondary transition-colors text-left group">
+                                    <p className="text-xs text-subtext mb-1">Password</p>
+                                    <div className="flex justify-between items-center"><span className="text-sm font-bold text-maintext">Change Password</span><ChevronRight className="w-4 h-4 text-subtext group-hover:text-primary transition-colors" /></div>
+                                </button>
                             </div>
                         </div>
 
-                        <div className="space-y-3">
-                            <button
-                                onClick={handleLogout}
-                                className="mt-8 w-full py-4 bg-secondary text-maintext border border-border rounded-2xl font-bold text-sm hover:bg-secondary/80 transition-all flex items-center justify-center gap-2"
-                            >
-                                <LogOut className="w-4 h-4" />
-                                Sign out from device
-                            </button>
-
-                            <button
-                                onClick={() => {
-                                    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-                                        clearUser();
-                                        navigate(AppRoute.LANDING);
-                                    }
-                                }}
-                                className="w-full py-4 bg-red-500/5 text-red-600 border border-red-500/10 rounded-2xl font-bold text-sm hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                                Delete Account
-                            </button>
+                        <div className="space-y-3 pt-8">
+                            <button onClick={handleLogout} className="w-full py-4 bg-red-500/5 text-red-600 border border-red-500/10 rounded-2xl font-bold text-sm hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"><LogOut className="w-4 h-4" />Sign out</button>
+                            <button onClick={handleDeleteAccount} className="w-full py-4 bg-red-500/5 text-red-600 border border-red-500/10 rounded-2xl font-bold text-sm hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"><Trash2 className="w-4 h-4" />Delete Account</button>
                         </div>
                     </div>
                 </div>
 
-                {/* Password Change Modal */}
+                {/* Password Modal */}
                 {showPasswordModal && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="bg-card w-full max-w-md rounded-3xl p-6 border border-border shadow-2xl relative"
-                        >
-                            <button
-                                onClick={() => setShowPasswordModal(false)}
-                                className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-full transition-colors"
-                            >
-                                <X className="w-5 h-5 text-subtext" />
-                            </button>
-
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-card w-full max-w-md rounded-3xl p-6 border border-border shadow-2xl relative">
+                            <button onClick={() => setShowPasswordModal(false)} className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-full"><X className="w-5 h-5 text-subtext" /></button>
                             <h2 className="text-xl font-bold text-maintext mb-6">Change Password</h2>
-
                             <form onSubmit={handlePasswordChange} className="space-y-4">
-                                <div>
-                                    <label className="text-xs font-bold text-subtext uppercase ml-1 mb-1 block">Current Password</label>
-                                    <input
-                                        type="password"
-                                        required
-                                        className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-maintext focus:border-primary focus:outline-none"
-                                        value={passwordForm.current}
-                                        onChange={e => setPasswordForm(prev => ({ ...prev, current: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="relative">
-                                    <label className="text-xs font-bold text-subtext uppercase ml-1 mb-1 block">New Password</label>
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        required
-                                        className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-maintext focus:border-primary focus:outline-none"
-                                        value={passwordForm.new}
-                                        onChange={e => setPasswordForm(prev => ({ ...prev, new: e.target.value }))}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-8 text-subtext hover:text-primary"
-                                    >
-                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-subtext uppercase ml-1 mb-1 block">Confirm New Password</label>
-                                    <input
-                                        type="password"
-                                        required
-                                        className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-maintext focus:border-primary focus:outline-none"
-                                        value={passwordForm.confirm}
-                                        onChange={e => setPasswordForm(prev => ({ ...prev, confirm: e.target.value }))}
-                                    />
-                                </div>
-
+                                <input type="password" placeholder="Current Password" required className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-maintext" value={passwordForm.current} onChange={e => setPasswordForm(prev => ({ ...prev, current: e.target.value }))} />
+                                <input type="password" placeholder="New Password" required className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-maintext" value={passwordForm.new} onChange={e => setPasswordForm(prev => ({ ...prev, new: e.target.value }))} />
+                                <input type="password" placeholder="Confirm Password" required className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-maintext" value={passwordForm.confirm} onChange={e => setPasswordForm(prev => ({ ...prev, confirm: e.target.value }))} />
                                 <div className="pt-4 flex gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPasswordModal(false)}
-                                        className="flex-1 py-3 bg-secondary text-maintext font-bold rounded-xl hover:bg-secondary/80 transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 py-3 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
-                                    >
-                                        Update Password
-                                    </button>
+                                    <button type="button" onClick={() => setShowPasswordModal(false)} className="flex-1 py-3 bg-secondary text-maintext font-bold rounded-xl">Cancel</button>
+                                    <button type="submit" className="flex-1 py-3 bg-primary text-white font-bold rounded-xl">Update</button>
                                 </div>
                             </form>
                         </motion.div>

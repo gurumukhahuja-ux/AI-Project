@@ -162,7 +162,7 @@ const UserProfile = () => {
                                             setIsEditing(false);
                                             setNewName(user.name);
                                         }}
-                                        className="p-2.5 bg-secondary border border-border text-subtext rounded-xl hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all"
+                                        className="p-2.5 bg-secondary border border-border text-subtext rounded-xl hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 hover:border-red-500/30 transition-all"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
@@ -267,7 +267,7 @@ const UserProfile = () => {
                                         <h4 className="font-bold text-maintext truncate group-hover:text-primary transition-colors">{agent.name}</h4>
                                         <p className="text-xs text-subtext line-clamp-2 mt-1">{agent.description || "No description available."}</p>
                                         <div className="mt-3 flex items-center gap-2">
-                                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${agent.category === 'productivity' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-600'
+                                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${agent.category === 'productivity' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-secondary text-subtext'
                                                 }`}>
                                                 {agent.category || 'General'}
                                             </span>
@@ -298,7 +298,7 @@ const UserProfile = () => {
                                     onClick={() => navigate(`/dashboard/chat/${session.sessionId}`)}
                                     className="flex items-center gap-4 p-4 border-b border-border last:border-0 hover:bg-secondary/50 transition-colors cursor-pointer group"
                                 >
-                                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0 text-indigo-500 group-hover:scale-110 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0 text-indigo-500 dark:text-indigo-400 group-hover:scale-110 transition-transform">
                                         <MessageSquare className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1 min-w-0">

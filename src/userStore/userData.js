@@ -9,8 +9,8 @@ const getAvatarUrl = (user) => {
 
 const processUser = (user) => {
   if (user) {
-    // Always attempt to set a better avatar if one isn't explicitly set (or if it was the old default)
-    if (!user.avatar || user.avatar.includes('gravatar.com')) {
+    // Always attempt to set a better avatar if one isn't explicitly set, is the default, or is a relative path
+    if (!user.avatar || user.avatar.includes('gravatar.com') || user.avatar === '/User.jpeg' || user.avatar.startsWith('/')) {
       user.avatar = getAvatarUrl(user);
     }
   }

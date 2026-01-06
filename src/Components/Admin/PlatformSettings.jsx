@@ -10,26 +10,26 @@ const PlatformSettings = () => {
             <h2 className="text-xl font-bold text-maintext">Platform Settings & Safety</h2>
 
             {/* General Config */}
-            <div className="bg-surface border border-border rounded-xl p-6">
+            <div className="bg-card border border-border rounded-xl p-6">
                 <h3 className="font-bold text-maintext mb-4 flex items-center gap-2"><Settings className="w-5 h-5" /> General Configuration</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-maintext mb-2">Platform Name</label>
-                        <input type="text" defaultValue="AI-Mall" className="w-full bg-secondary border border-border rounded-lg px-4 py-2 text-sm outline-none" />
+                        <input type="text" defaultValue="AI-Mall" className="w-full bg-secondary border border-border rounded-lg px-4 py-2 text-sm outline-none text-maintext" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-maintext mb-2">Contact Email</label>
-                        <input type="text" defaultValue="support@aimall.com" className="w-full bg-secondary border border-border rounded-lg px-4 py-2 text-sm outline-none" />
+                        <input type="text" defaultValue="support@aimall.com" className="w-full bg-secondary border border-border rounded-lg px-4 py-2 text-sm outline-none text-maintext" />
                     </div>
                 </div>
             </div>
 
             {/* Safety & Emergency */}
             <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
-                <h3 className="font-bold text-red-600 mb-4 flex items-center gap-2"><ShieldAlert className="w-5 h-5" /> Safety & Emergency Controls</h3>
+                <h3 className="font-bold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2"><ShieldAlert className="w-5 h-5" /> Safety & Emergency Controls</h3>
 
                 <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-surface rounded-lg border border-border">
+                    <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                         <div>
                             <p className="font-bold text-maintext">Maintenance Mode</p>
                             <p className="text-sm text-subtext">Disable user access for system upgrades.</p>
@@ -39,12 +39,12 @@ const PlatformSettings = () => {
                         </button>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-surface rounded-lg border border-red-200">
+                    <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-red-500/20">
                         <div>
-                            <p className="font-bold text-red-600">Global Kill-Switch</p>
+                            <p className="font-bold text-red-600 dark:text-red-400">Global Kill-Switch</p>
                             <p className="text-sm text-subtext">Immediately disable ALL AI Agent inference APIs.</p>
                         </div>
-                        <button onClick={() => setKillSwitch(!killSwitch)} className={`text-2xl ${killSwitch ? 'text-red-600' : 'text-subtext'}`}>
+                        <button onClick={() => setKillSwitch(!killSwitch)} className={`text-2xl ${killSwitch ? 'text-red-600 dark:text-red-400' : 'text-subtext'}`}>
                             {killSwitch ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                         </button>
                     </div>
@@ -52,7 +52,7 @@ const PlatformSettings = () => {
             </div>
 
             {/* API Controls */}
-            <div className="bg-surface border border-border rounded-xl p-6">
+            <div className="bg-card border border-border rounded-xl p-6">
                 <h3 className="font-bold text-maintext mb-4 flex items-center gap-2"><Server className="w-5 h-5" /> API Rate Limits</h3>
                 <div className="space-y-4">
                     <div>
