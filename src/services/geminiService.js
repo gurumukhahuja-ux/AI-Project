@@ -20,6 +20,16 @@ export const generateChatResponse = async (history, currentMessage, systemInstru
 
     } catch (error) {
         console.error("Gemini API Error:", error);
-        return "Sorry, I am having trouble connecting to the A-Series network right now.";
+        if (error.response?.status === 429) {
+            return "The AI Mall system is currently busy (Quota limit reached). Please wait 60 seconds and try again.";
+        }
+        // Return backend error message if available
+        if (error.response?.data?.error) {
+            return `System Message: ${error.response.data.error}`;
+        }
+        if (error.response?.data?.details) {
+            return `System Error: ${error.response.data.details}`;
+        }
+        return "Sorry, I am having trouble connecting to the AI Mall network right now. Please check your connection.";
     }
 };
