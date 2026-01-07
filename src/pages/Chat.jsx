@@ -199,6 +199,22 @@ const Chat = () => {
 
   const { language: currentLang } = useLanguage();
 
+  const handleDriveClick = () => {
+    setIsAttachMenuOpen(false);
+    // Simulating Drive Integration via Link
+    const link = prompt("Paste your Google Drive File Link:");
+    if (link) {
+      const driveFile = {
+        name: "Google Drive File",
+        type: "application/vnd.google-apps.file",
+        size: 0,
+        isLink: true
+      };
+      setSelectedFile(driveFile);
+      setFilePreview(link);
+    }
+  };
+
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
     if ((!inputValue.trim() && !selectedFile) || isLoading) return;
@@ -1328,6 +1344,7 @@ For "Remix" requests with an attachment, analyze the attached image, then create
                         </div>
                         <span className="text-sm font-medium text-maintext group-hover:text-primary transition-colors">Upload files</span>
                       </label>
+
 
                       <label
                         htmlFor="drive-upload"

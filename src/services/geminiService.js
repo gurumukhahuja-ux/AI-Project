@@ -11,35 +11,31 @@ export const generateChatResponse = async (history, currentMessage, systemInstru
         const combinedSystemInstruction = (langInstruction + (systemInstruction || '')).trim();
 
         let image = null;
-        if (attachment && attachment.type === 'image' && attachment.url) {
-            // Extract base64 data (remove "data:image/png;base64," prefix)
-            const base64Data = attachment.url.split(',')[1];
-            // Infer mimeType or default to png
-            const mimeType = attachment.url.substring(attachment.url.indexOf(':') + 1, attachment.url.indexOf(';'));
-
-            image = {
-                mimeType,
-                base64Data
-            };
-        }
-
         let document = null;
-        if (attachment && (attachment.type === 'pdf' || attachment.type === 'file') && attachment.url) {
-            const base64Data = attachment.url.split(',')[1];
-            // Infer mimeType
-            const mimeType = attachment.url.substring(attachment.url.indexOf(':') + 1, attachment.url.indexOf(';'));
+        let finalMessage = currentMessage;
 
-            document = {
-                mimeType: mimeType || 'application/pdf',
-                base64Data
-            };
+        if (attachment && attachment.url) {
+            if (attachment.url.startsWith('data:')) {
+                // Handle Base64 Data URIs
+                const base64Data = attachment.url.split(',')[1];
+                const mimeType = attachment.url.substring(attachment.url.indexOf(':') + 1, attachment.url.indexOf(';'));
+
+                if (attachment.type === 'image') {
+                    image = { mimeType, base64Data };
+                } else {
+                    document = { mimeType: mimeType || 'application/pdf', base64Data };
+                }
+            } else {
+                // Handle External Links (Drive, etc.)
+                finalMessage = `${currentMessage} [Shared File: ${attachment.name || 'Link'} - ${attachment.url}]`.trim();
+            }
         }
 
         // Limit history to last 50 messages to prevent token overflow in unlimited chats
         const recentHistory = history.length > 50 ? history.slice(-50) : history;
 
         const payload = {
-            content: currentMessage,
+            content: finalMessage,
             history: recentHistory,
             systemInstruction: combinedSystemInstruction,
             image: image,
@@ -58,6 +54,13 @@ export const generateChatResponse = async (history, currentMessage, systemInstru
         if (error.response?.status === 429) {
             return "The AI Mall system is currently busy (Quota limit reached). Please wait 60 seconds and try again.";
         }
-        return "Sorry, I am having trouble connecting to the AI Mall network right now.";
+        // Return backend error message if available
+        if (error.response?.data?.error) {
+            return `System Message: ${error.response.data.error}`;
+        }
+        if (error.response?.data?.details) {
+            return `System Error: ${error.response.data.details}`;
+        }
+        return "Sorry, I am having trouble connecting to the AI Mall network right now. Please check your connection.";
     }
 };

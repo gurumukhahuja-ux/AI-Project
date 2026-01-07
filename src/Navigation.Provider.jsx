@@ -16,6 +16,7 @@ import VendorRegister from './pages/VendorRegister';
 import Invoices from './pages/Invoices';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
+import AiPersonalAssistantDashboard from './pages/AiPersonalAssistant/Dashboard';
 
 import { AppRoute } from './types';
 import { Menu } from 'lucide-react';
@@ -138,6 +139,7 @@ const NavigateProvider = () => {
           <Route path="chat/:sessionId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
           <Route path="overview" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
           <Route path="marketplace" element={<Marketplace />} />
+          <Route path="ai-personal-assistant" element={<ProtectedRoute><AiPersonalAssistantDashboard /></ProtectedRoute>} />
           {/* <Route path="live-demos" element={
             <Suspense fallback={<div className="flex items-center justify-center h-full"><p className="text-subtext">Loading...</p></div>}>
               <LiveDemoPage />

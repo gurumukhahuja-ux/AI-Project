@@ -454,6 +454,47 @@ export const apiService = {
       console.error("Failed to send reply:", error);
       throw error;
     }
+  },
+
+  // --- Personal Assistant ---
+  async getPersonalTasks(params) {
+    try {
+      const response = await apiClient.get('/personal-assistant/tasks', { params });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error);
+      return [];
+    }
+  },
+
+  async createPersonalTask(data) {
+    try {
+      const response = await apiClient.post('/personal-assistant/tasks', data);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to create task:", error);
+      throw error;
+    }
+  },
+
+  async updatePersonalTask(id, data) {
+    try {
+      const response = await apiClient.put(`/personal-assistant/tasks/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update task:", error);
+      throw error;
+    }
+  },
+
+  async deletePersonalTask(id) {
+    try {
+      const response = await apiClient.delete(`/personal-assistant/tasks/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+      throw error;
+    }
   }
 };
 

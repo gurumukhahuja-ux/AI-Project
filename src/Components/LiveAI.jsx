@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { X, Mic, MicOff, Camera, Video, Volume2, VolumeX } from 'lucide-react';
+import { X, Mic, MicOff, Camera, Video, VideoOff, Volume2, VolumeX } from 'lucide-react';
 import { generateChatResponse } from '../services/geminiService';
 import toast from 'react-hot-toast';
 
@@ -11,6 +11,8 @@ const LiveAI = ({ onClose, language }) => {
     const [aiResponse, setAiResponse] = useState('');
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [error, setError] = useState(null);
+    const [isVideoActive, setIsVideoActive] = useState(false);
+    const [duration, setDuration] = useState(0);
 
     const recognitionRef = useRef(null);
     const synthRef = useRef(window.speechSynthesis);
@@ -40,6 +42,18 @@ const LiveAI = ({ onClose, language }) => {
             }
         };
     }, []);
+
+    // Call Timer
+    useEffect(() => {
+        const timer = setInterval(() => setDuration(prev => prev + 1), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const formatDuration = (secs) => {
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
 
     // Capture Frame
     const captureFrame = useCallback(() => {
@@ -140,6 +154,15 @@ const LiveAI = ({ onClose, language }) => {
         }
     };
 
+    // Sync Video State
+    useEffect(() => {
+        if (videoRef.current && videoRef.current.srcObject) {
+            videoRef.current.srcObject.getVideoTracks().forEach(t => t.enabled = isVideoActive);
+        }
+    }, [isVideoActive]);
+
+    const toggleVideo = () => setIsVideoActive(prev => !prev);
+
     return (
         <div className="fixed inset-0 z-[200] bg-black flex flex-col text-white">
             {/* Video Feed */}
@@ -153,14 +176,16 @@ const LiveAI = ({ onClose, language }) => {
             <canvas ref={canvasRef} className="hidden" />
 
             {/* Overlay UI */}
-            <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start bg-gradient-to-b from-black/50 to-transparent">
-                <div className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full">
-                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-xs font-semibold">LIVE</span>
+            <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent z-10">
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 bg-red-500/20 border border-red-500/30 backdrop-blur-md px-3 py-1.5 rounded-full">
+                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        <span className="text-xs font-bold text-white tracking-widest">LIVE</span>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                        <span className="text-sm font-mono font-medium text-white/90">{formatDuration(duration)}</span>
+                    </div>
                 </div>
-                <button onClick={onClose} className="p-2 bg-black/30 backdrop-blur-md rounded-full hover:bg-white/20">
-                    <X className="w-6 h-6" />
-                </button>
             </div>
 
             {/* Subtitles / Status */}
@@ -182,37 +207,30 @@ const LiveAI = ({ onClose, language }) => {
                 </div>
 
                 {/* Controls */}
-                <div className="flex items-center gap-6 pb-4">
+                {/* Controls Bar */}
+                <div className="flex items-center gap-4 pb-8">
+                    {/* Video Toggle */}
                     <button
-                        onClick={() => {
-                            if (synthRef.current.speaking) synthRef.current.cancel();
-                            setAiResponse("");
-                        }}
-                        className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                        onClick={toggleVideo}
+                        className={`p-4 rounded-full transition-all duration-300 shadow-lg ${isVideoActive ? 'bg-white text-black hover:scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}
                     >
-                        <VolumeX className="w-6 h-6" />
+                        {isVideoActive ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
                     </button>
 
+                    {/* Mic Toggle */}
                     <button
                         onClick={toggleListening}
-                        className={`p-6 rounded-full transition-all duration-300 transform shadow-xl ${isListening
-                                ? 'bg-red-500 scale-110 ring-4 ring-red-500/30'
-                                : 'bg-white text-black hover:scale-105'
-                            }`}
+                        className={`p-4 rounded-full transition-all duration-300 shadow-lg ${isListening ? 'bg-white text-black hover:scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}
                     >
-                        {isListening ? (
-                            <div className="flex gap-1 h-6 items-center justify-center">
-                                <span className="w-1 h-3 bg-white rounded-full animate-[bounce_1s_infinite_0ms]" />
-                                <span className="w-1 h-5 bg-white rounded-full animate-[bounce_1s_infinite_200ms]" />
-                                <span className="w-1 h-3 bg-white rounded-full animate-[bounce_1s_infinite_400ms]" />
-                            </div>
-                        ) : (
-                            <Mic className="w-8 h-8" />
-                        )}
+                        {isListening ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
                     </button>
 
-                    <button className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-                        <Video className="w-6 h-6" />
+                    {/* End Call */}
+                    <button
+                        onClick={onClose}
+                        className="p-4 rounded-full bg-red-600 text-white hover:scale-105 transition-all shadow-lg"
+                    >
+                        <X className="w-6 h-6" />
                     </button>
                 </div>
             </div>

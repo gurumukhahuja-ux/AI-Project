@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Download, Check, Star, FileText, Play, X } from 'lucide-react';
+import { Search, Download, Check, Star, FileText, Play, X, Calendar } from 'lucide-react';
 import axios from 'axios';
 import { apis, AppRoute } from '../types';
 import { getUserData, toggleState } from '../userStore/userData';
@@ -178,6 +178,38 @@ const Marketplace = () => {
 
       {/* Agents Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Personal Assistant App Card */}
+        <div className="group bg-card border border-border hover:border-primary/50 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col h-full shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Calendar className="w-24 h-24 text-primary" />
+          </div>
+          <div className="flex justify-between items-start mb-4 relative z-10">
+            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg">
+              <Calendar className="w-10 h-10 text-white" />
+            </div>
+            <div className="bg-surface border border-border px-2 py-1 rounded-lg flex items-center gap-1">
+              <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+              <span className="text-xs font-bold text-maintext">5.0</span>
+            </div>
+          </div>
+
+          <div className="mb-1 relative z-10">
+            <h3 className="text-lg font-bold text-maintext">AI Personal Assistant</h3>
+          </div>
+
+          <span className="text-xs text-primary uppercase tracking-wider font-semibold mb-3 relative z-10">Productivity</span>
+
+          <p className="text-sm text-subtext mb-6 flex-1 relative z-10">
+            Your smart daily routine manager with voice reminders and scheduling.
+          </p>
+
+          <button
+            onClick={() => navigate('/dashboard/ai-personal-assistant')}
+            className="w-full py-2.5 rounded-xl font-semibold bg-primary text-white hover:opacity-90 shadow-lg shadow-primary/20 flex items-center justify-center gap-2 relative z-10"
+          >
+            Open App
+          </button>
+        </div>
         {loading ? <h1>Loading.....</h1> : filteredAgents.map(agent => (
           <div
             key={agent._id}
