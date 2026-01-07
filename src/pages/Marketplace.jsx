@@ -38,7 +38,10 @@ const Marketplace = () => {
         ]);
 
         if (userAgentsData.status === 'fulfilled') {
-          setUserAgent(userAgentsData.value.data?.agents || []);
+          const userAgents = userAgentsData.value.data?.agents || [];
+          console.log("[MARKETPLACE DEBUG] User agents from API:", userAgents);
+          console.log("[MARKETPLACE DEBUG] User agents IDs:", userAgents.map(ag => ag?._id));
+          setUserAgent(userAgents);
         } else {
           console.warn("User agents not loaded (might not be logged in)");
           setUserAgent([]);
@@ -58,7 +61,7 @@ const Marketplace = () => {
     };
 
     fetchData();
-  }, [agentId, user?.id, user?._id, subToggle]);
+  }, [agentId, user?.id, user?._id, subToggle.lastSubscription]);
 
 
   const toggleBuy = (id) => {
@@ -66,6 +69,19 @@ const Marketplace = () => {
       navigate(AppRoute.LOGIN)
       return
     }
+
+    // Check if user already owns this agent
+    const alreadyOwned = userAgent.some((ag) => ag && String(ag._id) === String(id));
+    console.log("[MARKETPLACE] toggleBuy called for agent:", id);
+    console.log("[MARKETPLACE] Already owned?", alreadyOwned);
+    console.log("[MARKETPLACE] User agents:", userAgent);
+
+    if (alreadyOwned) {
+      console.warn("[MARKETPLACE] Agent already owned, not opening modal");
+      alert("You already own this agent!");
+      return;
+    }
+
     setSubToggle({ ...subToggle, subscripPgTgl: true })
     setAgentId(id)
   };
@@ -215,14 +231,19 @@ const Marketplace = () => {
             {/* Install Button */}
             <div className="flex gap-2">
               <button
-                onClick={() => toggleBuy(agent._id)}
-                disabled={userAgent.some((ag) => ag && agent._id == ag._id)}
-                className={`flex-1 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${userAgent.some((ag) => ag && agent._id == ag._id)
+                onClick={() => {
+                  console.log("[MARKETPLACE] Agent clicked:", agent._id, agent.agentName);
+                  console.log("[MARKETPLACE] User agents:", userAgent);
+                  console.log("[MARKETPLACE] Is subscribed:", userAgent.some((ag) => ag && String(agent._id) === String(ag._id)));
+                  toggleBuy(agent._id);
+                }}
+                disabled={userAgent.some((ag) => ag && String(agent._id) === String(ag._id))}
+                className={`flex-1 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${userAgent.some((ag) => ag && String(agent._id) === String(ag._id))
                   ? 'bg-blue-50 text-subtext border border-blue-100 cursor-not-allowed opacity-70'
                   : 'bg-primary text-white hover:opacity-90 shadow-lg shadow-primary/20'
                   }`}
               >
-                {userAgent.some((ag) => ag && agent._id == ag._id) ? (
+                {userAgent.some((ag) => ag && String(agent._id) === String(ag._id)) ? (
                   <>
                     <Check className="w-4 h-4" /> Subscribed
                   </>
@@ -232,7 +253,7 @@ const Marketplace = () => {
                   </>
                 )}
               </button>
-              {userAgent.some((ag) => ag && agent._id == ag._id) && (
+              {userAgent.some((ag) => ag && String(agent._id) === String(ag._id)) && (
                 <button
                   onClick={() => {
                     navigate(AppRoute.INVOICES);

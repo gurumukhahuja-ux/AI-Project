@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { X } from 'lucide-react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -12,23 +12,46 @@ const SubscriptionForm = ({ id }) => {
   const currentUserData = useRecoilValue(userData);
   const user = currentUserData.user;
   const userId = user?.id || user?._id;
+  const [errorMessage, setErrorMessage] = useState("");
   console.log("SubscriptionForm: Using userId:", userId);
 
 
   function buyAgent(e) {
     e.preventDefault();
+    setErrorMessage(""); // Clear previous errors
 
     if (!userId) {
       console.error("User ID missing or not logged in");
+      setErrorMessage("Please login to subscribe");
       return;
     }
     axios.post(`${apis.buyAgent}/${id}`, { userId })
       .then((res) => {
-        setSubscripTgl({ ...subscripTgl, subscripPgTgl: false, notify: true });
+        setSubscripTgl({
+          ...subscripTgl,
+          subscripPgTgl: false,
+          notify: true,
+          lastSubscription: Date.now() // Force marketplace refresh
+        });
         console.log(res);
       })
       .catch((err) => {
-        console.log(err);
+        console.error("Subscription error:", err);
+
+        // Show specific error message in UI
+        const errorMsg = err.response?.data?.error || err.message || "Failed to subscribe";
+        setErrorMessage(errorMsg);
+
+        // Keep modal open if there's an error so user can see the message
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+          setSubscripTgl({
+            ...subscripTgl,
+            subscripPgTgl: false,
+            notify: true,
+            lastSubscription: Date.now() // Force refresh to show updated state
+          });
+        }, 3000);
       });
   }
 
@@ -71,6 +94,14 @@ const SubscriptionForm = ({ id }) => {
                 <span className="reduction"> Save 20% </span>
               </label>
             </div>
+
+            {/* Error Message Display */}
+            {errorMessage && (
+              <div className="error-message">
+                {errorMessage}
+              </div>
+            )}
+
             <button
               type="button"
               onClick={buyAgent}
@@ -191,6 +222,31 @@ const StyledWrapper = styled.div`
 
   .plan-option input {
     display: none;
+  }
+
+  .error-message {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    background-color: rgba(254, 226, 226, 1);
+    border: 1px solid rgba(239, 68, 68, 1);
+    color: rgba(185, 28, 28, 1);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }`;
 
 export default SubscriptionForm;
