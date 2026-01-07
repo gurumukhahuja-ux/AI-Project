@@ -124,6 +124,423 @@ const Chat = () => {
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename || 'download.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback to direct link if fetch fails
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.click();
+    }
+  };
+
+  const handleImageAction = (action) => {
+    if (!selectedFile) return;
+
+    let command = '';
+    switch (action) {
+      case 'remove-bg':
+        command = 'Remove the background and clean up this image.';
+        break;
+      case 'remix':
+        command = 'Create a stunning new image based on this attachment. Here are the details: ';
+        break;
+      case 'enhance':
+        command = 'Analyze the attached image and generate a higher quality version of it.';
+        break;
+      default:
+        break;
+    }
+    setInputValue(command);
+
+    if (action === 'remix') {
+      inputRef.current?.focus();
+      toast.success("Describe your changes and hit send!");
+    } else {
+      toast.success(`${action.replace('-', ' ')} processing...`);
+      setTimeout(() => handleSendMessage(), 100);
+    }
+  };
+  const inputRef = useRef(null);
+  const manualStopRef = useRef(false);
+  const isListeningRef = useRef(false);
+
+  // Timer for voice recording (Max 5 minutes)
+  useEffect(() => {
+    if (isListening) {
+      setListeningTime(0);
+      isListeningRef.current = true;
+      manualStopRef.current = false;
+      timerRef.current = setInterval(() => {
+        setListeningTime(prev => {
+          // Unlimited recording time
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+      setListeningTime(0);
+      isListeningRef.current = false;
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isListening]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const textRef = useRef(inputValue);
+
+  useEffect(() => {
+    textRef.current = inputValue;
+  }, [inputValue]);
+
+  const handleVoiceInput = () => {
+    if (isListening) {
+      manualStopRef.current = true;
+      isListeningRef.current = false;
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    startSpeechRecognition();
+  };
+
+  const startSpeechRecognition = () => {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      toast.error("Voice input not supported in this browser.");
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+
+    const langMap = {
+      'English': 'en-IN',
+      'Hindi': 'hi-IN',
+      'Urdu': 'ur-PK',
+      'Tamil': 'ta-IN',
+      'Telugu': 'te-IN',
+      'Kannada': 'kn-IN',
+      'Malayalam': 'ml-IN',
+      'Bengali': 'bn-IN',
+      'Marathi': 'mr-IN',
+      'Mandarin Chinese': 'zh-CN',
+      'Spanish': 'es-ES',
+      'French': 'fr-FR',
+      'German': 'de-DE',
+      'Japanese': 'ja-JP',
+      'Portuguese': 'pt-BR',
+      'Arabic': 'ar-SA',
+      'Korean': 'ko-KR',
+      'Italian': 'it-IT',
+      'Russian': 'ru-RU',
+      'Turkish': 'tr-TR',
+      'Dutch': 'nl-NL',
+      'Swedish': 'sv-SE',
+      'Norwegian': 'no-NO',
+      'Danish': 'da-DK',
+      'Finnish': 'fi-FI',
+      'Afrikaans': 'af-ZA',
+      'Zulu': 'zu-ZA',
+      'Xhosa': 'xh-ZA'
+    };
+
+    recognition.lang = langMap[currentLang] || 'en-IN';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    // Capture current input to append to using Ref to avoid stale closures
+    let sessionBaseText = textRef.current;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      isListeningRef.current = true;
+      manualStopRef.current = false;
+      inputRef.current?.focus();
+      if (listeningTime === 0) {
+        toast.success(`Microphone On: Speaking in ${currentLang}`);
+      }
+    };
+
+    recognition.onend = () => {
+      // Auto-restart logic for the 8-second browser cutoff
+      if (!manualStopRef.current && isListeningRef.current) {
+        // console.log('Auto-restarting speech recognition...');
+        setTimeout(() => {
+          if (isListeningRef.current) startSpeechRecognition();
+        }, 100);
+      } else {
+        setIsListening(false);
+        isListeningRef.current = false;
+      }
+    };
+
+    recognition.onresult = (event) => {
+      let speechToText = '';
+      for (let i = 0; i < event.results.length; i++) {
+        speechToText += event.results[i][0].transcript;
+      }
+      if (speechToText) {
+        // Use the base text captured at start of THIS session chunk
+        // Note: speechToText accumulates for the current session, so we append it to the base
+        setInputValue(sessionBaseText + (sessionBaseText ? ' ' : '') + speechToText);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error === 'not-allowed') {
+        toast.error("Microphone access denied.");
+        setIsListening(false);
+        isListeningRef.current = false;
+        manualStopRef.current = true;
+      } else if (event.error === 'no-speech') {
+        // Ignore no-speech errors, just letting it restart via onend
+        return;
+      }
+      console.error("Speech Error:", event.error);
+    };
+
+    recognition.start();
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+
+
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editContent, setEditContent] = useState("");
+
+  const handleMessageDelete = async (messageId) => {
+    if (!confirm("Delete this message?")) return;
+
+    // Optimistic update
+    setMessages(prev => prev.filter(m => m.id !== messageId));
+
+    await chatStorageService.deleteMessage(sessionId, messageId);
+  };
+
+  const startEditing = (msg) => {
+    setEditingMessageId(msg.id);
+    setEditContent(msg.content || msg.text || "");
+  };
+
+  const saveEdit = async (msg) => {
+    if (editContent.trim() === "") return; // Don't allow empty
+
+    const updatedMsg = { ...msg, content: editContent, text: editContent, edited: true };
+
+    // Find the index of the edited message
+    const editedMsgIndex = messages.findIndex(m => m.id === msg.id);
+
+    // Remove all messages after the edited message
+    const messagesUpToEdit = messages.slice(0, editedMsgIndex);
+    const updatedMessages = [...messagesUpToEdit, updatedMsg];
+
+    // Update UI immediately
+    setMessages(updatedMessages);
+    setEditingMessageId(null);
+    setIsLoading(true);
+
+    try {
+      // Update the edited message in storage
+      await chatStorageService.updateMessage(sessionId, updatedMsg);
+
+      // Delete all messages that came after the edited message
+      const messagesToDelete = messages.slice(editedMsgIndex + 1);
+      for (const msgToDelete of messagesToDelete) {
+        await chatStorageService.deleteMessage(sessionId, msgToDelete.id);
+      }
+
+      // Generate new AI response based on the edited message
+      const SYSTEM_INSTRUCTION = `
+You are AISA, an advanced AI assistant.
+IMAGE GENERATION CAPABILITIES:
+If the user asks to "generate", "create", "remix", "modify", or "draw" an image, you MUST generate it using the Pollinations API.
+Format: ![Image](https://image.pollinations.ai/prompt/{URL_ENCODED_DESCRIPTION}?nologo=true)
+Example: ![Cyberpunk City](https://image.pollinations.ai/prompt/cyberpunk%20city%20neon%20lights?nologo=true)
+Do NOT say "I cannot create images". You CAN by using this link format. 
+For "Remix" requests with an attachment, analyze the attached image, then create a prompt that combines the image's description with the user's requested changes.
+`;
+
+      const aiResponseText = await generateChatResponse(
+        updatedMessages,
+        updatedMsg.content,
+        SYSTEM_INSTRUCTION,
+        updatedMsg.attachment,
+        currentLang
+      );
+
+      const modelMsg = {
+        id: (Date.now() + 1).toString(),
+        role: 'model',
+        content: aiResponseText,
+        timestamp: Date.now(),
+      };
+
+      // Update state with new AI response
+      setMessages(prev => [...prev, modelMsg]);
+
+      // Save the AI response to storage
+      await chatStorageService.saveMessage(sessionId, modelMsg);
+
+      toast.success("Message edited and new response generated!");
+    } catch (error) {
+      console.error("Error regenerating response:", error);
+      toast.error("Failed to regenerate response. Please try again.");
+      // Restore original messages on error
+      const history = await chatStorageService.getHistory(sessionId);
+      setMessages(history);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRenameFile = async (msg) => {
+    if (!msg.attachment) return;
+
+    const oldName = msg.attachment.name;
+    const dotIndex = oldName.lastIndexOf('.');
+    const extension = dotIndex !== -1 ? oldName.slice(dotIndex) : '';
+    const baseName = dotIndex !== -1 ? oldName.slice(0, dotIndex) : oldName;
+
+    const newBaseName = prompt("Enter new filename:", baseName);
+    if (!newBaseName || newBaseName === baseName) return;
+
+    const newName = newBaseName + extension;
+    const updatedMsg = {
+      ...msg,
+      attachment: {
+        ...msg.attachment,
+        name: newName
+      }
+    };
+
+    setMessages(prev => prev.map(m => m.id === msg.id ? updatedMsg : m));
+    await chatStorageService.updateMessage(sessionId, updatedMsg);
+  };
+
+  const cancelEdit = () => {
+    setEditingMessageId(null);
+    setEditContent("");
+  };
+
+  const [viewingDoc, setViewingDoc] = useState(null);
+  const docContainerRef = useRef(null);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setViewingDoc(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  // Process Word documents
+  useEffect(() => {
+    if (viewingDoc && viewingDoc.name.match(/\.(docx|doc)$/i) && docContainerRef.current) {
+      // Clear previous content
+      docContainerRef.current.innerHTML = '';
+
+      fetch(viewingDoc.url)
+        .then(res => res.blob())
+        .then(blob => {
+          renderAsync(blob, docContainerRef.current, undefined, {
+            inWrapper: true,
+            ignoreWidth: false,
+            className: "docx-viewer"
+          }).catch(err => {
+            console.error("Docx Preview Error:", err);
+            docContainerRef.current.innerHTML = '<div class="text-center p-10 text-subtext">Preview not available.<br/>Please download to view.</div>';
+          });
+        });
+    }
+  }, [viewingDoc]);
+
+  // Process Excel documents
+  useEffect(() => {
+    if (viewingDoc && viewingDoc.name.match(/\.(xls|xlsx|csv)$/i)) {
+      setExcelHTML(null); // Reset
+      fetch(viewingDoc.url)
+        .then(res => res.arrayBuffer())
+        .then(ab => {
+          const wb = XLSX.read(ab, { type: 'array' });
+          const firstSheetName = wb.SheetNames[0];
+          const ws = wb.Sheets[firstSheetName];
+          const html = XLSX.utils.sheet_to_html(ws, { id: "excel-preview", editable: false });
+          setExcelHTML(html);
+        })
+        .catch(err => {
+          console.error("Excel Preview Error:", err);
+          setExcelHTML('<div class="text-center p-10 text-red-500">Failed to load Excel preview.</div>');
+        });
+    }
+  }, [viewingDoc]);
+
+  // Process Text/Code documents
+  useEffect(() => {
+    // Check if handled by other specific viewers
+    const isSpecial = viewingDoc?.name.match(/\.(docx|doc|xls|xlsx|csv|pdf|mp4|webm|ogg|mov|mp3|wav|m4a|jpg|jpeg|png|gif|webp|bmp|svg)$/i) || viewingDoc?.url.startsWith('data:image/');
+
+    if (viewingDoc && !isSpecial) {
+      setTextPreview(null);
+      fetch(viewingDoc.url)
+        .then(res => res.text())
+        .then(text => {
+          if (text.length > 5000000) {
+            setTextPreview(text.substring(0, 5000000) + "\n\n... (File truncated due to size)");
+          } else {
+            setTextPreview(text);
+          }
+        })
+        .catch(err => {
+          console.error("Text Preview Error:", err);
+          setTextPreview("Failed to load text content.");
+        });
+    }
+  }, [viewingDoc]);
+
+>>>>>>> b34aed77ce10bd9b13de520cdb73ac689f1822ef
   return (
     <div className="flex h-full w-full bg-white relative overflow-hidden">
 
