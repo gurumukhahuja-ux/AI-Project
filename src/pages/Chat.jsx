@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
-import { Send, Bot, User, Sparkles, Plus, Monitor, ChevronDown, History, Paperclip, X, FileText, Image as ImageIcon, Cloud, HardDrive, Edit2, Download, Mic, Wand2, Eye, FileSpreadsheet, Presentation, File, MoreVertical, Trash2, Check, Camera, Video } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Plus, Monitor, ChevronDown, History, Paperclip, X, FileText, Image as ImageIcon, Cloud, HardDrive, Edit2, Download, Mic, Wand2, Eye, FileSpreadsheet, Presentation, File, MoreVertical, Trash2, Check, Camera, Video, Copy, ThumbsUp, ThumbsDown, Share } from 'lucide-react';
 import { renderAsync } from 'docx-preview';
 import * as XLSX from 'xlsx';
-import { Menu, Transition } from '@headlessui/react';
+import { Menu, Transition, Dialog } from '@headlessui/react';
 import { generateChatResponse } from '../services/geminiService';
 import { chatStorageService } from '../services/chatStorageService';
 import { useLanguage } from '../context/LanguageContext';
@@ -15,6 +15,8 @@ import toast from 'react-hot-toast';
 import LiveAI from '../Components/LiveAI';
 
 import ImageEditor from '../Components/ImageEditor';
+import axios from 'axios';
+import { apis } from '../types';
 
 const Chat = () => {
   const { sessionId } = useParams();
@@ -215,14 +217,18 @@ const Chat = () => {
     }
   };
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async (e, overrideContent) => {
     if (e) e.preventDefault();
-    if ((!inputValue.trim() && !selectedFile) || isLoading) return;
+
+    // Use overrideContent if provided (for instant voice sending), otherwise fallback to state
+    const contentToSend = typeof overrideContent === 'string' ? overrideContent : inputValue.trim();
+
+    if ((!contentToSend && !selectedFile) || isLoading) return;
 
     let activeSessionId = currentSessionId;
     let isFirstMessage = false;
 
-    // Stop listening if send is clicked
+    // Stop listening if send is clicked (or auto-sent)
     if (isListening && recognitionRef.current) {
       recognitionRef.current.stop();
       setIsListening(false);
@@ -237,7 +243,7 @@ const Chat = () => {
       const userMsg = {
         id: Date.now().toString(),
         role: 'user',
-        content: inputValue.trim() || (selectedFile ? "Describe this image" : ""),
+        content: contentToSend || (selectedFile ? "Describe this image" : ""),
         timestamp: Date.now(),
         attachment: selectedFile ? {
           type: selectedFile.type.startsWith('image/') ? 'image' : 'file',
@@ -265,14 +271,23 @@ const Chat = () => {
         // Send to AI for response
         const SYSTEM_INSTRUCTION = `
 You are AISA, an advanced AI assistant.
+
+### RESPONSE FORMATTING RULES (STRICT):
+1.  **Structure**: ALWAYS use **Bold Headings** and **Bullet Points**. Avoid long paragraphs.
+2.  **Point-wise Answers**: Break down complex topics into simple points.
+3.  **Highlights**: Bold key terms and important concepts (e.g., **RAM**, **CPU**).
+4.  **Summary**: Include a "One-line summary" or "Simple definition" at the start or end where appropriate.
+5.  **Emojis**: Use relevant emojis to make the content engaging (e.g., 💡, 🚀, 👉).
+6.  **Clarity**: Keep sentences short and clear.
+
 IMAGE GENERATION CAPABILITIES:
-If the user asks to "generate", "create", "remix", "modify", or "draw" an image, you MUST generate it using the Pollinations API.
+If the user asks for an image (e.g., "generate", "create", "draw", "show me a pic", "image dikhao", "photo bhejo", "pic do"), you MUST generate it using the Pollinations API.
 Format: ![Image](https://image.pollinations.ai/prompt/{URL_ENCODED_DESCRIPTION}?nologo=true)
 Example: ![Cyberpunk City](https://image.pollinations.ai/prompt/cyberpunk%20city%20neon%20lights?nologo=true)
 Do NOT say "I cannot create images". You CAN by using this link format. 
 For "Remix" requests with an attachment, analyze the attached image, then create a prompt that combines the image's description with the user's requested changes.
 `;
-        const aiResponseText = await generateChatResponse(updatedMessages, userMsg.content, SYSTEM_INSTRUCTION, userMsg.attachment, currentLang);
+        const aiResponseText = await generateChatResponse(messages, userMsg.content, SYSTEM_INSTRUCTION, userMsg.attachment, currentLang);
 
         const modelMsg = {
           id: (Date.now() + 1).toString(),
@@ -493,10 +508,35 @@ For "Remix" requests with an attachment, analyze the attached image, then create
       for (let i = 0; i < event.results.length; i++) {
         speechToText += event.results[i][0].transcript;
       }
-      if (speechToText) {
-        // Use the base text captured at start of THIS session chunk
-        // Note: speechToText accumulates for the current session, so we append it to the base
-        setInputValue(sessionBaseText + (sessionBaseText ? ' ' : '') + speechToText);
+
+      const lowerTranscript = speechToText.toLowerCase();
+      // Auto-send triggers
+      const triggers = ['yes send it', 'send message', 'bhej do', 'send it', 'yes send', 'ok send it', 'ok send'];
+      const matchedTrigger = triggers.find(t => lowerTranscript.includes(t));
+
+      if (matchedTrigger) {
+        // Stop listening immediately
+        manualStopRef.current = true;
+        isListeningRef.current = false;
+        recognition.stop();
+        setIsListening(false);
+
+        // Remove the trigger phrase from the final text
+        // Remove the trigger phrase (and any trailing punctuation) from the final text
+        // We create a regex that matches the trigger, optionally followed by non-word chars (like punctuation)
+        const cleanupRegex = new RegExp(`${matchedTrigger}[\\s.!?]*`, 'gi');
+        let finalText = (sessionBaseText + (sessionBaseText ? ' ' : '') + speechToText).replace(cleanupRegex, '').trim();
+
+        // Update state (visual feedback)
+        setInputValue(finalText);
+
+        // Send IMMEDIATELY with explicit content, bypassing state delay
+        handleSendMessage(null, finalText);
+
+      } else {
+        if (speechToText) {
+          setInputValue(sessionBaseText + (sessionBaseText ? ' ' : '') + speechToText);
+        }
       }
     };
 
@@ -538,13 +578,104 @@ For "Remix" requests with an attachment, analyze the attached image, then create
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editContent, setEditContent] = useState("");
 
+  // Feedback State
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackMsgId, setFeedbackMsgId] = useState(null);
+  const [feedbackCategory, setFeedbackCategory] = useState([]);
+  const [feedbackDetails, setFeedbackDetails] = useState("");
+
+  const handleThumbsDown = (msgId) => {
+    setFeedbackMsgId(msgId);
+    setFeedbackOpen(true);
+    setFeedbackCategory([]);
+    setFeedbackDetails("");
+  };
+
+  const handleThumbsUp = async (msgId) => {
+    try {
+      await axios.post(apis.feedback, {
+        sessionId: sessionId || 'unknown',
+        messageId: msgId,
+        type: 'thumbs_up'
+      });
+      toast.success("Thanks for the positive feedback!", {
+        icon: '👍',
+      });
+    } catch (error) {
+      console.error("Feedback error:", error);
+      toast.error("Failed to submit feedback");
+    }
+  };
+
+  const handleShare = async (content) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'AI Assistant Response',
+          text: content,
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      handleCopyMessage(content);
+      toast("Content copied to clipboard", { icon: '📋' });
+    }
+  };
+
+  const submitFeedback = async () => {
+    try {
+      await axios.post(apis.feedback, {
+        sessionId: sessionId || 'unknown',
+        messageId: feedbackMsgId,
+        type: 'thumbs_down',
+        categories: feedbackCategory,
+        details: feedbackDetails
+      });
+      toast.success("Feedback submitted. Thank you!");
+      setFeedbackOpen(false);
+    } catch (error) {
+      console.error("Feedback error:", error);
+      toast.error("Failed to submit feedback");
+    }
+  };
+
+  const toggleFeedbackCategory = (cat) => {
+    setFeedbackCategory(prev =>
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+    );
+  };
+
+  const handleCopyMessage = (content) => {
+    navigator.clipboard.writeText(content);
+    toast.success("Copied to clipboard!");
+  };
+
   const handleMessageDelete = async (messageId) => {
     if (!confirm("Delete this message?")) return;
 
-    // Optimistic update
-    setMessages(prev => prev.filter(m => m.id !== messageId));
+    // Find the message index
+    const msgIndex = messages.findIndex(m => m.id === messageId);
+    if (msgIndex === -1) return;
 
-    await chatStorageService.deleteMessage(sessionId, messageId);
+    const msgsToDelete = [messageId];
+
+    // Check if the NEXT message is an AI response (model), if so, delete it too
+    // We only auto-delete the immediate next AI response associated with this user query
+    if (msgIndex + 1 < messages.length) {
+      const nextMsg = messages[msgIndex + 1];
+      if (nextMsg.role === 'model') {
+        msgsToDelete.push(nextMsg.id);
+      }
+    }
+
+    // Optimistic update
+    setMessages(prev => prev.filter(m => !msgsToDelete.includes(m.id)));
+
+    // Delete from storage
+    for (const id of msgsToDelete) {
+      await chatStorageService.deleteMessage(sessionId, id);
+    }
   };
 
   const startEditing = (msg) => {
@@ -583,7 +714,7 @@ For "Remix" requests with an attachment, analyze the attached image, then create
       const SYSTEM_INSTRUCTION = `
 You are AISA, an advanced AI assistant.
 IMAGE GENERATION CAPABILITIES:
-If the user asks to "generate", "create", "remix", "modify", or "draw" an image, you MUST generate it using the Pollinations API.
+If the user asks for an image (e.g., "generate", "create", "draw", "show me a pic", "image dikhao", "photo bhejo", "pic do"), you MUST generate it using the Pollinations API.
 Format: ![Image](https://image.pollinations.ai/prompt/{URL_ENCODED_DESCRIPTION}?nologo=true)
 Example: ![Cyberpunk City](https://image.pollinations.ai/prompt/cyberpunk%20city%20neon%20lights?nologo=true)
 Do NOT say "I cannot create images". You CAN by using this link format. 
@@ -591,7 +722,7 @@ For "Remix" requests with an attachment, analyze the attached image, then create
 `;
 
       const aiResponseText = await generateChatResponse(
-        updatedMessages,
+        messagesUpToEdit,
         updatedMsg.content,
         SYSTEM_INSTRUCTION,
         updatedMsg.attachment,
@@ -1018,73 +1149,12 @@ For "Remix" requests with an attachment, analyze the attached image, then create
                       } max-w-[85%] sm:max-w-[80%]`}
                   >
                     <div
-                      className={`group/bubble relative px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${msg.role === 'user'
+                      className={`group/bubble relative px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm w-fit max-w-full ${msg.role === 'user'
                         ? 'bg-primary text-white rounded-tr-none'
                         : 'bg-surface border border-border text-maintext rounded-tl-none'
                         }`}
                     >
-                      {/* Message Actions (Inside Bubble - WhatsApp Style) */}
-                      <div className={`absolute top-0.5 right-0.5 opacity-0 group-hover/bubble:opacity-100 transition-opacity z-20`}>
-                        <Menu as="div" className="relative inline-block text-left">
-                          <Menu.Button className={`p-0.5 rounded-full ${msg.role === 'user' ? 'hover:bg-black/20 text-white/70 hover:text-white' : 'hover:bg-black/5 text-subtext hover:text-maintext'} transition-colors`}>
-                            <ChevronDown className="w-3 h-3" />
-                          </Menu.Button>
-                          <Transition
-                            as={Fragment}
-                            enter="transition ease-out duration-100"
-                            enterFrom="transform opacity-0 scale-95"
-                            enterTo="transform opacity-100 scale-100"
-                            leave="transition ease-in duration-75"
-                            leaveFrom="transform opacity-100 scale-100"
-                            leaveTo="transform opacity-0 scale-95"
-                          >
-                            <Menu.Items className="absolute right-0 mt-1 w-32 origin-top-right divide-y divide-border rounded-md bg-surface shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border border-border z-30">
-                              <div className="p-1">
-                                {msg.role === 'user' && !msg.attachment && (
-                                  <Menu.Item>
-                                    {({ active }) => (
-                                      <button
-                                        onClick={() => startEditing(msg)}
-                                        className={`${active ? 'bg-primary/10 text-primary' : 'text-maintext'
-                                          } group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-                                      >
-                                        <Edit2 className="mr-2 h-3.5 w-3.5" />
-                                        Edit
-                                      </button>
-                                    )}
-                                  </Menu.Item>
-                                )}
-                                {msg.role === 'user' && msg.attachment && (
-                                  <Menu.Item>
-                                    {({ active }) => (
-                                      <button
-                                        onClick={() => handleRenameFile(msg)}
-                                        className={`${active ? 'bg-primary/10 text-primary' : 'text-maintext'
-                                          } group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-                                      >
-                                        <Edit2 className="mr-2 h-3.5 w-3.5" />
-                                        Rename File
-                                      </button>
-                                    )}
-                                  </Menu.Item>
-                                )}
-                                <Menu.Item>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => handleMessageDelete(msg.id)}
-                                      className={`${active ? 'bg-red-500/10 text-red-500' : 'text-red-500'
-                                        } group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-                                    >
-                                      <Trash2 className="mr-2 h-3.5 w-3.5" />
-                                      Delete
-                                    </button>
-                                  )}
-                                </Menu.Item>
-                              </div>
-                            </Menu.Items>
-                          </Transition>
-                        </Menu>
-                      </div>
+
                       {/* Attachment Display */}
                       {msg.attachment && (
                         <div className="mb-3 mt-1">
@@ -1172,12 +1242,12 @@ For "Remix" requests with an attachment, analyze the attached image, then create
                       )}
 
                       {editingMessageId === msg.id ? (
-                        <div className="flex flex-col gap-2 min-w-[200px] w-full mt-1">
+                        <div className="flex flex-col gap-3 min-w-[200px] w-full">
                           <textarea
                             value={editContent}
                             onChange={(e) => setEditContent(e.target.value)}
-                            className="w-full bg-black/20 text-maintext dark:text-white rounded-lg p-3 text-sm focus:outline-none resize-none border border-white/10 ring-1 ring-white/5"
-                            rows={3}
+                            className="w-full bg-white/10 text-white rounded-xl p-3 text-sm focus:outline-none resize-none border border-white/20 placeholder-white/50"
+                            rows={2}
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter' && !e.shiftKey) {
@@ -1187,18 +1257,62 @@ For "Remix" requests with an attachment, analyze the attached image, then create
                               if (e.key === 'Escape') cancelEdit();
                             }}
                           />
-                          <div className="flex gap-2 justify-end">
-                            <button onClick={cancelEdit} className="text-subtext hover:text-maintext text-xs px-2 py-1 rounded hover:bg-black/5 transition-colors">Cancel</button>
-                            <button onClick={() => saveEdit(msg)} className="bg-primary text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors shadow-sm">Save</button>
+                          <div className="flex gap-3 justify-end items-center">
+                            <button
+                              onClick={cancelEdit}
+                              className="text-white/80 hover:text-white text-sm font-medium transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => saveEdit(msg)}
+                              className="bg-white text-primary px-6 py-2 rounded-full text-sm font-bold hover:bg-white/90 transition-colors shadow-sm"
+                            >
+                              Update
+                            </button>
                           </div>
                         </div>
                       ) : (
                         msg.content && (
-                          <div className={`prose prose-invert max-w-none ${msg.role === 'user' ? 'text-white' : 'text-maintext'}`}>
+                          <div className={`prose prose-invert max-w-full break-words ${msg.role === 'user' ? 'text-white' : 'text-maintext'}`}>
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               components={{
-                                p: ({ children }) => <p className="mb-0">{children}</p>,
+                                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                                code: ({ node, inline, className, children, ...props }) => {
+                                  const match = /language-(\w+)/.exec(className || '');
+                                  const lang = match ? match[1] : '';
+
+                                  if (!inline && match) {
+                                    return (
+                                      <div className="rounded-xl overflow-hidden my-4 border border-border bg-[#1e1e1e] shadow-md w-full max-w-full">
+                                        <div className="flex items-center justify-between px-4 py-2 bg-[#2d2d2d] border-b border-[#404040]">
+                                          <span className="text-xs font-mono text-gray-300 lowercase">{lang}</span>
+                                          <button
+                                            onClick={() => {
+                                              navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
+                                              toast.success("Code copied!");
+                                            }}
+                                            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors"
+                                          >
+                                            <Copy className="w-3.5 h-3.5" />
+                                            Copy code
+                                          </button>
+                                        </div>
+                                        <div className="p-4 overflow-x-auto custom-scrollbar bg-[#1e1e1e]">
+                                          <code className={`${className} font-mono text-sm leading-relaxed text-[#d4d4d4] block min-w-full`} {...props}>
+                                            {children}
+                                          </code>
+                                        </div>
+                                      </div>
+                                    );
+                                  }
+                                  return (
+                                    <code className="bg-black/10 dark:bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-primary font-bold mx-0.5" {...props}>
+                                      {children}
+                                    </code>
+                                  );
+                                },
                                 img: ({ node, ...props }) => (
                                   <div className="relative group/generated mt-4 mb-2 overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all hover:scale-[1.01] bg-surface/50 backdrop-blur-sm">
                                     <div className="absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/60 to-transparent z-10 flex justify-between items-center opacity-0 group-hover/generated:opacity-100 transition-opacity">
@@ -1235,6 +1349,43 @@ For "Remix" requests with an attachment, analyze the attached image, then create
                           </div>
                         )
                       )}
+
+                      {/* AI Feedback Actions */}
+                      {msg.role !== 'user' && (
+                        <div className="mt-1 pt-2 border-t border-transparent">
+                          <p className="text-sm text-maintext mb-2 flex items-center gap-1">Just tell me <span className="text-base">😊</span></p>
+                          <div className="flex items-center gap-4">
+                            <button
+                              onClick={() => handleCopyMessage(msg.content)}
+                              className="text-subtext hover:text-maintext transition-colors"
+                              title="Copy"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleThumbsUp(msg.id)}
+                              className="text-subtext hover:text-primary transition-colors"
+                              title="Helpful"
+                            >
+                              <ThumbsUp className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleThumbsDown(msg.id)}
+                              className="text-subtext hover:text-red-500 transition-colors"
+                              title="Not Helpful"
+                            >
+                              <ThumbsDown className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleShare(msg.content)}
+                              className="text-subtext hover:text-primary transition-colors"
+                              title="Share"
+                            >
+                              <Share className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <span className="text-[10px] text-subtext mt-1 px-1">
                       {new Date(msg.timestamp).toLocaleTimeString([], {
@@ -1243,6 +1394,44 @@ For "Remix" requests with an attachment, analyze the attached image, then create
                       })}
                     </span>
                   </div>
+
+                  {/* Hover Actions - User Only (AI has footer) */}
+                  {msg.role === 'user' && (
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 self-start mt-2 mr-0 flex-row-reverse">
+                      <button
+                        onClick={() => handleCopyMessage(msg.content || msg.text)}
+                        className="p-1.5 text-subtext hover:text-primary hover:bg-surface rounded-full transition-colors"
+                        title="Copy"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      {!msg.attachment && (
+                        <button
+                          onClick={() => startEditing(msg)}
+                          className="p-1.5 text-subtext hover:text-primary hover:bg-surface rounded-full transition-colors"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      {msg.attachment && (
+                        <button
+                          onClick={() => handleRenameFile(msg)}
+                          className="p-1.5 text-subtext hover:text-primary hover:bg-surface rounded-full transition-colors"
+                          title="Rename"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleMessageDelete(msg.id)}
+                        className="p-1.5 text-subtext hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -1498,6 +1687,87 @@ For "Remix" requests with an attachment, analyze the attached image, then create
           />
         )}
       </AnimatePresence>
+
+      {/* Feedback Modal */}
+      <Transition appear show={feedbackOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setFeedbackOpen(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-surface p-6 text-left align-middle shadow-xl transition-all border border-border">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-maintext flex justify-between items-center"
+                  >
+                    Share feedback
+                    <button onClick={() => setFeedbackOpen(false)} className="text-subtext hover:text-maintext">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </Dialog.Title>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {["Incorrect or incomplete", "Not what I asked for", "Slow or buggy", "Style or tone", "Safety or legal concern", "Other"].map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => toggleFeedbackCategory(cat)}
+                        className={`text-xs px-3 py-2 rounded-full border transition-colors ${feedbackCategory.includes(cat)
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-transparent text-subtext border-border hover:border-maintext'
+                          }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-4">
+                    <textarea
+                      className="w-full bg-black/5 dark:bg-white/5 rounded-xl p-3 text-sm focus:outline-none border border-transparent focus:border-border text-maintext placeholder-subtext resize-none"
+                      rows={3}
+                      placeholder="Share details (optional)"
+                      value={feedbackDetails}
+                      onChange={(e) => setFeedbackDetails(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mt-4 text-[10px] text-subtext leading-tight">
+                    Your conversation will be included with your feedback to help improve the AI.
+                  </div>
+
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/75"
+                      onClick={submitFeedback}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 };

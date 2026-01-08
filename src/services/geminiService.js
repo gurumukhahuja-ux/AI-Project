@@ -52,6 +52,9 @@ export const generateChatResponse = async (history, currentMessage, systemInstru
     } catch (error) {
         console.error("Gemini API Error:", error);
         if (error.response?.status === 429) {
+            // Allow backend detail to override if present, otherwise default
+            const detail = error.response?.data?.details || error.response?.data?.error;
+            if (detail) return `System Busy (429): ${detail}`;
             return "The AI Mall system is currently busy (Quota limit reached). Please wait 60 seconds and try again.";
         }
         // Return backend error message if available
